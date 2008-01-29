@@ -1,0 +1,20 @@
+"title","body","free tagging","free tagging required","single select","single select required","multiple select","multiple select required"
+"instructions (taxonomy.inc test)","
+This CSV import tests some cases for taxonomy.inc.
+
+It will assume the following vocabularies:
+1. 'free tagging' : a free tagging vocabulary with only 'ft1' and 'ft2' as terms,
+2. 'free tagging required' : a free tagging vocabulary required for 'page' with only 'ftr1' and 'ftr2' as terms,
+3. 'single select' : a single select vocabulary with only 'ss1' and 'ss2' as terms,
+4. 'single select required' : a single select vocabulary required for 'page' with only 'ssr1' and 'ssr2' as terms,
+5. 'multiple select' : a multiple select vocabulary with only 'ms1' and 'ms2' as terms,
+6. 'multiple select required' : a multiple select vocabulary required for 'page' with only 'msr1' and 'msr2' as terms.",,,,,,
+"taxonomy test 1","should fail (ftr, ssr, msr) if no options set",,,,,,
+"taxonomy test 2","should fail (ssr, msr) if no options set",,"ftr1",,,,
+"taxonomy test 3","should fail (ssr, msr) if no options set",,"ftr3",,,,
+"taxonomy test 4","should fail (ftr, msr) if no options set",,,,"ssr1",,
+"taxonomy test 5","should fail (ftr, ssr) if no options set",,,,,,"msr1"
+"taxonomy test 6","should succeed if no options set",,"ftr1",,"ssr1",,"msr1"
+"taxonomy test 7","should succeed if no options set",,"ftr1",,"ssr1",,"msr1|msr2"
+"taxonomy test 8","add/warn/ignore test: ss3,ssr3,ms3,msr3",,"ftr1","ss3","ssr3","ms3","msr3"
+"taxonomy test 9","add/warn/ignore test: ss1|ss2|ss3,ssr1|ssr2|ssr3,ms3,msr3","ft1,ft2","ftr1","ss1|ss2|ss3","ssr1|ssr2|ssr3","ms1|ms2|ms3","msr1|msr2|msr3"

@@ -1,0 +1,3 @@
+title,body,"page title"
+"page_title.inc test 1", "Should use the normal title as page title", ""
+"page_title.inc test 2", "Should use a different page title", "this is the different title"

@@ -1,0 +1,7 @@
+title,body,url
+"Instructions (url.inc)","This file assumes you have created a CCK content type with one URL field.",""
+"url.inc test 1","Empty URL",""
+"url.inc test 2","Full URL","http://www.example.org"
+"url.inc test 3","Absolute path","/foo/bar.html"
+"url.inc test 4","Relative path","foo/bar.html"
+"url.inc test 5","Mailto link","mailto:foo.bar@example.org"

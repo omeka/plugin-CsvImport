@@ -1,0 +1,23 @@
+"title","body","name","date","promoted","sticky","revision","moderate","published","changed"
+"instructions (node.inc test)","
+This tests the normal node options such as user and the workflow options.
+
+This test assumes that:
+1. there is a user called 'robrechtj',
+2. there is no user called 'jacques',
+3. there is a user with uid = '2',
+4. there is no user with uid = '3'.",,,,,,,
+"node test 1","should create a node of current user",,,,,,
+"node test 2","should create a node of 'robrechtj'",robrechtj,,,,,,
+"node test 3","should create a node of '2 = robrechtj'",2,,,,,,
+"node test 4","should not create a node (no such user)",jacques,,,,,,
+"node test 5","should not create a node (no such user)",3,,,,,,
+"","should not create a node (no title)",,,,,,,
+"node test 7","should create a node with different date",,"01/09/2006 23:00",,,,,
+"node test 8","should create a node with different options (all enabled)",,,1,1,1,1,1,
+"node test 9","should create a node with different options (all disabled)",,,0,0,0,0,0,
+"node test 10", "should create a node with only promoted option set",,,1,0,0,0,0
+"node test 11", "should create a node with only sticky option set",,,0,1,0,0,0
+"node test 12", "should create a node with promoted option set and others should be default",,,1
+"unique title?","should create the node"
+"unique title?","should not create the node if unique title option is set"

@@ -1,0 +1,24 @@
+<?php
+// CsvImport import script
+
+// Set the PHP memory limit high or risk exceeding the maximum memory limit.
+ini_set('memory_limit', '500M');
+
+// Require the necessary scripts.
+require_once 'config.php';
+require_once CSVIMPORT_MODELS_DIRECTORY . DIRECTORY_SEPARATOR . 'Import.php';
+
+try {
+    // Require the virtual Omeka environment script, which establishes the minimum Omeka 
+    // functionality needed, including database connectivity, functions, and models. This 
+    // is needed because Omeka doesn't have phased loading (like Drupal does), which lets 
+    // developers choose how much of the system environment they want to load.
+    require_once 'virtual_omeka_environment.php';
+    
+    // Do the import. ($argv is an automatically generated array containing the arguments 
+    // in a shell command.)
+    $import = new Import($argv);
+
+} catch (Exception $e) {
+    echo $e->getMessage();
+}

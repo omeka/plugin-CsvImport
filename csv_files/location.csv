@@ -1,0 +1,18 @@
+"title","body","country","state","city","street"
+"instructions (location.inc)","
+This CSV file tests the location.inc support.
+
+To use this file:
+- enable locative information for the page content type."
+"location test 1","no values entered, should give the default country (us)"
+"locatoin test 2","valid country code","be"
+"location test 3","valid country name","belgium"
+"location test 4","invalid country code","zz"
+"location test 5","invalid country name","Land of Dreams"
+"location test 6","valid province code","","us-ny"
+"location test 7","valid province name, because we give the full name, we'll detect the country too","","new york"
+"location test 8","invalid province code because we don't know the country","","ny"
+"location test 9","valid country & state","us","us-ny"
+"location test 10","valid country & state","us","ny"
+"location test 11","valid country & state","us","new york"
+"location test 12","invalid state for this country","be","ny"

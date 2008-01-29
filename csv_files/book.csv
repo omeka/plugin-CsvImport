@@ -1,0 +1,5 @@
+title,body,parent,weight
+"book.inc test 1", "Should create a toplevel page", "", ""
+"book.inc test 2", "Should create a child page of book.inc test 1", "book.inc test 1", ""
+"book.inc test 3", "Should create a child page of book.inc test 1 with low weight", "book.inc test 1", "-5"
+"book.inc test 4", "Should not create a book page as there is no such parent node", "no such node", ""
