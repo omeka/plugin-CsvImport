@@ -1,9 +1,0 @@
-"title","body","start date","end date","start day","start month","start year","start hour","start minute","end day","end month","end year","end hour","end minute"
-"instructions (event.inc)","
-This CSV file tests whether import of event-enabled modules works.
-
-To use this file:
-- enable event information for the page content type."
-"event test 1","should fail (no start/end dates)",,,,,,,,,,,,
-"event test 2","should work","01/09/2006 12:00","01/09/2006 14:00",,,,,,,,,,
-"event test 3","should work",,,"01","09","2006","12","00","01","09","2006","14","00"

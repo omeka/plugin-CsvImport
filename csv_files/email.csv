@@ -1,7 +1,0 @@
-title,body,email
-"instructions (email.inc)","This CSV file can be used to test the email CCK fields. It assumes you have created a CCK content type with at least one email field.",""
-"email.inc test 1","No email or url",""
-"email.inc test 2","Email","foo.bar@example.org"
-"email.inc test 3","Invalid email?","foo.bar"
-"email.inc test 4","Invalid email?","foo.bar@example"
-"email.inc test 5","Multiple emails","foo.bar@example.org||fooz@example.org"
