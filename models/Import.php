@@ -115,9 +115,9 @@ class Import extends Csv {
                 $value = $row[$fieldKey];
                 
                 // Remember that if $field is a numeric value it is a metafield; whereas if 
-                // $field is a string value it is a default (Dublin Core) field. Note: "coverage," 
-                // "identifier," and "type" are commented out until they are explicitly included in 
-                // the `items` table.
+                // $field is a string value it is a default (Dublin Core) field.
+                // Note: "coverage," "identifier," and "type" are commented out until they are 
+                // explicitly included in the `items` table.
                 switch ($field) {
                     case 'contributor':
                         $dfui['contributor'] = $value;
@@ -165,11 +165,15 @@ class Import extends Csv {
                         //$dfui['type'] = $value;
                         //break;
                     default:
+                        
                         // If the field is numeric, process it as a metafield.
                         if (is_numeric($field)) {
                             $mfimt[$field] = $value;
-                        // If the field is neither a default field or a metafield, there is a problem. Maybe just ignore?
+                        
+                        // If the field is neither a default field or a metafield, there is a problem. 
+                        // Maybe just ignore?
                         } else {}
+                        
                         break;
                 } // end switch, $field
             

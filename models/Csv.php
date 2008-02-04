@@ -27,8 +27,8 @@ class Csv {
     public function setRows() {
         $rows = array();
         foreach ($this->csvIterator as $row) {
-            // The iterator returns false at the last iteration, so check if the row is an array 
-            // before adding it to the rows array.
+            // The iterator returns false at the last iteration (I don't know why), so check if the 
+            // row is an array before adding it to the rows array.
             if (is_array($row)) $rows[] = $row;
         }
         // Delete the first row, as it should only contain headers
@@ -56,7 +56,8 @@ class Csv {
     
     // Must have already called $this->setHeaders() and $this->setRows() to use this method.
     public function isValidCsv() {
-        // Check if every row has the same number of columns as the header.
+        // Check if every row has the same number of columns as the header. This is the only known way
+        // to validate a CSV file.
         foreach ($this->rows as $row) {
             if (count($row) != $this->columnCount) return false;
         }
