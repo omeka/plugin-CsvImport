@@ -83,6 +83,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action {
     public function importAction() {
         // Perform validation.
         $this->_validateForm();
+        $this->_validateMapping();
         
         // Set the CSV file -- posted by the mappingAction() form.
         $file = $_POST['file'];
@@ -114,7 +115,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action {
         
         // Set the shell command arguments.
         $importFilePath = CSVIMPORT_DIRECTORY . DIRECTORY_SEPARATOR . 'import.php';
-        $fileArg = escapeshellarg($file);
+        $fileArg   = escapeshellarg($file);
         $typeIdArg = escapeshellarg($typeId);
         $fieldsArg = escapeshellarg(serialize($fields)); // Serialize the array so it can be passed by argument.
         
@@ -181,8 +182,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action {
         return strrchr($file, '.') == '.csv' ? true : false;
     }
     
+    // Validate the form action form.
     private function _validateForm() {
-        // Perform validation.
         if (!isset($_POST['file'])) throw new Omeka_Validator_Exception("File is not set.");
         if (!isset($_POST['typeId'])) throw new Omeka_Validator_Exception("Type is not set.");
         if (empty($_POST['file'])) throw new Omeka_Validator_Exception("Invalid file.");
@@ -191,6 +192,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action {
         if (!$this->_hasCsvFilenameExtension($_POST['file'])) throw new Omeka_Validator_Exception("The file \"{$_POST['file']}\" appears not to be a CSV file. The filename should end with \".csv\".");
         if (!$this->_typeExistsById($_POST['typeId'])) throw new Omeka_Validator_Exception("The type ID \"{$_POST['typeId']}\" does not exist.");
     }
+    
+    // Validate the mapping action form. This may throw an error if the user selects a field more than once.
+    // For example, the form will error out if "title" is selected twice.
+    private function _validateMapping() {}
     
     // Launch a low-priority background process, returning control to the foreground.
     // See: http://www.php.net/manual/en/ref.exec.php#70135
