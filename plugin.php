@@ -16,13 +16,15 @@ records all item IDs that were created for each import. This way an import can b
 
 require_once 'config.php';
 
-add_plugin_hook('initialize', 'csvimport_initialize');
-function csvimport_initialize() {
+add_plugin_hook('initialize', 'CsvImport_initialize');
+function CsvImport_initialize() {
     add_controllers('controllers');
-    add_theme_pages('admin', 'admin');
-    add_navigation('CsvImport', 'csvimport', 'main');
+    add_theme_pages('theme', 'admin');
+    add_navigation('CsvImport', 'csvimport', 'archive');
 }
 
+// As of 2008-03-13, adding the following code block results in a browser error.
+/*
 add_plugin_hook('install', 'csvimport_install');
 function csvimport_install()
 {	
@@ -38,3 +40,4 @@ function csvimport_install()
         ) ENGINE = MYISAM ;");
     set_option('csvimport_plugin_version', CSVIMPORT_PLUGIN_VERSION);
 }
+*/
