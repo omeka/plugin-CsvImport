@@ -1,0 +1,6 @@
+<?php
+
+define('CSV_IMPORT_PLUGIN_VERSION', '1.0.0');
+define('CSV_IMPORT_DIRECTORY', dirname(__FILE__));
+define('CSV_IMPORT_CSV_FILES_DIRECTORY', CSV_IMPORT_DIRECTORY . DIRECTORY_SEPARATOR . 'csv_files');
+define('CSV_IMPORT_SELECT_COLUMN_DROPDOWN_PREFIX', 'csv_import_column_');
