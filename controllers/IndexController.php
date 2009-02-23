@@ -19,26 +19,37 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 {
     public function indexAction() 
     {
+        // get the session and view
+        $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
         
+        // check the form submit button
         $view->err = '';
         if (isset($_POST['csv_import_submit'])) {
 
-            //make sure the user selected a file and item type
-            if (empty($_POST['csv_import_file'])) {
+            //make sure the user selected a file
+            if (empty($_POST['csv_import_file_name'])) {
                 $view->err = 'Please select a file to import.';
-            } else if (empty($_POST['csv_import_item_type'])) {
-                $view->err = 'Please select an item type to import.';
             } else {
-
-                // save file name and item type in csvimport_session
-                $csvImportSession = new Zend_Session_Namespace('CsvImport');
-                $csvImportSession->csvImportFile = $_POST['csv_import_file'];
-                $csvImportSession->csvImportItemType = $_POST['csv_import_item_type'];
                 
-                //redirect to column mapping page
-                $this->redirect->goto('map-columns');
+                // make sure the file is correctly formatted
+                $csvImportFile = new CsvImport_File($_POST['csv_import_file_name']);
                 
+                if (!$csvImportFile->isValid()) {
+                    $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
+                } else if (empty($_POST['csv_import_item_type_id'])) {
+                    // make sure user has selected an item type
+                    $view->err = 'Please select an item type to import.'; 
+                } else {
+                    // save csv file and item type to the session
+                    $csvImportSession->csvImportFile = $csvImportFile;
+                    $csvImportSession->csvImportItemTypeId = $_POST['csv_import_item_type_id'];
+                    $csvImportSession->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
+                    $csvImportSession->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
+                    $csvImportSession->csvImportCollectionId = $_POST['csv_import_collection_id'];
+                    //redirect to column mapping page
+                    $this->redirect->goto('map-columns');   
+                }                
             }
         }
         
@@ -46,58 +57,62 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function statusAction() 
     {
+        // get the session and view
+        $csvImportSession = new Zend_Session_Namespace('CsvImport');
+        $view = $this->view;
+
+        $view->csvImportFileImport = $csvImportSession->csvImportFileImport; 
         
     }
     
     public function mapColumnsAction()
     {
-
+        // get the session and view
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
+        $itemsArePublic = $csvImportSession->csvImportItemsArePublic;
+        $itemsAreFeatured = $csvImportSession->csvImportItemsAreFeatured;
+        $collectionId = $csvImportSession->csvImportCollectionId;
+        
+        $view = $this->view;
 
         // get the csv file to import
-        $csvImportFile = new CsvImport_File($csvImportSession->csvImportFile);
+        $csvImportFile = $csvImportSession->csvImportFile;
         
         // get the item type to import
         $db = get_db();
         $itt = $db->getTable('ItemType'); // get ItemTypeTable
-        $csvImportItemType = $itt->find($csvImportSession->csvImportItemType);
+        $csvImportItemType = $itt->find($csvImportSession->csvImportItemTypeId);
         
-        // store the csv file and item type in the view
-        $view = $this->view;
+        // pass the csv file and item type to the view
         $view->err = '';
         $view->csvImportFile = $csvImportFile;
         $view->csvImportItemTypeId = $csvImportItemType['id'];
-        
+        $view->csvImportFileImport = null;        
+                
         // process submitted column mappings
         if (isset($_POST['csv_import_submit'])) {
             
-            // make sure that no two columns map to the same item type element
-            $elementIds = array();
+            // map the column index numbers to the element ids
+            $colNumsToElementIdsMap = array();
             $colCount = $csvImportFile->getColumnCount();
             for($i = 0; $i < $colCount; $i++) {
                 $elementName =  CSV_IMPORT_SELECT_COLUMN_DROPDOWN_PREFIX . $i;
                 $elementId = $_POST[$elementName];
-                
-                // see if the element is already used
                 if (!empty($elementId)) {
-                    if (in_array($elementId, $elementIds)) {
-                        // if it has been used, indicate the error
-                        $view->err = 'Please map the columns to different item type elements.';
-                        break;
-                    } else {
-                        // if not, add remember that it has been used
-                        $elementIds[] = $elementId;
-                    }
+                    $colNumsToElementIdsMap[$i . ''] = $elementId;
                 }
-            }
+            }           
             
-            // if there are no errors with the mappings, then run the import and goto the status page
+            // if there are no errors with the column mappings, then run the import and goto the status page
             if (empty($view->err)) {
+                
                 // do the import
-                $view->err = 'Success!';
+                $csvImportFileImport = new CsvImport_Import($csvImportFile, $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $colNumsToElementIdsMap);
+                $csvImportFileImport->doImport();
                 
                 //redirect to column mapping page
                 $this->redirect->goto('status');
+                
             }  
         }   
     }

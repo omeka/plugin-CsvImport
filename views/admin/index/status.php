@@ -20,6 +20,8 @@ echo '<form id="csvimport" name="csvimport" method="post">';
 if (!empty($err)) {
     echo '<p class="error">' . $err . '</p>';
 }
+
+
 echo '</form>';
 echo '</div>';
 

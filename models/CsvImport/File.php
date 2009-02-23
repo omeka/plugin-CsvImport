@@ -30,7 +30,7 @@ class CsvImport_File {
    * 
    * @return array
    */
-	public static function getFiles() 
+	public static function getFiles($requireValid = false) 
 	{
 	    $fileNames = array();
         $paths = new DirectoryIterator(CSV_IMPORT_CSV_FILES_DIRECTORY);
@@ -49,7 +49,7 @@ class CsvImport_File {
         $csvFiles = array();
         foreach ($fileNames as $fileName) {
             $csvFile = new CsvImport_File($fileName);
-            if ($csvFile->isValid()) {
+            if (!$requireValid || $csvFile->isValid()) {
                 $csvFiles[] = $csvFile;
             }
         }
@@ -147,13 +147,28 @@ class CsvImport_File {
 	        return 0;
 	    }
 	}
+
+ 	/**
+    * Get an array of rows for the csv file
+    * 
+    * @return array   if valid csv file, returns an iterator of rows, where each row is an associative array keyed with the column names, else returns an empty array
+    */
+ 	public function getRows()
+ 	{
+ 	    // make sure that the csv file is valid, else return an empty array
+	    if (!$this->isValid()) {
+	        return array();
+	    }
+	    
+ 	    return new CsvImport_Rows($this);
+ 	}
 	
 	/**
    * Get an array of rows for the csv file
    * 
    * @return array   if valid csv file, returns an array of rows, where each row is an associative array keyed with the column names, else returns an empty array
    */
-	public function getRows() 
+	public function getRows2() 
 	{
 	    // make sure that the csv file is valid, else return an empty array
 	    if (!$this->isValid()) {
@@ -236,7 +251,7 @@ class CsvImport_File {
 	}
 	
 	/**
-    * Determines if the csv file has a valid format, and if so, it initializes the columncount, rowcount, and columnnames
+    * Determines if the csv file has a valid format, and if so, it initializes the column count, row count, column names, and column examples
     */
 	private function _validate()
 	{
@@ -298,8 +313,6 @@ class CsvImport_File {
             }
         }
         fclose($handle);
-        
-        
                 
         // initialize the row count
         $this->_rowCount = $rowCount;
@@ -319,5 +332,4 @@ class CsvImport_File {
         $this->_isValid = true;
         return;
     }
-	
 }
