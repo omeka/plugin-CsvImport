@@ -66,8 +66,8 @@ class CsvImport_Import  {
                     $element = $et->find($elementId);
                     $es = $db->getTable('ElementSet');
                     $elementSet = $es->find($element['element_set_id']);
-
                     $elementInfo = array('element_name' => $element->name, 'element_set_name' => $elementSet->name);
+                    
                     $colNumToElementInfoMap[$i] = $elementInfo;
                 
                 } else {
@@ -76,6 +76,8 @@ class CsvImport_Import  {
                 
                 
             }
+            
+            // add item from each row
             $rows = $this->_csvFile->getRows();
             $i = 0;
             foreach($rows as $row) {
@@ -92,7 +94,7 @@ class CsvImport_Import  {
 	}
 	
 	
-	// inserts an item based on the row data
+	// adds an item based on the row data
 	// returns inserted Item
 	private function addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap) 
 	{
@@ -101,9 +103,10 @@ class CsvImport_Import  {
         $itemElementTexts = array();
             	    
 	    // process each of the columns of the row
-	    $colNum = 0;
+	    $colNum = -1;
 	    foreach($row as $columnName => $columnValue) {
-	        
+	        $colNum++;
+            
 	        // make sure that the column is used
 	        if ( $colNumToElementInfoMap[$colNum] === null) {
 	            continue;
@@ -126,11 +129,8 @@ class CsvImport_Import  {
 	        $itemElementText = array('text' => $columnValue, 'html' => false);
 	        array_push($itemElementTexts[$elementSetName][$elementName], $itemElementText);
             
-            $colNum++;
 	    }
-	    
-	    print_r($itemElementTexts);
-	    
+	    	    
 	    $item = insert_item($itemMetadata, $itemElementTexts);
 	    
 	    // record the inserted item's id so that you can uninstall it later

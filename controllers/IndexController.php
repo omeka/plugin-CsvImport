@@ -103,6 +103,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 }
             }           
             
+            // make sure the user maps at least one column to an element
+            if (count($colNumsToElementIdsMap) == 0) {
+                $view->err = 'Please map at least one column to an element.';
+            }
+            
             // if there are no errors with the column mappings, then run the import and goto the status page
             if (empty($view->err)) {
                 
