@@ -35,7 +35,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 // make sure the file is correctly formatted
                 $csvImportFile = new CsvImport_File($_POST['csv_import_file_name']);
                 
-                if (!$csvImportFile->isValid()) {
+                if (!$csvImportFile->isPreValid()) {
                     $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
                 } else if (empty($_POST['csv_import_item_type_id'])) {
                     // make sure user has selected an item type
@@ -55,16 +55,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         
     }
     
-    public function statusAction() 
-    {
-        // get the session and view
-        $csvImportSession = new Zend_Session_Namespace('CsvImport');
-        $view = $this->view;
-
-        $view->csvImportFileImport = $csvImportSession->csvImportFileImport; 
-        
-    }
-    
     public function mapColumnsAction()
     {
         // get the session and view
@@ -77,7 +67,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
         // get the csv file to import
         $csvImportFile = $csvImportSession->csvImportFile;
-        
+                
         // get the item type to import
         $db = get_db();
         $itt = $db->getTable('ItemType'); // get ItemTypeTable
@@ -120,5 +110,26 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
             }  
         }   
+    }
+    
+    public function clearAction()
+    {
+        $db = get_db();
+        $it = $db->getTable('Item');
+        $items = $it->findBy(array(), 500);
+        foreach($items as $item) {
+            $item->delete();
+        }
+        $this->redirect->goto('index');
+    }
+    
+    public function statusAction() 
+    {
+        // get the session and view
+        $csvImportSession = new Zend_Session_Namespace('CsvImport');
+        $view = $this->view;
+
+        $view->csvImportFileImport = $csvImportSession->csvImportFileImport; 
+        
     }
 }

@@ -43,6 +43,13 @@ function csv_import_admin_navigation($tabs)
   return $tabs;
 }
 
+/**
+* Get the default value for an element.  
+* If the user has already submitted the value, then use that as the default, 
+* else return null
+*  
+* @return string
+*/
 function csv_import_get_default($htmlInputElementName) 
 {
     // set the default file if the form is already submitted
@@ -53,6 +60,11 @@ function csv_import_get_default($htmlInputElementName)
     return $default;
 }
 
+/**
+* Get the checkbox html code for csv files.
+*  
+* @return string
+*/
 function csv_import_get_file_drop_down($dropDownName) 
 {
     $ht = '';
@@ -67,6 +79,11 @@ function csv_import_get_file_drop_down($dropDownName)
     return $ht;
 }
 
+/**
+* Get the dropdown box html code for item types
+*  
+* @return string
+*/
 function csv_import_get_item_types_drop_down($dropDownName) 
 {
     $ht = '';
@@ -85,6 +102,11 @@ function csv_import_get_item_types_drop_down($dropDownName)
     return $ht;
 }
 
+/**
+* Get the html code for mapping columns in the csv file to elements
+*  
+* @return string
+*/
 function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId) 
 {   
     $ht = '';    
@@ -109,7 +131,6 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 *  
 * @return string
 */
-
 function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
 {    
     $ht = '';
@@ -133,7 +154,6 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
 *  
 * @return string
 */
-
 function csv_import_get_elements_by_element_set_name($itemTypeId)
 {
     $db = get_db();
@@ -190,11 +210,10 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
 
 
 /**
-* Get the drop down html code that for the collections
+* Get the drop down html code for the collections
 *  
 * @return string
 */
-
 function csv_import_get_collections_drop_down($dropDownName)
 {    
     $ht = '';
@@ -212,6 +231,11 @@ function csv_import_get_collections_drop_down($dropDownName)
     return $ht;
 }
 
+/**
+* Get the checkbox html code for specifying whether items are added as public items.
+*  
+* @return string
+*/
 function csv_import_get_items_are_public_checkbox($htmlElementName) 
 {
     $checked = (csv_import_get_default($htmlElementName) == '1');
@@ -222,6 +246,11 @@ function csv_import_get_items_are_public_checkbox($htmlElementName)
     return $ht;
 }
 
+/**
+* Get the checkbox html code for specifying whether items are added as featured items.
+*  
+* @return string
+*/
 function csv_import_get_items_are_featured_checkbox($htmlElementName) 
 {
     $checked = (csv_import_get_default($htmlElementName) == '1');

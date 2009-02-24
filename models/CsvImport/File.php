@@ -19,6 +19,7 @@ class CsvImport_File {
 	protected $_filePath;
 	protected $_lineCount;
 	protected $_isValid;
+	protected $_isPreValid;
 	
 	protected $_rowCount;
 	protected $_columnCount;
@@ -65,6 +66,7 @@ class CsvImport_File {
 	{
 		$this->_fileName = $fileName;
         $this->_isValid = null;
+        $this->_isPreValid = null;
         $this->_lineCount = null;
         $this->_columnNames = null;
         $this->_columnExamples = null;
@@ -98,7 +100,7 @@ class CsvImport_File {
    */
 	public function getColumnNames() 
 	{
-	    if ($this->isValid()) {
+	    if ($this->isPreValid()) {
 	        return $this->_columnNames;    
 	    } else {
 	        return array();
@@ -112,7 +114,7 @@ class CsvImport_File {
     */
  	public function getColumnExamples() 
  	{
- 	    if ($this->isValid()) {
+ 	    if ($this->isPreValid()) {
  	        return $this->_columnExamples;    
  	    } else {
  	        return array();
@@ -127,7 +129,7 @@ class CsvImport_File {
    */
 	public function getColumnCount() 
 	{
-	    if ($this->isValid()) {
+	    if ($this->isPreValid()) {
 	        return $this->_columnCount;
 	    } else {
 	        return 0;   
@@ -164,53 +166,6 @@ class CsvImport_File {
  	}
 	
 	/**
-   * Get an array of rows for the csv file
-   * 
-   * @return array   if valid csv file, returns an array of rows, where each row is an associative array keyed with the column names, else returns an empty array
-   */
-	public function getRows2() 
-	{
-	    // make sure that the csv file is valid, else return an empty array
-	    if (!$this->isValid()) {
-	        return array();
-	    }
-	    
-	    ini_set('auto_detect_line_endings', true);
-        $handle = fopen($this->getFilePath(), 'r');
-        $rowCount = 0;
-        $rows = array();
-        $processedLineCount = 0;
-        $colCount  = 0;
-        while (($data = fgetcsv($handle)) !== FALSE)
-        {
-            $lineCount++;
-            if ($data !== null) 
-            {  
-                $rowCount++;
-
-                if ($rowCount == 1) 
-                {
-                    $headers = $data;
-                    $colCount = count($data);
-                }
-            
-                for($i = 0; $i < $colCount; $i++) 
-                {
-                    $rows[$headers[$i]] = $data[$i];
-                }
-            }
-       }
-       fclose($handle);
-       
-       // check to see if the row processing stopped midway
-       if ($processedLineCount != $this->getLineCount()) {
-           return array();
-       }
-       
-       return $rows;
-	}
-	
-	/**
    * Test whether the csv file has the correct format
    * 
    * CSV files should have:
@@ -225,6 +180,26 @@ class CsvImport_File {
         return $this->_isValid;
 	}
 	
+	/**
+    * Test whether the heading of a csv file has the correct format
+    * 
+    * CSV files should have:
+    *    The first row should contain the column names
+    *    The file should have at least one row of data 
+    * 
+    * @return boolean
+    */
+ 	public function isPreValid() 
+ 	{
+ 	    $this->_preValidate();
+        return $this->_isPreValid;
+ 	}
+
+	/**
+    * Gets the number of lines in the file
+    * 
+    * @return integer
+    */	
 	public function getLineCount() 
 	{
 	    if ($this->_lineCount === null) {
@@ -236,7 +211,7 @@ class CsvImport_File {
 	/**
     * Computes the number of lines in the file
     * 
-    * @return string
+    * @return integer
     */
 	private function _computeLineCount()
 	{
@@ -251,7 +226,74 @@ class CsvImport_File {
 	}
 	
 	/**
-    * Determines if the csv file has a valid format, and if so, it initializes the column count, row count, column names, and column examples
+    * Validates the header and the first row of example data
+    * and initializes the column names, column count, and example data.
+    * This process is fast for large files, so if you don't need complete validation, use it
+    * instead of _validate
+    * 
+    * @return void
+    */
+	private function _preValidate()
+	{ 	    
+	    // make sure the csv file has not already been validated or prevalidated
+	    if ($this->_isValid !== null || $this->_isPreValid !== null) {
+	        return;
+	    }        	    
+	    
+	    // assume that the file is not prevalid until it proves that it is
+	    $this->_isPreValid = false;
+	    
+        ini_set('auto_detect_line_endings', true);
+        $handle = fopen($this->getFilePath(), 'r');
+
+        $colCount = 0;
+        $rowCount = 0;
+
+        // process each line of data
+        while (($data = fgetcsv($handle)) !== FALSE && $rowCount < 2) {
+            // make sure the line is not empty
+            if ($data[0] !== null && trim($data[0]) != '') {  
+                $rowCount++;
+                if ($rowCount == 1) {                    
+                    // initialize the column count and column names
+                    $colCount = count($data);
+                    $this->_columnCount = $colCount;
+                    $this->_columnNames = $data;
+                } else {
+                    // make sure the current row has the same number of columns as the header row
+                    $colCountCheck = count($data);
+                    if ($colCountCheck != $colCount) {
+                        $this->_isValid = false;                        
+                        return;
+                    } else {
+                        // get examples for each column
+                        if ($this->_columnExamples == null && $rowCount > 1) {
+                            $this->_columnExamples = $data;
+                        } 
+                    } 
+                }
+            }
+        }
+        fclose($handle);
+
+        // make sure the file has a header column and at least one data column
+        if ($rowCount < 2) {
+            $this->_isValid = false;
+            return;
+        }
+
+        // the file is prevalid
+        $this->_isPreValid = true;        
+	}
+	
+
+    /**
+    * Validates the csv file, making sure it has a valid format.
+    * If so, it initializes the column count, row count, column names, and column examples
+    * This process can take a very long time for large files.  
+    * If don't need complete validation, use _preValidate instead.
+    * 
+    * @return void
     */
 	private function _validate()
 	{
@@ -262,6 +304,10 @@ class CsvImport_File {
         
         ini_set('auto_detect_line_endings', true);
         $handle = fopen($this->getFilePath(), 'r');
+        
+        // assume that the csv file is invalid until proven otherwise
+        $this->_isPreValid = false;
+        $this->_isValid = false;
 
         $processedLineCount = 0;
         $colCount = 0;
@@ -270,46 +316,26 @@ class CsvImport_File {
         // process each line of data
         while (($data = fgetcsv($handle)) !== FALSE) {
             $processedLineCount++;
-            if ($data[0] !== null) {  
+            // make sure the line is not empty
+            if ($data[0] !== null && trim($data[0]) != '') {  
                 $rowCount++;
-
                 if ($rowCount == 1) {
-                    $colCount = count($data);
-                    
-                    // make sure the first line has column names
-                    if ($colCount <= 1 && trim($data[0]) == '') {
-                        $this->_isValid = false;
-                        return;
-                    }
-                    
                     // initialize the column count and column names
+                    $colCount = count($data);
                     $this->_columnCount = $colCount;
                     $this->_columnNames = $data;
                 } else {
                     // make sure the current row has the same number of columns as the header row
-                    $colCountCheck = count($data);
-                    
+                    $colCountCheck = count($data);           
                     if ($colCountCheck != $colCount) {
-                        
-                        // make sure the current row is not an empty row
-                        if (trim($data[0]) == '') {
-                            $rowCount--;
-                        } else {                   
-                            $this->_isValid = false;                        
-                            return;
-                        }
+                        return;
                     } else {
-                        
                         // get examples for each column
-                        if ($_columnExamples == null && $rowCount > 1) {
+                        if ($this->_columnExamples == null && $rowCount > 1) {
                             $this->_columnExamples = $data;
                         }
-                        
                     }
-                    
-                    
                 }
-                
             }
         }
         fclose($handle);
@@ -319,17 +345,27 @@ class CsvImport_File {
 
         // make sure the file has a header column and at least one data column
         if ($rowCount < 2) {
-            $this->_isValid = false;
             return;
         }
 
         // make sure every line was processed
         if ($processedLineCount != $this->getLineCount()) {
-            $this->_isValid = false;
             return;
         }
 
-        $this->_isValid = true;
-        return;
+        // the csv file is valid
+        $this->_isPreValid = true;
+        $this->_isValid = true;        
     }
+    
+    public function testInfo()
+    {
+        echo 'prevalid:' . $this->isPreValid() . '<br/><br/>';
+        echo 'valid:' . $this->isValid() . '<br/><br/>';
+        echo 'column count:' . $this->getColumnCount() . '<br/><br/>';
+        echo 'line count: ' . $this->getLineCount() . '<br/><br/>';
+        echo 'row count: ' . $this->getRowCount() . '<br/><br/>';
+        print_r($this->getColumnNames());
+        print_r($this->getColumnExamples());
+    } 
 }

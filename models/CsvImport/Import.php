@@ -87,7 +87,7 @@ class CsvImport_Import  {
                     continue;
                 }
                 $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
-            }   
+            }
             return true;
         }
         return false;

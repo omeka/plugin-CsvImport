@@ -35,7 +35,7 @@ class CsvImport_Rows implements Iterator
     */
     function rewind()
     {
-        $this->_currentRowNum = 0;
+        $this->_currentRowNumber = 0;
         $this->_currentRow = null;
         $this->_colCount = $this->_csvFile->getColumnCount();
         $this->_colNames = $this->_csvFile->getColumnNames();
@@ -78,30 +78,30 @@ class CsvImport_Rows implements Iterator
     */
     function next()
     {
-        if ($this->_currentRowNum == 0) {
+        if ($this->_currentRowNumber == 0) {
             ini_set('auto_detect_line_endings', true);
             $this->_handle = fopen($this->_csvFile->getFilePath(), 'r');
         }
-
-        if (($data = fgetcsv($this->_handle)) !== FALSE) {
-
+        
+        // loop through rows until you get a line or until there are no more lines
+        while (($data = fgetcsv($this->_handle)) !== FALSE) {
             $row = array();
-            if ($data !== null) {
+            if ($data[0] !== null && trim($data[0]) != '') {
                 for($i = 0; $i < $this->_colCount; $i++) 
                 {
                     $row[$this->_colNames[$i]] = $data[$i];
                 }
  
                 $this->_currentRow = $row;
-                $this->_currentRowNum++;
+                $this->_currentRowNumber++;
+                return;
             }
-
-        } else {
-                        
-            fclose($this->_handle);
-            $this->_handle = null;
-            $this->_hasMoreRows = false;
         }
+                        
+        fclose($this->_handle);
+        $this->_handle = null;
+        $this->_hasMoreRows = false;
+        
     }
 
     /**
