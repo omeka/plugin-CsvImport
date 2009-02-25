@@ -23,20 +23,71 @@ add_plugin_hook('initialize', 'csv_import_initialize');
 
 add_filter('admin_navigation_main', 'csv_import_admin_navigation');
 
+/**
+ * Install the plugin.
+ * 
+ * @return void
+ */
 function csv_import_install()
 {
+    // set the plugin version option
     set_option('csv_import_plugin_version', CSV_IMPORT_PLUGIN_VERSION);
+    
+    $db = get_db();
+    
+    // create csv imports table
+    $db->exec("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
+       `id` int(10) unsigned NOT NULL auto_increment,
+       `item_type_id` int(10) unsigned NOT NULL,
+       `collection_id` int(10) unsigned NOT NULL,       
+       `csv_file_name` text collate utf8_unicode_ci NOT NULL,
+       `status` varchar(255) collate utf8_unicode_ci,
+       `is_public` tinyint(1) default '0',
+       `is_featured` tinyint(1) default '0',
+       `serialized_col_nums_to_element_ids_map` text collate utf8_unicode_ci NOT NULL,
+       `added` timestamp NOT NULL default '0000-00-00 00:00:00',
+       PRIMARY KEY  (`id`)
+       ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+   
+   // create csv imported items table
+   $db->exec("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
+      `id` int(10) unsigned NOT NULL auto_increment,
+      `item_id` int(10) unsigned NOT NULL,
+      `import_id` int(10) unsigned NOT NULL,       
+      PRIMARY KEY  (`id`),
+      KEY (`import_id`)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");    
+       
 }
 
+/**
+ * Uninstall the plugin.
+ * 
+ * @return void
+ */
 function csv_import_uninstall()
 {
+    // delete the plugin version number.
     delete_option('csv_import_plugin_version');
+    
+    // drop the tables
+    $db = get_db();
+    $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imports`";
+    $db->query($sql);
+    $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imported_items`";
+    $db->query($sql);
+    
 }
 
 function csv_import_initialize()
 {
 }
 
+/**
+ * Add the admin navigation for the plugin.
+ * 
+ * @return array
+ */
 function csv_import_admin_navigation($tabs)
 {
   $tabs['CsvImport'] = uri('csv-import');
@@ -258,5 +309,44 @@ function csv_import_get_items_are_featured_checkbox($htmlElementName)
     $ht .= '<div class="field">';
     $ht .= checkbox($attributes = array('name' => $htmlElementName, 'id' => $htmlElementName), $checked, $value=null, $label = 'Items Are Featured?' );
     $ht .= '</div>';
+    return $ht;
+}
+
+/**
+* Get the html code the list of imports
+*  
+* @return string
+*/
+function csv_import_get_imports() 
+{
+    $csvImports = CsvImport_Import::getImports();
+    $ht = '';
+    $ht .= '<table>';
+    $ht .= '<tr>';
+    $ht .= '<th>Import Date</th>';
+    $ht .= '<th>Csv File</th>';
+    $ht .= '<th>Status</th>';
+    $ht .= '<th></th>';    
+    $ht .= '</tr>';
+    
+    $hti = '';
+    foreach($csvImports as $csvImport) {
+        $htr = '';
+        
+        $htr .= '<tr>';
+        $htr .= '<td>' . $csvImport->added . '</td>';
+        $htr .= '<td>' . $csvImport->csv_file_name . '</td>';
+        $htr .= '<td>' . $csvImport->status . '</td>';
+        if ( $csvImport->status  == CSV_IMPORT_STATUS_COMPLETED_IMPORT) {
+            $htr .= '<td><a href="' . uri('csv-import/index/unimport/id/' . $csvImport->id) . '">Unimport</a></td>';
+        } else {
+            $htr .= '<td></td>';
+        }
+        $htr .= '</tr>'; 
+                
+        $hti .= $htr;    
+    }
+    $ht .= $hti;
+    $ht .= '</table>';
     return $ht;
 }

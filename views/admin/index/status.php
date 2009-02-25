@@ -21,6 +21,7 @@ if (!empty($err)) {
     echo '<p class="error">' . $err . '</p>';
 }
 
+echo csv_import_get_imports();
 
 echo '</form>';
 echo '</div>';

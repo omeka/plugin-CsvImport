@@ -8,30 +8,65 @@
  * @copyright Center for History and New Media, 2008
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  **/
-class CsvImport_Import  {
+class CsvImport_Import extends Omeka_Record { 
 	
+	public $csv_file_name;
+	public $item_type_id;
+	public $collection_id;
+	public $added; // the timestamp when the import was begun
+	
+	public $is_public;
+	public $is_featured;
+	public $status;
+	public $serialized_col_nums_to_element_ids_map;
+
 	protected $_csvFile;
-	protected $_itemTypeId;
-	protected $_collectionId;
 	protected $_columnNumsToElementIdsMap; // maps column index numbers (starting at 0) to item type element ids
-	
-	protected $_isPublic;
-	protected $_isFeatured;
 		
-	// returns an array of CsvImport_Import objects from the database
-	public static function getImports() 
+	/**
+    * Gets an array of all of the CsvImport_Import objects from the database
+    * 
+    * @return array
+    */
+	public static function getImports()
 	{
+		$db = get_db();
+		$it = $db->getTable('CsvImport_Import');
+		$s = $it->getSelect()->where('1')->order('added DESC');
+		$imports = $it->fetchObjects($s, array());
+        return $imports;
+	}
 		
+	public function __construct( $csvFileName=null, $itemTypeId=null, $collectionId=null, $isPublic=null, $isFeatured=null, $columnNumsToElementIdsMap=null ) 
+	{
+	    $this->csv_file_name = $csvFileName;
+	    $this->_csvFile = new CsvImport_File($this->csv_file_name);	    
+	    $this->item_type_id = $itemTypeId;
+	    $this->collection_id = $collectionId;
+	    $this->_columnNumsToElementIdsMap = $columnNumsToElementIdsMap;
+	    $this->is_public = $isPublic;
+	    $this->is_featured = $isFeatured;
+	    $this->status = '';
+	    	    
+	    parent::__construct(); 
 	}
 	
-	public function __construct( $csvFile, $itemTypeId, $collectionId, $isPublic, $isFeatured, $columnNumsToElementIdsMap ) 
+	protected function construct()
 	{
-	    $this->_csvFile = $csvFile;
-	    $this->_itemTypeId = $itemTypeId;
-	    $this->_collectionId = $collectionId;
-	    $this->_columnNumsToElementIdsMap = $columnNumsToElementIdsMap;
-	    $this->_isPublic = $isPublic;
-	    $this->_isFeatured = $isFeatured;
+	    // initialize the object if the object was constructed from the database
+	    if (empty($this->_csvFile))  {
+    	    $this->_csvFile = new CsvImport_File($this->csv_file_name);	        
+	    }
+	    
+	    if (empty($this->_columnNumsToElementIdsMap)) {
+    	    $this->_columnNumsToElementIdsMap = unserialize($this->serialized_col_nums_to_element_ids_map);	        
+	    }
+	}
+	
+	protected function beforeSave()
+	{
+	    // serialize the column num to element id mapping
+	    $this->serialized_col_nums_to_element_ids_map = serialize($this->_columnNumsToElementIdsMap);
 	}
 	
 	/**
@@ -43,16 +78,19 @@ class CsvImport_Import  {
    */
 	public function doImport() 
 	{
-	    $db = get_db();
+	    // first save the import object in the database
+	    $this->save(); 
+	    
 	    // add an import object
+	    $db = get_db();
         if ($this->_csvFile->isValid()) {    	    
             
             // define item metadata	    
             $itemMetadata = array(
-                'public'         => $this->_isPublic, 
-                'featured'       => $this->_isFeatured, 
-                'item_type_id'   => $this->_itemTypeId,
-                'collection_id'  => $this->_collectionId
+                'public'         => $this->is_public, 
+                'featured'       => $this->is_featured, 
+                'item_type_id'   => $this->item_type_id,
+                'collection_id'  => $this->collection_id
             );
 
             // create a map from the column index number to element set name and element 
@@ -61,20 +99,15 @@ class CsvImport_Import  {
             for($i = 0; $i < $colCount; $i++) {
                 $elementId = $this->_columnNumsToElementIdsMap[$i];
                 if ($elementId) {
-                
                     $et = $db->getTable('Element');
                     $element = $et->find($elementId);
                     $es = $db->getTable('ElementSet');
                     $elementSet = $es->find($element['element_set_id']);
                     $elementInfo = array('element_name' => $element->name, 'element_set_name' => $elementSet->name);
-                    
                     $colNumToElementInfoMap[$i] = $elementInfo;
-                
                 } else {
                     $colNumToElementInfoMap[$i] = null;
                 }
-                
-                
             }
             
             // add item from each row
@@ -88,8 +121,15 @@ class CsvImport_Import  {
                 }
                 $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
             }
+            
+            $this->status = CSV_IMPORT_STATUS_COMPLETED_IMPORT;
+            $this->save();
             return true;
+            
         }
+        
+        $this->status = CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
+        $this->save();
         return false;
 	}
 	
@@ -98,11 +138,10 @@ class CsvImport_Import  {
 	// returns inserted Item
 	private function addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap) 
 	{
-                
         // define the element texts for the item
         $itemElementTexts = array();
             	    
-	    // process each of the columns of the row
+	    // process each of the columns of the row as an element text
 	    $colNum = -1;
 	    foreach($row as $columnName => $columnValue) {
 	        $colNum++;
@@ -112,6 +151,7 @@ class CsvImport_Import  {
 	            continue;
 	        }
 	        
+	        // get the element name and element set name
 	        $elementName = $colNumToElementInfoMap[$colNum]['element_name'];
 	        $elementSetName = $colNumToElementInfoMap[$colNum]['element_set_name'];
 	        
@@ -133,16 +173,18 @@ class CsvImport_Import  {
 	    	    
 	    $item = insert_item($itemMetadata, $itemElementTexts);
 	    
-	    // record the inserted item's id so that you can uninstall it later
-	    $this->recordInsertedItemId($item->id);
+	    // record the imported item id so that you can uninstall the item later
+	    $this->recordImportedItemId($item->id);
 	    
 	    // return the inserted item
 	    return $item;
 	}
 	
-	private function recordInsertedItemId($itemId) 
+	private function recordImportedItemId($itemId) 
 	{
-	    
+	    // create a new imported item record
+	    $csvImportedItem = new CsvImport_ImportedItem($this->id, $itemId);
+	    $csvImportedItem->save();
 	}
 		
 	public function getCsvFile() 
@@ -162,28 +204,44 @@ class CsvImport_Import  {
 	
 	public function undoImport() 
 	{
-	    // remove items
-	    
-	    // remove item elements
+	    // delete imported items
+        $itemLimitPerQuery = 50;
+	    $db = get_db();
+        $iit = $db->getTable('CsvImport_ImportedItem');
+        $it = $db->getTable('Item');
+    
+        $sql = $iit->getSelect()->where('`import_id` = ?')->limit($itemLimitPerQuery);
+        $importedItems = $iit->fetchObjects($sql, array($this->id));
+        
+        while(count($importedItems) > 0) {    
+            
+            foreach($importedItems as $importedItem) {
+                $itemId = $importedItem->getItemId();
+                $item = $it->find($itemId);
+                if ($item) {
+                    $item->delete();
+                }
+                $importedItem->delete();
+            }
+            
+            $sql = $iit->getSelect()->where('`import_id` = ?')->limit($itemLimitPerQuery);
+            $importedItems = $iit->fetchObjects($sql, array($this->id));        
+        } 
+        
+        $this->status = CSV_IMPORT_STATUS_COMPLETED_UNIMPORT;
+        $this->save();
 	}
 	
-	// returns true if the imported has completed
+	// returns true if the import has completed
 	// else returns false
 	public function isComplete() 
 	{
-		
+		return (($this->status == CSV_IMPORT_STATUS_COMPLETED_IMPORT) || 
+		       ($this->status == CSV_IMPORT_STATUS_COMPLETED_UNIMPORT));
 	}
 	
 	public function getStatus() 
 	{
-	
-	}
-
-	// if import status is completed, returns a list of items ids imported
-	// else returns an empty array
-	
-	public function getItemsIds() 
-	{
-	
+	    return $this->status;
 	}
 }

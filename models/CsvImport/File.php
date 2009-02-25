@@ -16,7 +16,7 @@
  **/
 class CsvImport_File {
 
-	protected $_filePath;
+	protected $_fileName;
 	protected $_lineCount;
 	protected $_isValid;
 	protected $_isPreValid;
@@ -58,7 +58,7 @@ class CsvImport_File {
 	}
 
 	/**
-   * @param string $filePath	the path of the CSV file
+   * @param string $fileName	the path of the CSV file
    * 
    * Warning: before using the class, you should test whether the csv file is valid or not
    */

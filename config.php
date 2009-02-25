@@ -4,3 +4,7 @@ define('CSV_IMPORT_PLUGIN_VERSION', '1.0.0');
 define('CSV_IMPORT_DIRECTORY', dirname(__FILE__));
 define('CSV_IMPORT_CSV_FILES_DIRECTORY', CSV_IMPORT_DIRECTORY . DIRECTORY_SEPARATOR . 'csv_files');
 define('CSV_IMPORT_SELECT_COLUMN_DROPDOWN_PREFIX', 'csv_import_column_');
+
+define('CSV_IMPORT_STATUS_COMPLETED_IMPORT', 'Completed Import');
+define('CSV_IMPORT_STATUS_COMPLETED_UNIMPORT', 'Completed Unimport');
+define('CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE', 'Import Error: Invalid CSV File');

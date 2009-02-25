@@ -102,7 +102,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             if (empty($view->err)) {
                 
                 // do the import
-                $csvImportFileImport = new CsvImport_Import($csvImportFile, $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $colNumsToElementIdsMap);
+                $csvImportFileImport = new CsvImport_Import($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $colNumsToElementIdsMap);
                 $csvImportFileImport->doImport();
                 
                 //redirect to column mapping page
@@ -110,6 +110,18 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
             }  
         }   
+    }
+    
+    public function unimportAction()
+    {
+        $db = get_db();
+        $cit = $db->getTable('CsvImport_Import');
+        $importId = $this->_getParam("id");
+        $import = $cit->find($importId);
+        if ($import) {
+            $import->undoImport();
+        }
+        $this->redirect->goto('status');
     }
     
     public function clearAction()
@@ -128,8 +140,5 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         // get the session and view
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
-
-        $view->csvImportFileImport = $csvImportSession->csvImportFileImport; 
-        
     }
 }
