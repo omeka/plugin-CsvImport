@@ -12,14 +12,6 @@ class CsvImport_ImportedItem extends Omeka_Record
 {
     public $import_id;
     public $item_id;
-    
-    public function __construct( $importId, $itemId) 
-	{
-	    $this->import_id = $importId;
-	    $this->item_id = $itemId;
-	    
-	    parent::__construct();
-	}
 	
 	public function getItemId()
 	{

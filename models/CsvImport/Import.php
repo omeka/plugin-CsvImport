@@ -36,37 +36,23 @@ class CsvImport_Import extends Omeka_Record {
 		$imports = $it->fetchObjects($s, array());
         return $imports;
 	}
+	
+	public function initialize($csvFileName, $itemTypeId, $collectionId, $isPublic, $isFeatured, $columnNumsToElementIdsMap) 
+	{
+	     $this->setArray(array('csv_file_name' => $csvFileName, 
+                                'item_type_id' => $itemTypeId, 
+                                'collection_id' => $collectionId, 
+                                'is_public' => $isPublic, 
+                                'is_featured' => $isFeatured,
+                                'status' => '', 
+                                '_columnNumsToElementIdsMap' => $columnNumsToElementIdsMap)
+                            );
+	}
 		
-	public function __construct( $csvFileName=null, $itemTypeId=null, $collectionId=null, $isPublic=null, $isFeatured=null, $columnNumsToElementIdsMap=null ) 
-	{
-	    $this->csv_file_name = $csvFileName;
-	    $this->_csvFile = new CsvImport_File($this->csv_file_name);	    
-	    $this->item_type_id = $itemTypeId;
-	    $this->collection_id = $collectionId;
-	    $this->_columnNumsToElementIdsMap = $columnNumsToElementIdsMap;
-	    $this->is_public = $isPublic;
-	    $this->is_featured = $isFeatured;
-	    $this->status = '';
-	    	    
-	    parent::__construct(); 
-	}
-	
-	protected function construct()
-	{
-	    // initialize the object if the object was constructed from the database
-	    if (empty($this->_csvFile))  {
-    	    $this->_csvFile = new CsvImport_File($this->csv_file_name);	        
-	    }
-	    
-	    if (empty($this->_columnNumsToElementIdsMap)) {
-    	    $this->_columnNumsToElementIdsMap = unserialize($this->serialized_col_nums_to_element_ids_map);	        
-	    }
-	}
-	
 	protected function beforeSave()
 	{
 	    // serialize the column num to element id mapping
-	    $this->serialized_col_nums_to_element_ids_map = serialize($this->_columnNumsToElementIdsMap);
+	    $this->serialized_col_nums_to_element_ids_map = serialize($this->getColumnNumsToElementIdsMap());
 	}
 	
 	/**
@@ -77,14 +63,18 @@ class CsvImport_Import extends Omeka_Record {
    * @return boolean true if the import is successful, else false
    */
 	public function doImport() 
-	{
+	{ 
 	    // first save the import object in the database
+        $this->status = CSV_IMPORT_STATUS_IN_PROGRESS_IMPORT;
 	    $this->save(); 
-	    
+	    	    
 	    // add an import object
 	    $db = get_db();
-        if ($this->_csvFile->isValid()) {    	    
-            
+	    $csvFile = $this->getCsvFile();
+	    $columnNumsToElementIdsMap = $this->getColumnNumsToElementIdsMap();	    
+	    	    
+        if ($csvFile->isValid()) {    	    
+
             // define item metadata	    
             $itemMetadata = array(
                 'public'         => $this->is_public, 
@@ -97,7 +87,7 @@ class CsvImport_Import extends Omeka_Record {
             $colNumToElementInfoMap = array();
             $colCount = $this->_csvFile->getColumnCount();
             for($i = 0; $i < $colCount; $i++) {
-                $elementId = $this->_columnNumsToElementIdsMap[$i];
+                $elementId = $columnNumsToElementIdsMap[$i];
                 if ($elementId) {
                     $et = $db->getTable('Element');
                     $element = $et->find($elementId);
@@ -109,9 +99,9 @@ class CsvImport_Import extends Omeka_Record {
                     $colNumToElementInfoMap[$i] = null;
                 }
             }
-            
+                        
             // add item from each row
-            $rows = $this->_csvFile->getRows();
+            $rows = $csvFile->getRows();
             $i = 0;
             foreach($rows as $row) {
                 $i++;
@@ -121,7 +111,7 @@ class CsvImport_Import extends Omeka_Record {
                 }
                 $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
             }
-            
+                        
             $this->status = CSV_IMPORT_STATUS_COMPLETED_IMPORT;
             $this->save();
             return true;
@@ -170,7 +160,7 @@ class CsvImport_Import extends Omeka_Record {
 	        array_push($itemElementTexts[$elementSetName][$elementName], $itemElementText);
             
 	    }
-	    	    
+	     	        
 	    $item = insert_item($itemMetadata, $itemElementTexts);
 	    
 	    // record the imported item id so that you can uninstall the item later
@@ -183,17 +173,25 @@ class CsvImport_Import extends Omeka_Record {
 	private function recordImportedItemId($itemId) 
 	{
 	    // create a new imported item record
-	    $csvImportedItem = new CsvImport_ImportedItem($this->id, $itemId);
+	    $csvImportedItem = new CsvImport_ImportedItem();
+	    $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' => $itemId));
 	    $csvImportedItem->save();
 	}
 		
 	public function getCsvFile() 
 	{
+	    if (empty($this->_csvFile)) {
+	        $this->_csvFile = new CsvImport_File($this->csv_file_name);
+	    }
 		return $this->_csvFile;
 	}
 	
 	public function getColumnNumsToElementIdsMap() 
 	{
+	    if(empty($this->_columnNumsToElementIdsMap)) {
+	        $this->_columnNumsToElementIdsMap = unserialize($this->serialized_col_nums_to_element_ids_map);
+	    }
+	    
 	    return $this->_columnNumsToElementIdsMap;
 	}
 	
@@ -204,8 +202,12 @@ class CsvImport_Import extends Omeka_Record {
 	
 	public function undoImport() 
 	{
+	    // first save the import object in the database
+        $this->status = CSV_IMPORT_STATUS_IN_PROGRESS_UNDO_IMPORT;
+	    $this->save();
+	    
 	    // delete imported items
-        $itemLimitPerQuery = 50;
+        $itemLimitPerQuery = CSV_IMPORT_UNDO_IMPORT_LIMIT_PER_QUERY;        
 	    $db = get_db();
         $iit = $db->getTable('CsvImport_ImportedItem');
         $it = $db->getTable('Item');
@@ -213,8 +215,7 @@ class CsvImport_Import extends Omeka_Record {
         $sql = $iit->getSelect()->where('`import_id` = ?')->limit($itemLimitPerQuery);
         $importedItems = $iit->fetchObjects($sql, array($this->id));
         
-        while(count($importedItems) > 0) {    
-            
+        while(count($importedItems) > 0) {
             foreach($importedItems as $importedItem) {
                 $itemId = $importedItem->getItemId();
                 $item = $it->find($itemId);
@@ -223,12 +224,11 @@ class CsvImport_Import extends Omeka_Record {
                 }
                 $importedItem->delete();
             }
-            
             $sql = $iit->getSelect()->where('`import_id` = ?')->limit($itemLimitPerQuery);
             $importedItems = $iit->fetchObjects($sql, array($this->id));        
         } 
         
-        $this->status = CSV_IMPORT_STATUS_COMPLETED_UNIMPORT;
+        $this->status = CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT;
         $this->save();
 	}
 	
@@ -237,11 +237,22 @@ class CsvImport_Import extends Omeka_Record {
 	public function isComplete() 
 	{
 		return (($this->status == CSV_IMPORT_STATUS_COMPLETED_IMPORT) || 
-		       ($this->status == CSV_IMPORT_STATUS_COMPLETED_UNIMPORT));
+		       ($this->status == CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT));
 	}
 	
 	public function getStatus() 
 	{
 	    return $this->status;
+	}
+	
+	// returns the number of items currently imported.  
+	// if a user undoes an import, it decreases the count to show the number of items left to unimport
+	public function getImportedItemCount()
+	{
+	    $db = get_db();
+        $iit = $db->getTable('CsvImport_ImportedItem');
+        $sql = $iit->getSelectForCount()->where('`import_id` = ?');
+        $importedItemCount = $db->fetchOne($sql, array($this->id));
+        return $importedItemCount;
 	}
 }

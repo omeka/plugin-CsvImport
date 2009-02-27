@@ -20,6 +20,8 @@ require_once 'config.php';
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
 add_plugin_hook('initialize', 'csv_import_initialize');
+add_plugin_hook('config_form', 'csv_import_config_form');
+add_plugin_hook('config', 'csv_import_config');
 
 add_filter('admin_navigation_main', 'csv_import_admin_navigation');
 
@@ -69,6 +71,8 @@ function csv_import_uninstall()
 {
     // delete the plugin version number.
     delete_option('csv_import_plugin_version');
+    delete_option('csv_import_memory_limit');
+    delete_option('csv_import_php_path');
     
     // drop the tables
     $db = get_db();
@@ -325,8 +329,9 @@ function csv_import_get_imports()
     $ht .= '<tr>';
     $ht .= '<th>Import Date</th>';
     $ht .= '<th>Csv File</th>';
+    $ht .= '<th>Item Count</th>';
     $ht .= '<th>Status</th>';
-    $ht .= '<th></th>';    
+    $ht .= '<th>Action</th>';    
     $ht .= '</tr>';
     
     $hti = '';
@@ -336,9 +341,10 @@ function csv_import_get_imports()
         $htr .= '<tr>';
         $htr .= '<td>' . $csvImport->added . '</td>';
         $htr .= '<td>' . $csvImport->csv_file_name . '</td>';
+        $htr .= '<td>' . $csvImport->getImportedItemCount() . '</td>';
         $htr .= '<td>' . $csvImport->status . '</td>';
         if ( $csvImport->status  == CSV_IMPORT_STATUS_COMPLETED_IMPORT) {
-            $htr .= '<td><a href="' . uri('csv-import/index/unimport/id/' . $csvImport->id) . '">Unimport</a></td>';
+            $htr .= '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
         } else {
             $htr .= '<td></td>';
         }
@@ -349,4 +355,47 @@ function csv_import_get_imports()
     $ht .= $hti;
     $ht .= '</table>';
     return $ht;
+}
+
+function csv_import_config_form()
+{
+    if (!$path = get_option('csv_import_php_path')) {
+        // Get the path to the PHP-CLI command. This does not account for
+        // servers without a PHP CLI or those with a different command name for
+        // PHP, such as "php5".
+        $command = 'which php 2>&0';
+        $lastLineOutput = exec($command, $output, $returnVar);
+        $path = $returnVar == 0 ? trim($lastLineOutput) : '';
+    }
+   
+    if (!$memoryLimit = get_option('csv_import_memory_limit')) {
+        $memoryLimit = ini_get('memory_limit');
+    }
+?>
+    <div class="field">
+        <label for="csv_import_php_path">Path to PHP-CLI</label>
+        <?php echo __v()->formText('csv_import_php_path', $path, null);?>
+        <p class="explanation">Path to your server's PHP-CLI command. The PHP
+        version must correspond to normal Omeka requirements. Some web hosts use PHP
+        4.x for their default PHP-CLI, but many provide an alternative path to a
+        PHP-CLI 5 binary. Check with your web host for more information.</p>
+    </div>
+    <div class="field">
+        <label for="csv_import_memory_limit">Memory Limit</label>
+        <?php echo __v()->formText('csv_import_memory_limit', $memoryLimit, null);?>
+        <p class="explanation">Set a high memory limit to avoid memory allocation
+        issues during harvesting. Examples include 128M, 1G, and -1. The available
+        options are K (for Kilobytes), M (for Megabytes) and G (for Gigabytes).
+        Anything else assumes bytes. Set to -1 for an infinite limit. Be advised
+        that many web hosts set a maximum memory limit, so this setting may be
+        ignored if it exceeds the maximum allowable limit. Check with your web host
+        for more information.</p>
+    </div>
+<?php
+}
+
+function csv_import_config()
+{
+    set_option('csv_import_php_path', $_POST['csv_import_php_path']);
+    set_option('csv_import_memory_limit', $_POST['csv_import_memory_limit']);
 }
