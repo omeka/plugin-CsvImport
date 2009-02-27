@@ -249,26 +249,26 @@ class CsvImport_File {
         $colCount = 0;
         $rowCount = 0;
 
-        // process each line of data
-        while (($data = fgetcsv($handle)) !== FALSE && $rowCount < 2) {
-            // make sure the line is not empty
-            if ($data[0] !== null && trim($data[0]) != '') {  
+        // process each row of data
+        while (($row = fgetcsv($handle)) !== FALSE && $rowCount < 2) {
+            // make sure the row is not empty
+            if ($row[0] !== null && trim($row[0]) != '') {  
                 $rowCount++;
                 if ($rowCount == 1) {                    
                     // initialize the column count and column names
-                    $colCount = count($data);
+                    $colCount = count($row);
                     $this->_columnCount = $colCount;
-                    $this->_columnNames = $data;
+                    $this->_columnNames = $row;
                 } else {
                     // make sure the current row has the same number of columns as the header row
-                    $colCountCheck = count($data);
+                    $colCountCheck = count($row);
                     if ($colCountCheck != $colCount) {
                         $this->_isValid = false;                        
                         return;
                     } else {
                         // get examples for each column
                         if ($this->_columnExamples == null && $rowCount > 1) {
-                            $this->_columnExamples = $data;
+                            $this->_columnExamples = $row;
                         } 
                     } 
                 }
@@ -309,30 +309,28 @@ class CsvImport_File {
         $this->_isPreValid = false;
         $this->_isValid = false;
 
-        $processedLineCount = 0;
         $colCount = 0;
         $rowCount = 0;
 
-        // process each line of data
-        while (($data = fgetcsv($handle)) !== FALSE) {
-            $processedLineCount++;
+        // process each row of data
+        while (($row = fgetcsv($handle)) !== FALSE) {
             // make sure the line is not empty
-            if ($data[0] !== null && trim($data[0]) != '') {  
+            if ($row[0] !== null && trim($row[0]) != '') {  
                 $rowCount++;
                 if ($rowCount == 1) {
                     // initialize the column count and column names
-                    $colCount = count($data);
+                    $colCount = count($row);
                     $this->_columnCount = $colCount;
-                    $this->_columnNames = $data;
+                    $this->_columnNames = $row;
                 } else {
                     // make sure the current row has the same number of columns as the header row
-                    $colCountCheck = count($data);           
+                    $colCountCheck = count($row);           
                     if ($colCountCheck != $colCount) {
                         return;
                     } else {
                         // get examples for each column
                         if ($this->_columnExamples == null && $rowCount > 1) {
-                            $this->_columnExamples = $data;
+                            $this->_columnExamples = $row;
                         }
                     }
                 }
@@ -345,11 +343,6 @@ class CsvImport_File {
 
         // make sure the file has a header column and at least one data column
         if ($rowCount < 2) {
-            return;
-        }
-
-        // make sure every line was processed
-        if ($processedLineCount != $this->getLineCount()) {
             return;
         }
 
