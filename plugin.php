@@ -325,7 +325,7 @@ function csv_import_get_imports()
 {
     $csvImports = CsvImport_Import::getImports();
     $ht = '';
-    $ht .= '<table>';
+    $ht .= '<table class="simple" cellspacing="0" cellpadding="0">';
     $ht .= '<tr>';
     $ht .= '<th>Import Date</th>';
     $ht .= '<th>Csv File</th>';

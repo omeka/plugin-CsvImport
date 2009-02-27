@@ -1,8 +1,7 @@
 <?php
 
-head(array('title' => 'CsvImport'));
+head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
 
-echo '<div id="content" class="horizontal-nav">';
 echo '<h1>CsvImport</h1>';
 
 echo '<ul id="section-nav" class="navigation">';
@@ -26,6 +25,5 @@ echo csv_import_get_imports();
 echo '</form>';
 echo '</div>';
 
-echo '</div>';
 
 foot();
