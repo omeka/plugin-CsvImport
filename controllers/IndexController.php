@@ -126,17 +126,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->redirect->goto('status');
     }
     
-    public function clearAction()
-    {
-        $db = get_db();
-        $it = $db->getTable('Item');
-        $items = $it->findBy(array(), 500);
-        foreach($items as $item) {
-            $item->delete();
-        }
-        $this->redirect->goto('index');
-    }
-    
     public function statusAction() 
     {
         // get the session and view
@@ -189,6 +178,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     // execute a shell command in the background
     private function _background($shellCmd)
     {
+        // echo $shellCmd;
+        // exit;
         exec("nice $shellCmd > /dev/null 2>&1 &"); 
     }
 }

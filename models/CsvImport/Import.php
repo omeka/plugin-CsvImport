@@ -109,7 +109,8 @@ class CsvImport_Import extends Omeka_Record {
                 if ($i == 1) {
                     continue;
                 }
-                $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
+                $item = $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
+                release_object($item);
             }
                         
             $this->status = CSV_IMPORT_STATUS_COMPLETED_IMPORT;
@@ -126,7 +127,7 @@ class CsvImport_Import extends Omeka_Record {
 	
 	// adds an item based on the row data
 	// returns inserted Item
-	private function addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap) 
+	private function addItemFromRow(&$row, &$itemMetadata, &$colNumToElementInfoMap) 
 	{
         // define the element texts for the item
         $itemElementTexts = array();
