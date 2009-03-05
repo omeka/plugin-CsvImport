@@ -107,6 +107,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $this->_backgroundImport($csvImport);
                 
                 //redirect to column mapping page
+                $this->flashSuccess("Successfully started import. Reload this page for status updates.");
                 $this->redirect->goto('status');
                 
             }  
@@ -122,6 +123,24 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if ($csvImport) {
             // undo the import in the background
             $this->_backgroundUndoImport($csvImport);
+        }
+        $this->flashSuccess("Successfully started undo import. Reload this page for status updates.");
+        $this->redirect->goto('status');
+    }
+    
+    public function clearHistoryAction()
+    {
+        $db = get_db();
+        $cit = $db->getTable('CsvImport_Import');
+        $importId = $this->_getParam("id");
+        $csvImport = $cit->find($importId);
+        if ($csvImport) {
+            if ($csvImport->status == CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT || 
+                $csvImport->status == CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+                // delete the import object
+                $csvImport->delete();
+                $this->flashSuccess("Successfully cleared the history of the import.");
+            }
         }
         $this->redirect->goto('status');
     }

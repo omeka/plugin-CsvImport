@@ -345,6 +345,9 @@ function csv_import_get_imports()
         $htr .= '<td>' . $csvImport->status . '</td>';
         if ( $csvImport->status  == CSV_IMPORT_STATUS_COMPLETED_IMPORT) {
             $htr .= '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
+        } else if ($csvImport->status == CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT || 
+                   $csvImport->status == CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+            $htr .= '<td><a href="' . uri('csv-import/index/clear-history/id/' . $csvImport->id) . '">Clear History</a></td>';
         } else {
             $htr .= '<td></td>';
         }

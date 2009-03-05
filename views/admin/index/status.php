@@ -15,6 +15,7 @@ echo '</ul>';
 
 echo '<div id="primary">';
 echo '<h2>Status</h2>';
+echo flash();
 echo '<form id="csvimport" name="csvimport" method="post">';
 if (!empty($err)) {
     echo '<p class="error">' . $err . '</p>';
