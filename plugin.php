@@ -46,7 +46,7 @@ function csv_import_install()
        `status` varchar(255) collate utf8_unicode_ci,
        `is_public` tinyint(1) default '0',
        `is_featured` tinyint(1) default '0',
-       `serialized_col_nums_to_element_ids_map` text collate utf8_unicode_ci NOT NULL,
+       `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
        `added` timestamp NOT NULL default '0000-00-00 00:00:00',
        PRIMARY KEY  (`id`)
        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
@@ -172,13 +172,31 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
     for($i = 0; $i < count($colNames); $i++) {
         $ht .= '<div class="field">';
         $ht .= '<h3>Column: '. $colNames[$i] . '</h3>';
-        $ht .= '<p class="csv_import_column_examples">Example: ' . $colExamples[$i] . '</p>'; 
-        $ht .= csv_import_get_item_elements_drop_down(CSV_IMPORT_SELECT_COLUMN_DROPDOWN_PREFIX . $i, $csvImportItemTypeId);
+        $ht .= '<p class="csv_import_column_examples">Example: ' . $colExamples[$i] . '</p>';         
+        $ht .= csv_import_get_column_mapping_target_radio_buttons(CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_RADIO_BUTTONS_PREFIX . $i);
+        $ht .= csv_import_get_item_elements_drop_down(CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $i, $csvImportItemTypeId);
         $ht .= '</div>';
     }
     return $ht;
 }
 
+function csv_import_get_column_mapping_target_radio_buttons($radioButtonName)
+{
+    $ht = '';
+    
+    // get the radio buttons for target type
+    $default = csv_import_get_default($radioButtonName);
+    if ($default === null) {
+        $default = CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT;
+    }
+    $ht .= radio( array('name' => $radioButtonName), 
+                  array(CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT, 
+                        CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG, 
+                        CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE), 
+                  $default, $label_class='');
+    
+    return $ht;
+}
 
 /**
 * Get the drop down html code that includes item elements from all of the item element sets,
@@ -193,7 +211,7 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
     // get an associative array of elements where the key is the element set name and the value is the array of elements associated with the element set
     // order the element sets by: Dublin Core, item type, and then all other element sets
     $elements_by_element_set_name = csv_import_get_elements_by_element_set_name($itemTypeId);
-    
+        
     // get the select dropdown box
     $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elements_by_element_set_name, $default = csv_import_get_default($dropDownName), $label = '');
     

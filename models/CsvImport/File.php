@@ -14,7 +14,8 @@
  * @package CsvImport
  * @author CHNM
  **/
-class CsvImport_File {
+class CsvImport_File 
+{
 
 	protected $_fileName;
 	protected $_lineCount;
@@ -154,7 +155,7 @@ class CsvImport_File {
     * Get an array of rows for the csv file
     * 
     * @return array   if valid csv file, returns an iterator of rows, where each row is an associative array keyed with the column names, else returns an empty array
-    */
+    **/
  	public function getRows()
  	{
  	    // make sure that the csv file is valid, else return an empty array
@@ -173,8 +174,8 @@ class CsvImport_File {
    *    The file should have at least one row of data 
    * 
    * @return boolean
-   */
-	public function isValid() 
+   **/
+    public function isValid() 
 	{
 	    $this->_validate();
         return $this->_isValid;
@@ -188,7 +189,7 @@ class CsvImport_File {
     *    The file should have at least one row of data 
     * 
     * @return boolean
-    */
+    **/
  	public function isPreValid() 
  	{
  	    $this->_preValidate();
@@ -199,7 +200,7 @@ class CsvImport_File {
     * Gets the number of lines in the file
     * 
     * @return integer
-    */	
+    **/	
 	public function getLineCount() 
 	{
 	    if ($this->_lineCount === null) {
@@ -212,7 +213,7 @@ class CsvImport_File {
     * Computes the number of lines in the file
     * 
     * @return integer
-    */
+    **/
 	private function _computeLineCount()
 	{
 	    ini_set('auto_detect_line_endings', true);
@@ -232,7 +233,7 @@ class CsvImport_File {
     * instead of _validate
     * 
     * @return void
-    */
+    **/
 	private function _preValidate()
 	{ 	    
 	    // make sure the csv file has not already been validated or prevalidated
@@ -294,7 +295,7 @@ class CsvImport_File {
     * If don't need complete validation, use _preValidate instead.
     * 
     * @return void
-    */
+    **/
 	private function _validate()
 	{
         // make sure the csv file has not already been validated

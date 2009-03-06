@@ -14,7 +14,7 @@ echo '</li>';
 echo '</ul>';
 
 echo '<div id="primary">';
-echo '<h2>Step 2:&nbsp;&nbsp; Map Columns To Elements</h2>';
+echo '<h2>Step 2:&nbsp;&nbsp; Map Columns To Elements, Tags, or Files</h2>';
 echo '<form id="csvimport" name="csvimport" method="post">';
 if (!empty($err)) {
     echo '<p class="error">' . $err . '</p>';

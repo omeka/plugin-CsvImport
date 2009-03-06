@@ -82,20 +82,39 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         // process submitted column mappings
         if (isset($_POST['csv_import_submit'])) {
             
-            // map the column index numbers to the element ids
-            $colNumsToElementIdsMap = array();
+            // create the column maps
+            $columnMaps = array();
             $colCount = $csvImportFile->getColumnCount();
-            for($i = 0; $i < $colCount; $i++) {
-                $elementName =  CSV_IMPORT_SELECT_COLUMN_DROPDOWN_PREFIX . $i;
-                $elementId = $_POST[$elementName];
-                if (!empty($elementId)) {
-                    $colNumsToElementIdsMap[$i . ''] = $elementId;
+            for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
+                
+                // find the target type for the mapping
+                $targetType =  $_POST[CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_RADIO_BUTTONS_PREFIX . $colIndex];
+                
+                switch($targetType) {
+                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT:
+                        $elementId = $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $colIndex];
+                        if (!empty($elementId)) {
+                            $columnMap = new CsvImport_ColumnMap($colIndex, 'Element');
+                            $columnMap->addElementId($elementId);
+                            $columnMaps[] = $columnMap;
+                        }
+                    break;
+                    
+                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG:
+                        $columnMap = new CsvImport_ColumnMap($colIndex, 'Tag');
+                        $columnMaps[] = $columnMap;
+                    break;
+                    
+                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE:
+                        $columnMap = new CsvImport_ColumnMap($colIndex, 'File');
+                        $columnMaps[] = $columnMap;
+                    break;
                 }
             }           
             
-            // make sure the user maps at least one column to an element
-            if (count($colNumsToElementIdsMap) == 0) {
-                $view->err = 'Please map at least one column to an element.';
+            // make sure the user maps at least one column
+            if (count($columnMaps) == 0) {
+                $view->err = 'Please map at least one column to an element, file, or tag.';
             }
             
             // if there are no errors with the column mappings, then run the import and goto the status page
@@ -103,7 +122,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
                 // do the import in the background
                 $csvImport = new CsvImport_Import();
-                $csvImport->initialize($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $colNumsToElementIdsMap);
+                $csvImport->initialize($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $columnMaps);
                 $this->_backgroundImport($csvImport);
                 
                 //redirect to column mapping page
@@ -197,8 +216,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     // execute a shell command in the background
     private function _background($shellCmd)
     {
-        // echo $shellCmd;
-        // exit;
+         //echo $shellCmd;
+         //exit;
         exec("nice $shellCmd > /dev/null 2>&1 &"); 
     }
 }

@@ -18,10 +18,10 @@ class CsvImport_Import extends Omeka_Record {
 	public $is_public;
 	public $is_featured;
 	public $status;
-	public $serialized_col_nums_to_element_ids_map;
+	public $serialized_column_maps;
 
 	protected $_csvFile;
-	protected $_columnNumsToElementIdsMap; // maps column index numbers (starting at 0) to item type element ids
+	protected $_columnMaps; // an array of columnMaps, where each columnMap maps a column index number (starting at 0) to an element, tag, and/or file.
 		
 	/**
     * Gets an array of all of the CsvImport_Import objects from the database
@@ -37,7 +37,7 @@ class CsvImport_Import extends Omeka_Record {
         return $imports;
 	}
 	
-	public function initialize($csvFileName, $itemTypeId, $collectionId, $isPublic, $isFeatured, $columnNumsToElementIdsMap) 
+	public function initialize($csvFileName, $itemTypeId, $collectionId, $isPublic, $isFeatured, $columnMaps) 
 	{
 	     $this->setArray(array('csv_file_name' => $csvFileName, 
                                 'item_type_id' => $itemTypeId, 
@@ -45,14 +45,14 @@ class CsvImport_Import extends Omeka_Record {
                                 'is_public' => $isPublic, 
                                 'is_featured' => $isFeatured,
                                 'status' => '', 
-                                '_columnNumsToElementIdsMap' => $columnNumsToElementIdsMap)
+                                '_columnMaps' => $columnMaps)
                             );
 	}
 		
 	protected function beforeSave()
 	{
 	    // serialize the column num to element id mapping
-	    $this->serialized_col_nums_to_element_ids_map = serialize($this->getColumnNumsToElementIdsMap());
+	    $this->serialized_column_maps = serialize($this->getColumnMaps());
 	}
 	
 	/**
@@ -71,7 +71,8 @@ class CsvImport_Import extends Omeka_Record {
 	    // add an import object
 	    $db = get_db();
 	    $csvFile = $this->getCsvFile();
-	    $columnNumsToElementIdsMap = $this->getColumnNumsToElementIdsMap();	    
+	    $columnMaps = $this->getColumnMaps();
+	    	    
 	    	    
         if ($csvFile->isValid()) {    	    
 
@@ -82,24 +83,54 @@ class CsvImport_Import extends Omeka_Record {
                 'item_type_id'   => $this->item_type_id,
                 'collection_id'  => $this->collection_id
             );
+            
+            // create a map from the column index number to an array of element set name and element name pairs 
+            $colNumToElementInfosMap = array();
 
-            // create a map from the column index number to element set name and element 
-            $colNumToElementInfoMap = array();
-            $colCount = $this->_csvFile->getColumnCount();
-            for($i = 0; $i < $colCount; $i++) {
-                $elementId = $columnNumsToElementIdsMap[$i];
-                if ($elementId) {
+            $colNumMapsToTag = array();
+    
+            foreach($columnMaps as $columnMap) {
+                $columnIndex = $columnMap->getColumnIndex();                
+               
+                // check to see if the column maps to a tag
+                $mapsToTag = $colNumMapsToTag[$columnIndex];
+                if (empty($mapsToTag)) {
+                    $colNumMapsToTag[$columnIndex] = false;  
+                }
+                if ($columnMap->mapsToTag()) {
+                    $colNumMapsToTag[$columnIndex] = true;                    
+                }
+                
+                // check to see if the column maps to a file
+                $mapsToFile = $colNumMapsToFile[$columnIndex];
+                if (empty($mapsToFile)) {
+                    $colNumMapsToFile[$columnIndex] = false;  
+                }
+                if ($columnMap->mapsToFile()) {
+                    $colNumMapsToFile[$columnIndex] = true;                    
+                }
+                 
+                // build element infos from the column map
+                $elementIds = $columnMap->getElementIds();
+                foreach($elementIds as $elementId) {
                     $et = $db->getTable('Element');
                     $element = $et->find($elementId);
                     $es = $db->getTable('ElementSet');
                     $elementSet = $es->find($element['element_set_id']);
                     $elementInfo = array('element_name' => $element->name, 'element_set_name' => $elementSet->name);
-                    $colNumToElementInfoMap[$i] = $elementInfo;
-                } else {
-                    $colNumToElementInfoMap[$i] = null;
-                }
+                    
+                    // make sure that an array of element infos exists for the column index
+                    if (!is_array($colNumToElementInfosMap[$columnIndex])) {
+                        $colNumToElementInfosMap[$columnIndex] = array();
+                    }
+                    
+                    // add the element info if it does not already exist for the column index 
+                    if (!in_array($elementInfo, $colNumToElementInfosMap[$columnIndex])) {
+                        $colNumToElementInfosMap[$columnIndex][] = $elementInfo;                                            
+                    }
+                }                                          
             }
-                        
+                                    
             // add item from each row
             $rows = $csvFile->getRows();
             $i = 0;
@@ -109,7 +140,7 @@ class CsvImport_Import extends Omeka_Record {
                 if ($i == 1) {
                     continue;
                 }
-                $item = $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfoMap);
+                $item = $this->addItemFromRow($row, $itemMetadata, $colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile);
                 release_object($item);
             }
                         
@@ -127,42 +158,81 @@ class CsvImport_Import extends Omeka_Record {
 	
 	// adds an item based on the row data
 	// returns inserted Item
-	private function addItemFromRow(&$row, &$itemMetadata, &$colNumToElementInfoMap) 
+	private function addItemFromRow(&$row, &$itemMetadata, &$colNumToElementInfosMap, &$colNumMapsToTag, &$colNumMapsToFile) 
 	{
         // define the element texts for the item
         $itemElementTexts = array();
             	    
-	    // process each of the columns of the row as an element text
-	    $colNum = -1;
+	    // process each of the columns of the row
+	    $tags = array();
+	    $urlsForFiles = array();
+	    $colIndex = -1;
 	    foreach($row as $columnName => $columnValue) {
-	        $colNum++;
+	        $colIndex++;
             
-	        // make sure that the column is used
-	        if ( $colNumToElementInfoMap[$colNum] === null) {
-	            continue;
+	        // process the elements
+	        if ( $colNumToElementInfosMap[$colIndex] !== null) {
+    	        $elementInfos = $colNumToElementInfosMap[$colIndex];
+    	        foreach($elementInfos as &$elementInfo) {
+
+    	            // get the element name and element set name
+        	        $elementName = $elementInfo['element_name'];
+        	        $elementSetName = $elementInfo['element_set_name'];
+
+        	        // make sure the element set exists
+        	        if(!isset($itemElementTexts[$elementSetName])) {
+        	            $itemElementTexts[$elementSetName] = array();
+        	        }
+
+        	        // make sure the element name exists
+        	        if(!isset($itemElementTexts[$elementSetName][$elementName])) {
+        	            $itemElementTexts[$elementSetName][$elementName] = array();
+        	        }
+
+        	        // add the element text from the column value
+        	        $itemElementText = array('text' => $columnValue, 'html' => false);
+        	        array_push($itemElementTexts[$elementSetName][$elementName], $itemElementText);
+
+    	        }
 	        }
 	        
-	        // get the element name and element set name
-	        $elementName = $colNumToElementInfoMap[$colNum]['element_name'];
-	        $elementSetName = $colNumToElementInfoMap[$colNum]['element_set_name'];
+	        // process the tags
+	        if ($colNumMapsToTag[$colIndex]) {
+                $rawTags = explode(',', $columnValue);
+                foreach($rawTags as &$rawTag) {
+                    $tag = trim($rawTag);
+                    if (!in_array($tag, $tags)) {
+                        $tags[] = $tag;
+                    }
+                }
+            }
 	        
-	        // make sure the element set exists
-	        if(!isset($itemElementTexts[$elementSetName])) {
-	            $itemElementTexts[$elementSetName] = array();
-	        }
-	        
-	        // make sure the element name exists
-	        if(!isset($itemElementTexts[$elementSetName][$elementName])) {
-	            $itemElementTexts[$elementSetName][$elementName] = array();
-	        }
-	        
-	        // add the element text from the column value
-	        $itemElementText = array('text' => $columnValue, 'html' => false);
-	        array_push($itemElementTexts[$elementSetName][$elementName], $itemElementText);
-            
+	        // process the files
+	        if ($colNumMapsToFile[$colIndex]) {
+                $urlForFile = trim($columnValue);
+                if (!in_array($urlForFile, $urlsForFiles)) {
+                    $urlsForFiles[] = $urlForFile;
+                }        
+            }        
 	    }
-	     	        
-	    $item = insert_item($itemMetadata, $itemElementTexts);
+	    
+	    // update the file metadata
+	    if (count($urlsForFiles) > 0) {
+	        $fileMetadata = array('file_transfer_type' => 'Url', 'files' => $urlsForFiles);
+	    } else {
+	        $fileMetadata = array();
+	    }
+	    
+	    // update the tags metadata
+	    if (count($tags) > 0) {
+    	    $itemMetadata['tags'] = implode(',', $tags);	        
+	    }
+	    
+	    // insert the item 	        
+	    $item = insert_item($itemMetadata, $itemElementTexts, $fileMetadata);
+	    
+	    // reset the tags metadata back to null for the next row
+	    $itemMetadata['tags'] = null;
 	    
 	    // record the imported item id so that you can uninstall the item later
 	    $this->recordImportedItemId($item->id);
@@ -187,13 +257,13 @@ class CsvImport_Import extends Omeka_Record {
 		return $this->_csvFile;
 	}
 	
-	public function getColumnNumsToElementIdsMap() 
+	public function getColumnMaps() 
 	{
-	    if(empty($this->_columnNumsToElementIdsMap)) {
-	        $this->_columnNumsToElementIdsMap = unserialize($this->serialized_col_nums_to_element_ids_map);
+	    if(empty($this->_columnMaps)) {
+	        $this->_columnMaps = unserialize($this->serialized_column_maps);
 	    }
 	    
-	    return $this->_columnNumsToElementIdsMap;
+	    return $this->_columnMaps;
 	}
 	
 	public function getItemTypeId() 
