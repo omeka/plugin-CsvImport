@@ -91,22 +91,18 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $targetType =  $_POST[CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_RADIO_BUTTONS_PREFIX . $colIndex];
                 
                 switch($targetType) {
-                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT:
+                    case CsvImport_ColumnMap::TARGET_TYPE_ELEMENT:
                         $elementId = $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $colIndex];
                         if (!empty($elementId)) {
-                            $columnMap = new CsvImport_ColumnMap($colIndex, 'Element');
+                            $columnMap = new CsvImport_ColumnMap($colIndex, $targetType);
                             $columnMap->addElementId($elementId);
                             $columnMaps[] = $columnMap;
                         }
                     break;
                     
-                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG:
-                        $columnMap = new CsvImport_ColumnMap($colIndex, 'Tag');
-                        $columnMaps[] = $columnMap;
-                    break;
-                    
-                    case CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE:
-                        $columnMap = new CsvImport_ColumnMap($colIndex, 'File');
+                    case CsvImport_ColumnMap::TARGET_TYPE_TAG:
+                    case CsvImport_ColumnMap::TARGET_TYPE_FILE:
+                        $columnMap = new CsvImport_ColumnMap($colIndex, $targetType);
                         $columnMaps[] = $columnMap;
                     break;
                 }
@@ -154,8 +150,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $importId = $this->_getParam("id");
         $csvImport = $cit->find($importId);
         if ($csvImport) {
-            if ($csvImport->status == CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT || 
-                $csvImport->status == CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+            if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
+                $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
                 // delete the import object
                 $csvImport->delete();
                 $this->flashSuccess("Successfully cleared the history of the import.");
@@ -169,6 +165,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         // get the session and view
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
+        
+        //get the imports
+        $view->csvImports =  CsvImport_Import::getImports();
     }
     
     // import items in the background from csv file
@@ -188,9 +187,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     {   
          // make sure the import is saved in the database has a start status
          if ($isImport) {
-             $csvImport->status = CSV_IMPORT_STATUS_IN_PROGRESS_IMPORT;
+             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
          } else {
-             $csvImport->status = CSV_IMPORT_STATUS_IN_PROGRESS_UNDO_IMPORT;
+             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
          }       
         $csvImport->save();
 

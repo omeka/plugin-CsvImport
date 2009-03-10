@@ -1,30 +1,56 @@
-<?php
+<?php head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav')); ?>
 
-head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+<h1>CsvImport</h1>
+<ul id="section-nav" class="navigation">
+    <li class="">
+        <a href="<?php echo uri('csv-import') ?>">Import</a>
+    </li>
+    <li class="current">
+        <a href="<?php echo uri('csv-import/index/status') ?>">Status</a>
+    </li>
+</ul>
 
-echo '<h1>CsvImport</h1>';
+<div id="primary">
+    <h2>Status</h2>
+    <?php echo flash(); ?>
+    <form id="csvimport" name="csvimport" method="post">
+        <?php
+            if (!empty($err)) {
+                echo '<p class="error">' . $err . '</p>';
+            }
+        ?>
+        <table class="simple" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th>Import Date</th>
+                    <th>Csv File</th>
+                    <th>Item Count</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($csvImports as $csvImport): ?>
+                <tr>
+                    <td><?php echo $csvImport->added; ?></td>
+                    <td><?php echo $csvImport->csv_file_name; ?></td>
+                    <td><? echo $csvImport->getImportedItemCount(); ?></td>
+                    <td><? echo $csvImport->status; ?></td>
+                    <?php
+                    if ( $csvImport->status  == CsvImport_Import::STATUS_COMPLETED_IMPORT) {
+                        echo '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
+                    } else if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
+                               $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+                        echo '<td><a href="' . uri('csv-import/index/clear-history/id/' . $csvImport->id) . '">Clear History</a></td>';
+                    } else {
+                        echo '<td></td>';
+                    }
+                    ?>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </form>
+</div>
 
-echo '<ul id="section-nav" class="navigation">';
-echo '<li class="">';
-echo '<a href="' . uri('csv-import') . '">Import</a>';
-echo '</li>';
-echo '<li class="current">';
-echo '<a href="' . uri('csv-import/index/status') . '">Status</a>';
-echo '</li>';
-echo '</ul>';
-
-echo '<div id="primary">';
-echo '<h2>Status</h2>';
-echo flash();
-echo '<form id="csvimport" name="csvimport" method="post">';
-if (!empty($err)) {
-    echo '<p class="error">' . $err . '</p>';
-}
-
-echo csv_import_get_imports();
-
-echo '</form>';
-echo '</div>';
-
-
-foot();
+<?php foot(); ?>

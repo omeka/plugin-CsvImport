@@ -19,7 +19,6 @@ require_once 'config.php';
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
-add_plugin_hook('initialize', 'csv_import_initialize');
 add_plugin_hook('config_form', 'csv_import_config_form');
 add_plugin_hook('config', 'csv_import_config');
 
@@ -83,10 +82,6 @@ function csv_import_uninstall()
     
 }
 
-function csv_import_initialize()
-{
-}
-
 /**
  * Add the admin navigation for the plugin.
  * 
@@ -105,7 +100,7 @@ function csv_import_admin_navigation($tabs)
 *  
 * @return string
 */
-function csv_import_get_default($htmlInputElementName) 
+function csv_import_get_default_value($htmlInputElementName) 
 {
     // set the default file if the form is already submitted
     $default = null;
@@ -120,16 +115,16 @@ function csv_import_get_default($htmlInputElementName)
 *  
 * @return string
 */
-function csv_import_get_file_drop_down($dropDownName) 
+function csv_import_get_file_drop_down($dropDownName, $dropDownLabel) 
 {
     $ht = '';
     $csvFiles = CsvImport_File::getFiles();
     foreach ($csvFiles as $csvFile) {
         $values[$csvFile->getFileName()] = $csvFile->getFileName();
     }
-    
+            
     $ht .= '<div class="field">';
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $values, $default = csv_import_get_default($dropDownName), $label= 'Csv File');
+    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $values, csv_import_get_default_value($dropDownName), $dropDownLabel);
     $ht .= '</div>';
     return $ht;
 }
@@ -139,22 +134,24 @@ function csv_import_get_file_drop_down($dropDownName)
 *  
 * @return string
 */
-function csv_import_get_item_types_drop_down($dropDownName) 
+function csv_import_get_item_types_drop_down($dropDownName, $dropDownLabel) 
 {
     $ht = '';
-
-    $db = get_db();
-    $itt = $db->getTable('ItemType'); // get ItemTypeTable
-    $itemTypes = $itt->findAll();
-    $itemTypeIdsToNames = array();
-    foreach($itemTypes as $itemType) {
-        $itemTypeIdsToNames[$itemType['id']] = $itemType['name'];
-    }
-    
     $ht .= '<div class="field">';
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $itemTypeIdsToNames, $default = csv_import_get_default($dropDownName), $label= 'Item Type');
-    $ht .= '</div>';    
+    $ht .= select_item_type(array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
+    $ht .= '</div>';
     return $ht;
+
+    // $db = get_db();
+    // $itt = $db->getTable('ItemType'); // get ItemTypeTable
+    // $itemTypes = $itt->findAll();
+    // $itemTypeIdsToNames = array();
+    // foreach($itemTypes as $itemType) {
+    //     $itemTypeIdsToNames[$itemType['id']] = $itemType['name'];
+    // }
+
+    //$ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $itemTypeIdsToNames, csv_import_get_default_value($dropDownName), $dropDownLabel);
+
 }
 
 /**
@@ -185,14 +182,14 @@ function csv_import_get_column_mapping_target_radio_buttons($radioButtonName)
     $ht = '';
     
     // get the radio buttons for target type
-    $default = csv_import_get_default($radioButtonName);
+    $default = csv_import_get_default_value($radioButtonName);
     if ($default === null) {
-        $default = CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT;
+        $default = CsvImport_ColumnMap::TARGET_TYPE_ELEMENT;
     }
     $ht .= radio( array('name' => $radioButtonName), 
-                  array(CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_ELEMENT, 
-                        CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_TAG, 
-                        CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE => CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_FILE), 
+                  array(CsvImport_ColumnMap::TARGET_TYPE_ELEMENT => CsvImport_ColumnMap::TARGET_TYPE_ELEMENT, 
+                        CsvImport_ColumnMap::TARGET_TYPE_TAG => CsvImport_ColumnMap::TARGET_TYPE_TAG, 
+                        CsvImport_ColumnMap::TARGET_TYPE_FILE => CsvImport_ColumnMap::TARGET_TYPE_FILE), 
                   $default, $label_class='');
     
     return $ht;
@@ -210,10 +207,10 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
     
     // get an associative array of elements where the key is the element set name and the value is the array of elements associated with the element set
     // order the element sets by: Dublin Core, item type, and then all other element sets
-    $elements_by_element_set_name = csv_import_get_elements_by_element_set_name($itemTypeId);
+    $elementsByElementSetName = csv_import_get_elements_by_element_set_name($itemTypeId);
         
     // get the select dropdown box
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elements_by_element_set_name, $default = csv_import_get_default($dropDownName), $label = '');
+    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elementsByElementSetName, $default = csv_import_get_default_value($dropDownName), $label = '');
     
     return $ht;
 }
@@ -223,7 +220,7 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
 * The associative array will include the following sets of elements in the following order: 
 * Dublin Core element set,
 * the set of elements associated with the item type,
-* and then every other element set
+* and then every other element set.  Assumes that Dublin Core element set is the first element set in the database.
 *  
 * @return string
 */
@@ -240,17 +237,7 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
         
     foreach($elementSets as $elementSet) {
         switch(trim($elementSet['name'])) {
-            
-            // get the elements from the Dublic Core element set
-            case 'Dublin Core':
-                $dcElementSet = $elementSet->getElements();
-                $dcElementIdsToElementNames = array();
-                foreach($dcElementSet as $dcElement) {
-                    $dcElementIdsToElementNames[$dcElement['id']] = $dcElement['name']; 
-                }
-                $elementsByElementSetName[$elementSet['name']] = $dcElementIdsToElementNames;
-            break;
-            
+        
             // get the elements for the item type
             case 'Item Type Metadata':
                 
@@ -266,7 +253,7 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
                 
             break;
             
-            // get the elements from each of the other element sets
+            // get the elements from the Dublin Core and each of the other element sets
             default:
                 $oElementIdsToElementNames = array();
                 $oElements = $elementSet->getElements();
@@ -287,94 +274,35 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
 *  
 * @return string
 */
-function csv_import_get_collections_drop_down($dropDownName)
+function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
 {    
     $ht = '';
-    
-    // get the collection id/collection name pairs
-    $db = get_db();
-    $ct = $db->getTable('Collection');
-    $values = $ct->findPairsForSelectForm();
+    $ht .= '<div class="field">';
+    $ht .= select_collection( array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
+    $ht .= '</div>';
+
+    // // get the collection id/collection name pairs
+    // $db = get_db();
+    // $ct = $db->getTable('Collection');
+    // $values = $ct->findPairsForSelectForm();
     
     // get the select dropdown box
-    $ht .= '<div class="field">';
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $values, $default = csv_import_get_default($dropDownName), $label = 'Collection');
-    $ht .= '</div>';
 
     return $ht;
 }
 
 /**
-* Get the checkbox html code for specifying whether items are added as public items.
+* Get the checkbox html code.  Used for specifying whether items are public or featured
 *  
 * @return string
 */
-function csv_import_get_items_are_public_checkbox($htmlElementName) 
+function csv_import_checkbox($checkBoxName, $checkBoxLabel) 
 {
-    $checked = (csv_import_get_default($htmlElementName) == '1');
+    $checked = (bool) csv_import_get_default_value($checkBoxName);
     $ht = '';
     $ht .= '<div class="field">';
-    $ht .= checkbox($attributes = array('name' => $htmlElementName, 'id' => $htmlElementName), $checked, $value=null, $label = 'Items Are Public?' );
+    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null, $checkBoxLabel);
     $ht .= '</div>';
-    return $ht;
-}
-
-/**
-* Get the checkbox html code for specifying whether items are added as featured items.
-*  
-* @return string
-*/
-function csv_import_get_items_are_featured_checkbox($htmlElementName) 
-{
-    $checked = (csv_import_get_default($htmlElementName) == '1');
-    $ht = '';
-    $ht .= '<div class="field">';
-    $ht .= checkbox($attributes = array('name' => $htmlElementName, 'id' => $htmlElementName), $checked, $value=null, $label = 'Items Are Featured?' );
-    $ht .= '</div>';
-    return $ht;
-}
-
-/**
-* Get the html code the list of imports
-*  
-* @return string
-*/
-function csv_import_get_imports() 
-{
-    $csvImports = CsvImport_Import::getImports();
-    $ht = '';
-    $ht .= '<table class="simple" cellspacing="0" cellpadding="0">';
-    $ht .= '<tr>';
-    $ht .= '<th>Import Date</th>';
-    $ht .= '<th>Csv File</th>';
-    $ht .= '<th>Item Count</th>';
-    $ht .= '<th>Status</th>';
-    $ht .= '<th>Action</th>';    
-    $ht .= '</tr>';
-    
-    $hti = '';
-    foreach($csvImports as $csvImport) {
-        $htr = '';
-        
-        $htr .= '<tr>';
-        $htr .= '<td>' . $csvImport->added . '</td>';
-        $htr .= '<td>' . $csvImport->csv_file_name . '</td>';
-        $htr .= '<td>' . $csvImport->getImportedItemCount() . '</td>';
-        $htr .= '<td>' . $csvImport->status . '</td>';
-        if ( $csvImport->status  == CSV_IMPORT_STATUS_COMPLETED_IMPORT) {
-            $htr .= '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
-        } else if ($csvImport->status == CSV_IMPORT_STATUS_COMPLETED_UNDO_IMPORT || 
-                   $csvImport->status == CSV_IMPORT_STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
-            $htr .= '<td><a href="' . uri('csv-import/index/clear-history/id/' . $csvImport->id) . '">Clear History</a></td>';
-        } else {
-            $htr .= '<td></td>';
-        }
-        $htr .= '</tr>'; 
-                
-        $hti .= $htr;    
-    }
-    $ht .= $hti;
-    $ht .= '</table>';
     return $ht;
 }
 

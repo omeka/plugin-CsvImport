@@ -17,9 +17,13 @@
  **/
 class CsvImport_ColumnMap 
 {
-   protected $_columnIndex;
-   protected $_targetType;
-   protected $_elementIds;
+    const TARGET_TYPE_ELEMENT = 'Element';
+    const TARGET_TYPE_TAG = 'Tag';
+    const TARGET_TYPE_FILE = 'File';
+   
+    protected $_columnIndex;
+    protected $_targetType;
+    protected $_elementIds;
    
    	/**
    * @param string $columnIndex	the id of the column, starting at 0 from left to right in the csv file
@@ -51,7 +55,7 @@ class CsvImport_ColumnMap
     **/
  	public function mapsToTag()
  	{
-         return $this->_targetType == 'Tag';
+         return $this->_targetType == self::TARGET_TYPE_TAG;
  	}
  	
  	/**
@@ -62,7 +66,7 @@ class CsvImport_ColumnMap
     **/
  	public function mapsToElement()
  	{
-         return $this->_targetType == 'Element';
+         return $this->_targetType == self::TARGET_TYPE_ELEMENT;
  	}
  	
  	/**
@@ -73,7 +77,7 @@ class CsvImport_ColumnMap
     **/
  	public function mapsToFile()
  	{
-         return $this->_targetType == 'File';
+         return $this->_targetType == self::TARGET_TYPE_FILE;
  	}
  	
  	/**
