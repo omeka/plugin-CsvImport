@@ -37,7 +37,8 @@
                     <td><? echo $csvImport->getImportedItemCount(); ?></td>
                     <td><? echo $csvImport->status; ?></td>
                     <?php
-                    if ( $csvImport->status  == CsvImport_Import::STATUS_COMPLETED_IMPORT) {
+                    if ( $csvImport->status == CsvImport_Import::STATUS_COMPLETED_IMPORT ||
+                         $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD) {
                         echo '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
                     } else if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
                                $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {

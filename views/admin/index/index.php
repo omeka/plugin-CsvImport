@@ -24,6 +24,7 @@ echo csv_import_get_item_types_drop_down('csv_import_item_type_id', 'Item Type')
 echo csv_import_get_collections_drop_down('csv_import_collection_id', 'Collection');
 echo csv_import_checkbox('csv_import_items_are_public', 'Items Are Public?');
 echo csv_import_checkbox('csv_import_items_are_featured', 'Items Are Featured?');
+echo csv_import_checkbox('csv_import_ignore_file_download_errors', 'Ignore File Download Errors?');
 echo submit(array('name'=>'csv_import_submit', 'class'=>'submit submit-medium'), 'Next');
 echo '</form>';
 echo '</div>';

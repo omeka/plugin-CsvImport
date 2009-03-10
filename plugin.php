@@ -45,6 +45,7 @@ function csv_import_install()
        `status` varchar(255) collate utf8_unicode_ci,
        `is_public` tinyint(1) default '0',
        `is_featured` tinyint(1) default '0',
+       `ignore_file_download_errors` tinyint(1) default '0',
        `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
        `added` timestamp NOT NULL default '0000-00-00 00:00:00',
        PRIMARY KEY  (`id`)
@@ -141,17 +142,6 @@ function csv_import_get_item_types_drop_down($dropDownName, $dropDownLabel)
     $ht .= select_item_type(array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
     $ht .= '</div>';
     return $ht;
-
-    // $db = get_db();
-    // $itt = $db->getTable('ItemType'); // get ItemTypeTable
-    // $itemTypes = $itt->findAll();
-    // $itemTypeIdsToNames = array();
-    // foreach($itemTypes as $itemType) {
-    //     $itemTypeIdsToNames[$itemType['id']] = $itemType['name'];
-    // }
-
-    //$ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $itemTypeIdsToNames, csv_import_get_default_value($dropDownName), $dropDownLabel);
-
 }
 
 /**
@@ -280,14 +270,6 @@ function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
     $ht .= '<div class="field">';
     $ht .= select_collection( array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
     $ht .= '</div>';
-
-    // // get the collection id/collection name pairs
-    // $db = get_db();
-    // $ct = $db->getTable('Collection');
-    // $values = $ct->findPairsForSelectForm();
-    
-    // get the select dropdown box
-
     return $ht;
 }
 
