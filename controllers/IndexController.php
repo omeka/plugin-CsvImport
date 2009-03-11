@@ -37,13 +37,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
                 if (!$csvImportFile->isPreValid()) {
                     $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
-                } else if (empty($_POST['csv_import_item_type_id'])) {
-                    // make sure user has selected an item type
-                    $view->err = 'Please select an item type to import.'; 
                 } else {
                     // save csv file and item type to the session
                     $csvImportSession->csvImportFile = $csvImportFile;
-                    $csvImportSession->csvImportItemTypeId = $_POST['csv_import_item_type_id'];
+                    $csvImportSession->csvImportItemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
                     $csvImportSession->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
                     $csvImportSession->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
                     $csvImportSession->csvImportCollectionId = $_POST['csv_import_collection_id'];
@@ -69,16 +66,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
         // get the csv file to import
         $csvImportFile = $csvImportSession->csvImportFile;
-                
-        // get the item type to import
-        $db = get_db();
-        $itt = $db->getTable('ItemType'); // get ItemTypeTable
-        $csvImportItemType = $itt->find($csvImportSession->csvImportItemTypeId);
         
         // pass the csv file and item type to the view
         $view->err = '';
         $view->csvImportFile = $csvImportFile;
-        $view->csvImportItemTypeId = $csvImportItemType['id'];
+        $view->csvImportItemTypeId = $csvImportSession->csvImportItemTypeId;
         $view->csvImportFileImport = null;        
                 
         // process submitted column mappings
@@ -120,7 +112,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
                 // do the import in the background
                 $csvImport = new CsvImport_Import();
-                $csvImport->initialize($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
+                $csvImport->initialize($csvImportFile->getFileName(), $csvImportSession->csvImportItemTypeId, $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
                 $this->_backgroundImport($csvImport);
                 
                 //redirect to column mapping page

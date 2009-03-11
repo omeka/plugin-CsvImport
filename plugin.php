@@ -216,10 +216,7 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
 */
 function csv_import_get_elements_by_element_set_name($itemTypeId)
 {
-    $db = get_db();
-    $itt = $db->getTable('ItemType');
-    $itemType = $itt->find($itemTypeId);
-    
+    $db = get_db();    
     $es = $db->getTable('ElementSet');
     $elementSets = $es->findAll();
     
@@ -230,16 +227,19 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
         
             // get the elements for the item type
             case 'Item Type Metadata':
-                
-                $sql = "SELECT e.id, e.name FROM `{$db->prefix}item_types_elements` AS ite, `{$db->prefix}elements` AS e
-                        WHERE `ite`.`item_type_id` = ? AND `e`.`id` = `ite`.`element_id`";        
-                $query = $db->query($sql, array($itemTypeId));
-                $itElementIdsToElementNames = array();
-                while ($itElement = $query->fetch()) {
-                    $itElementIdsToElementNames[$itElement['id']] = $itElement['name'];
+                if (!empty($itemTypeId)) {
+                    $sql = "SELECT e.id, e.name FROM `{$db->prefix}item_types_elements` AS ite, `{$db->prefix}elements` AS e
+                            WHERE `ite`.`item_type_id` = ? AND `e`.`id` = `ite`.`element_id`";        
+                    $query = $db->query($sql, array($itemTypeId));
+                    $itElementIdsToElementNames = array();
+                    while ($itElement = $query->fetch()) {
+                        $itElementIdsToElementNames[$itElement['id']] = $itElement['name'];
+                    }
+                    
+                    $itt = $db->getTable('ItemType');
+                    $itemType = $itt->find($itemTypeId);
+                    $elementsByElementSetName[$elementSet['name'] . ' - ' . $itemType['name']] = $itElementIdsToElementNames;   
                 }
-                $elementsByElementSetName[$elementSet['name'] . ' - ' . $itemType['name']] = $itElementIdsToElementNames;
-
                 
             break;
             
