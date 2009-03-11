@@ -6,7 +6,7 @@ echo '<h1>CsvImport</h1>';
 
 echo '<ul id="section-nav" class="navigation">';
 echo '<li class="current">';
-echo '<a href="' . uri('csv-import') . '">Import</a>';
+echo '<a href="' . uri('csv-import') . '">Import Items</a>';
 echo '</li>';
 echo '<li class="">';
 echo '<a href="' . uri('csv-import/index/status') . '">Status</a>';

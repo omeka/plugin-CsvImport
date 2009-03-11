@@ -3,7 +3,7 @@
 <h1>CsvImport</h1>
 <ul id="section-nav" class="navigation">
     <li class="">
-        <a href="<?php echo uri('csv-import') ?>">Import</a>
+        <a href="<?php echo uri('csv-import') ?>">Import Items</a>
     </li>
     <li class="current">
         <a href="<?php echo uri('csv-import/index/status') ?>">Status</a>

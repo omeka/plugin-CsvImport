@@ -47,7 +47,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     $csvImportSession->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
                     $csvImportSession->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
                     $csvImportSession->csvImportCollectionId = $_POST['csv_import_collection_id'];
-                    $csvImportSession->csvImportIgnoreFileDownloadErrors = $_POST['csv_import_ignore_file_download_errors'];
+                    $csvImportSession->csvImportStopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
                     //redirect to column mapping page
                     $this->redirect->goto('map-columns');   
                 }                
@@ -63,7 +63,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $itemsArePublic = $csvImportSession->csvImportItemsArePublic;
         $itemsAreFeatured = $csvImportSession->csvImportItemsAreFeatured;
         $collectionId = $csvImportSession->csvImportCollectionId;
-        $ignoreFileDownloadErrors = $csvImportSession->csvImportIgnoreFileDownloadErrors;
+        $stopImportIfFileDownloadError = $csvImportSession->csvImportStopImportIfFileDownloadError;
         
         $view = $this->view;
 
@@ -120,7 +120,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
                 // do the import in the background
                 $csvImport = new CsvImport_Import();
-                $csvImport->initialize($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $ignoreFileDownloadErrors, $columnMaps);
+                $csvImport->initialize($csvImportFile->getFileName(), $csvImportItemType['id'], $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
                 $this->_backgroundImport($csvImport);
                 
                 //redirect to column mapping page

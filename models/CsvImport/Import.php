@@ -29,7 +29,7 @@ class CsvImport_Import extends Omeka_Record {
 	public $status;
 	public $serialized_column_maps;
 
-    public $ignore_file_download_errors;
+    public $stop_import_if_file_download_error;
 
 	protected $_csvFile;
 	protected $_columnMaps; // an array of columnMaps, where each columnMap maps a column index number (starting at 0) to an element, tag, and/or file.
@@ -48,7 +48,7 @@ class CsvImport_Import extends Omeka_Record {
         return $imports;
 	}
 	
-	public function initialize($csvFileName, $itemTypeId, $collectionId, $isPublic, $isFeatured, $ignoreFileDownloadErrors, $columnMaps) 
+	public function initialize($csvFileName, $itemTypeId, $collectionId, $isPublic, $isFeatured, $stopImportIfFileDownloadError, $columnMaps) 
 	{
 	     $this->setArray(array('csv_file_name' => $csvFileName, 
                                 'item_type_id' => $itemTypeId, 
@@ -56,7 +56,7 @@ class CsvImport_Import extends Omeka_Record {
                                 'is_public' => $isPublic, 
                                 'is_featured' => $isFeatured,
                                 'status' => '',
-                                'ignore_file_download_errors' => $ignoreFileDownloadErrors,
+                                'stop_import_if_file_download_error' => $stopImportIfFileDownloadError,
                                 '_columnMaps' => $columnMaps)
                             );
 	}
@@ -254,9 +254,9 @@ class CsvImport_Import extends Omeka_Record {
 	        $url = array();
 	        $url[] = $urlForFile;
     	    try {
-    	        $files = insert_files_for_item($item, $fileMetadata['file_transfer_type'], $url, array('ignore_invalid_files' => $this->ignore_file_download_errors));
+    	        $files = insert_files_for_item($item, $fileMetadata['file_transfer_type'], $url, array('ignore_invalid_files' => (!$this->stop_import_if_file_download_error)));
     	    } catch(Exception $e) {
-    	        if (!$this->ignore_file_download_errors){
+    	        if ($this->stop_import_if_file_download_error){
     	            $this->status = self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD;
     	        }
     	    }
