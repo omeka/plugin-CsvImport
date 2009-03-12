@@ -42,7 +42,7 @@ head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 
                     <?php
                     if ( $csvImport->status == CsvImport_Import::STATUS_COMPLETED_IMPORT ||
                          $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD) {
-                        echo '<td><a href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
+                        echo '<td><a onclick=" return csvConfirmUndoImport();" href="' . uri('csv-import/index/undo-import/id/' . $csvImport->id) . '">Undo Import</a></td>';
                     } else if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
                                $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
                         echo '<td><a href="' . uri('csv-import/index/clear-history/id/' . $csvImport->id) . '">Clear History</a></td>';

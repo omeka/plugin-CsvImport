@@ -64,3 +64,10 @@ function csvImportCreateNode(nodeType, nodeText ) {
     }
     return n;
 }
+
+function csvConfirmUndoImport() {
+    if (confirm("Undoing an import will delete all of its imported items. Are you sure you want to undo this import?")) {
+        return confirm('If you undo this import, your imported items for this import will be deleted.  Are you really sure you want to undo this import?');
+    }
+    return false;
+}
