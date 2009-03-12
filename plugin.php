@@ -21,6 +21,7 @@ add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
 add_plugin_hook('config_form', 'csv_import_config_form');
 add_plugin_hook('config', 'csv_import_config');
+add_plugin_hook('admin_theme_header', 'csv_import_admin_header');
 
 add_filter('admin_navigation_main', 'csv_import_admin_navigation');
 
@@ -94,6 +95,14 @@ function csv_import_admin_navigation($tabs)
   return $tabs;
 }
 
+function csv_import_admin_header($request)
+{
+    if ($request->getModuleName() == 'csv-import') {
+        echo '<link rel="stylesheet" href="' . css('csv_import_main') . '" />';
+        echo js('csv_import_main');
+    }
+}
+
 /**
 * Get the default value for an element.  
 * If the user has already submitted the value, then use that as the default, 
@@ -157,31 +166,38 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
     
     $itemElementIdsToNames = array();
     for($i = 0; $i < count($colNames); $i++) {
-        $ht .= '<div class="field">';
+        $ht .= '<div class="csv-import-column-map">';
         $ht .= '<h3>Column: '. $colNames[$i] . '</h3>';
         $ht .= '<p class="csv_import_column_examples">Example: ' . $colExamples[$i] . '</p>';         
-        $ht .= csv_import_get_column_mapping_target_radio_buttons(CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_RADIO_BUTTONS_PREFIX . $i);
-        $ht .= csv_import_get_item_elements_drop_down(CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $i, $csvImportItemTypeId);
+        $ht .= csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId);
+        $ht .= csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i, 'Tags?');
+        $ht .= csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i, 'URL To File?');
         $ht .= '</div>';
     }
     return $ht;
 }
 
-function csv_import_get_column_mapping_target_radio_buttons($radioButtonName)
+/**
+* Gets a div that allows users to add and remove elements for an column mapping
+* 
+* @todo Fix the hidden helper function so it does not echo the output and then use it. 
+* @return string
+*/
+
+function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
 {
+    $elementsDropDownName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $columnIndex;
+    $elementsHiddenInputName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $columnIndex;
+    $elementsListName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . $columnIndex;
+    
     $ht = '';
-    
-    // get the radio buttons for target type
-    $default = csv_import_get_default_value($radioButtonName);
-    if ($default === null) {
-        $default = CsvImport_ColumnMap::TARGET_TYPE_ELEMENT;
-    }
-    $ht .= radio( array('name' => $radioButtonName), 
-                  array(CsvImport_ColumnMap::TARGET_TYPE_ELEMENT => CsvImport_ColumnMap::TARGET_TYPE_ELEMENT, 
-                        CsvImport_ColumnMap::TARGET_TYPE_TAG => CsvImport_ColumnMap::TARGET_TYPE_TAG, 
-                        CsvImport_ColumnMap::TARGET_TYPE_FILE => CsvImport_ColumnMap::TARGET_TYPE_FILE), 
-                  $default, $label_class='');
-    
+    $ht .= '<div>';
+    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId);
+    $ht .= '<a class="add-element" onclick="' . "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "')" . ';">Add Element</a>';
+    $ht .= '<input type="hidden" value="' . csv_import_get_default_value($elementsHiddenInputName) . '" name="' . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" />';
+    $ht .= '<ul id="' . $elementsListName . '"></ul>';
+    //$ht .= hidden(array('name' => $elementsHiddenInputName, 'id' => $elementsHiddenInputName),  csv_import_get_default_value($elementsHiddenInputName)));
+    $ht .= '</div>';
     return $ht;
 }
 
@@ -200,7 +216,7 @@ function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
     $elementsByElementSetName = csv_import_get_elements_by_element_set_name($itemTypeId);
         
     // get the select dropdown box
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elementsByElementSetName, $default = csv_import_get_default_value($dropDownName), $label = '');
+    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elementsByElementSetName, csv_import_get_default_value($dropDownName), 'Elements');
     
     return $ht;
 }
@@ -240,7 +256,6 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
                     $itemType = $itt->find($itemTypeId);
                     $elementsByElementSetName[$elementSet['name'] . ' - ' . $itemType['name']] = $itElementIdsToElementNames;   
                 }
-                
             break;
             
             // get the elements from the Dublin Core and each of the other element sets
@@ -280,9 +295,9 @@ function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
 */
 function csv_import_checkbox($checkBoxName, $checkBoxLabel) 
 {
-    $checked = (bool) csv_import_get_default_value($checkBoxName);
     $ht = '';
     $ht .= '<div class="field">';
+    $checked = (bool) csv_import_get_default_value($checkBoxName);
     $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null, $checkBoxLabel);
     $ht .= '</div>';
     return $ht;

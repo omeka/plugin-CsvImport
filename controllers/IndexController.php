@@ -81,24 +81,27 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             $colCount = $csvImportFile->getColumnCount();
             for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
                 
-                // find the target type for the mapping
-                $targetType =  $_POST[CSV_IMPORT_COLUMN_MAP_TARGET_TYPE_RADIO_BUTTONS_PREFIX . $colIndex];
+                // if applicable, add mapping to tags
+                if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == '1') {
+                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_TAG);
+                    $columnMaps[] = $columnMap;
+                }
                 
-                switch($targetType) {
-                    case CsvImport_ColumnMap::TARGET_TYPE_ELEMENT:
-                        $elementId = $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $colIndex];
-                        if (!empty($elementId)) {
-                            $columnMap = new CsvImport_ColumnMap($colIndex, $targetType);
-                            $columnMap->addElementId($elementId);
-                            $columnMaps[] = $columnMap;
-                        }
-                    break;
-                    
-                    case CsvImport_ColumnMap::TARGET_TYPE_TAG:
-                    case CsvImport_ColumnMap::TARGET_TYPE_FILE:
-                        $columnMap = new CsvImport_ColumnMap($colIndex, $targetType);
-                        $columnMaps[] = $columnMap;
-                    break;
+                // if applicable, add mapping to file
+                if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] == '1') {
+                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_FILE);
+                    $columnMaps[] = $columnMap;
+                }
+                                
+                // if applicable, add mapping to elements
+                $rawElementIds = explode(',', $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $colIndex]);
+                foreach($rawElementIds as $rawElementId) {
+                    $elementId = trim($rawElementId);
+                    if ($elementId) {
+                        $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
+                        $columnMap->addElementId($elementId);
+                        $columnMaps[] = $columnMap;                        
+                    }
                 }
             }           
             

@@ -1,5 +1,8 @@
-<?php head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav')); ?>
+<?php 
 
+head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+
+?>
 <h1>CsvImport</h1>
 <ul id="section-nav" class="navigation">
     <li class="">

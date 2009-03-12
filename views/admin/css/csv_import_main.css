@@ -1,0 +1,10 @@
+.csv-import-column-map {
+    border-top:2px solid #D7D5C4; 
+    padding-top:10px;    
+}
+
+.csv-import-element-delete {
+    background-image: url('../../../../../admin/themes/default/images/delete.gif');
+    background-repeat: no-repeat;
+    padding-left: 20px;
+}
