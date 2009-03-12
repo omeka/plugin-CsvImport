@@ -107,8 +107,8 @@ class CsvImport_Import extends Omeka_Record {
             $colNumMapsToTag = array();
     
             foreach($columnMaps as $columnMap) {
-                $columnIndex = $columnMap->getColumnIndex();                
-               
+                $columnIndex = $columnMap->getColumnIndex();
+                               
                 // check to see if the column maps to a tag
                 $mapsToTag = $colNumMapsToTag[$columnIndex];
                 if (empty($mapsToTag)) {
@@ -190,8 +190,10 @@ class CsvImport_Import extends Omeka_Record {
 	    $tags = array();
 	    $urlsForFiles = array();
 	    $colIndex = -1;
-	    foreach($row as $columnName => $columnValue) {
-	        $colIndex++;
+	    for($colIndex = 0; $colIndex < count($row); $colIndex++) {
+	        
+	        $columnName = $row[$colIndex]['name'];
+	        $columnValue = $row[$colIndex]['value'];
             
 	        // process the elements
 	        if ( $colNumToElementInfosMap[$colIndex] !== null) {
@@ -229,7 +231,7 @@ class CsvImport_Import extends Omeka_Record {
                     }
                 }
             }
-	        
+            	        
 	        // process the files
 	        if ($colNumMapsToFile[$colIndex]) {
                 $urlForFile = trim($columnValue);

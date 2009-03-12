@@ -89,9 +89,9 @@ class CsvImport_Rows implements Iterator
             if ($row[0] !== null && trim($row[0]) != '') {
                 for($i = 0; $i < $this->_colCount; $i++) 
                 {
-                    $currentRow[$this->_colNames[$i]] = $row[$i];
+                    $currentRow[$i]['name'] = $this->_colNames[$i];
+                    $currentRow[$i]['value'] = $row[$i];
                 }
- 
                 $this->_currentRow = $currentRow;
                 $this->_currentRowNumber++;
                 return;
