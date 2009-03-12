@@ -37,7 +37,7 @@ head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 
                 <tr>
                     <td><?php echo $csvImport->added; ?></td>
                     <td><?php echo $csvImport->csv_file_name; ?></td>
-                    <td><? echo $csvImport->getImportedItemCount(); ?></td>
+                    <td><? echo $csvImport->getImportedItemCount(); ?> / <?php echo $csvImport->getItemCount(); ?></td>
                     <td><? echo $csvImport->status; ?></td>
                     <?php
                     if ( $csvImport->status == CsvImport_Import::STATUS_COMPLETED_IMPORT ||

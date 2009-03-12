@@ -24,6 +24,7 @@ class CsvImport_Import extends Omeka_Record {
 	public $collection_id;
 	public $added; // the timestamp when the import was begun
 	
+	public $item_count; // the total number of items in the csv file
 	public $is_public;
 	public $is_featured;
 	public $status;
@@ -63,6 +64,9 @@ class CsvImport_Import extends Omeka_Record {
 		
 	protected function beforeSave()
 	{
+	    if ($this->item_count == null) {
+	        $this->item_count = 0;
+	    }
 	    // serialize the column num to element id mapping
 	    $this->serialized_column_maps = serialize($this->getColumnMaps());
 	}
@@ -78,6 +82,7 @@ class CsvImport_Import extends Omeka_Record {
 	{ 
 	    // first save the import object in the database
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
+        $this->item_count = $this->getItemCount();
 	    $this->save(); 
 	    	    
 	    // add an import object
@@ -361,5 +366,13 @@ class CsvImport_Import extends Omeka_Record {
         $sql = $iit->getSelectForCount()->where('`import_id` = ?');
         $importedItemCount = $db->fetchOne($sql, array($this->id));
         return $importedItemCount;
+	}
+	
+	// returns the total number of items to import
+	public function getItemCount() {
+	    if ($this->item_count == 0) {
+	        $this->item_count = $this->getCsvFile()->getRowCount() - 1; // remove 1 for the header row
+	    }
+	    return $this->item_count;
 	}
 }

@@ -44,6 +44,7 @@ function csv_import_install()
        `collection_id` int(10) unsigned NOT NULL,       
        `csv_file_name` text collate utf8_unicode_ci NOT NULL,
        `status` varchar(255) collate utf8_unicode_ci,
+       `item_count` int(10) unsigned NOT NULL,
        `is_public` tinyint(1) default '0',
        `is_featured` tinyint(1) default '0',
        `stop_import_if_file_download_error` tinyint(1) default '0',

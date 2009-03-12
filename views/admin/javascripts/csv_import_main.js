@@ -39,7 +39,6 @@ function csvImportRemoveElementFromColumnMap(elementId, elementsListId, elements
         }
     }
     $(elementsHiddenInputId).value = hT;
-    alert($(elementsHiddenInputId).value); 
 }
 
 function csvImportColumnMapHasElement(elementId, elementsHiddenInputId) {
