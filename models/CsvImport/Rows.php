@@ -86,7 +86,7 @@ class CsvImport_Rows implements Iterator
         // loop through rows until you get a line or until there are no more lines
         while (($row = fgetcsv($this->_handle)) !== FALSE) {
             $currentRow = array();
-            if ($row[0] !== null && trim($row[0]) != '') {
+            if (count($row) == $this->_colCount) {
                 for($i = 0; $i < $this->_colCount; $i++) 
                 {
                     $currentRow[$i]['name'] = $this->_colNames[$i];

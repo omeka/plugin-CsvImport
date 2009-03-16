@@ -252,8 +252,11 @@ class CsvImport_File
 
         // process each row of data
         while (($row = fgetcsv($handle)) !== FALSE && $rowCount < 2) {
-            // make sure the row is not empty
-            if ($row[0] !== null && trim($row[0]) != '') {  
+            // make sure the row is not empty and has the appropriate number of columns
+            if ( ($colCount > 0 && count($row) == $colCount) || 
+                 ($colCount == 0 && trim($row[0]) != '') ||
+                 ($colCount == 0 && count($row) > 1) ) {
+               
                 $rowCount++;
                 if ($rowCount == 1) {                    
                     // initialize the column count and column names
@@ -261,17 +264,19 @@ class CsvImport_File
                     $this->_columnCount = $colCount;
                     $this->_columnNames = $row;
                 } else {
-                    // make sure the current row has the same number of columns as the header row
-                    $colCountCheck = count($row);
-                    if ($colCountCheck != $colCount) {
-                        $this->_isValid = false;                        
-                        return;
-                    } else {
-                        // get examples for each column
-                        if ($this->_columnExamples == null && $rowCount > 1) {
-                            $this->_columnExamples = $row;
-                        } 
+                    // get examples for each column
+                    if ($this->_columnExamples == null && $rowCount > 1) {
+                        $this->_columnExamples = $row;
                     } 
+                }
+            } else {
+
+                if ( !(count($row) == 1 && trim($row[0]) == '') && 
+                     ($colCount > 0 && count($row) != $colCount) ) {
+                    // the line does not have the appropriate number of columns
+                    $this->_isValid = false;
+                    exit;                        
+                    return;
                 }
             }
         }
@@ -315,8 +320,10 @@ class CsvImport_File
 
         // process each row of data
         while (($row = fgetcsv($handle)) !== FALSE) {
-            // make sure the line is not empty
-            if ($row[0] !== null && trim($row[0]) != '') {  
+            // make sure the line is not empty and has the appropriate number of columns
+            if ( ($colCount > 0 && count($row) == $colCount) || 
+                 ($colCount == 0 && trim($row[0]) != '') ||
+                 ($colCount == 0 && count($row) > 1) ) {  
                 $rowCount++;
                 if ($rowCount == 1) {
                     // initialize the column count and column names
@@ -324,16 +331,16 @@ class CsvImport_File
                     $this->_columnCount = $colCount;
                     $this->_columnNames = $row;
                 } else {
-                    // make sure the current row has the same number of columns as the header row
-                    $colCountCheck = count($row);           
-                    if ($colCountCheck != $colCount) {
-                        return;
-                    } else {
-                        // get examples for each column
-                        if ($this->_columnExamples == null && $rowCount > 1) {
-                            $this->_columnExamples = $row;
-                        }
+                    // get examples for each column
+                    if ($this->_columnExamples == null && $rowCount > 1) {
+                        $this->_columnExamples = $row;
                     }
+                }
+            } else {
+                if (!(count($row) == 1 && trim($row[0]) == '') &&
+                    ($colCount > 0 && count($row) != $colCount) ) {
+                    // the line does not have the appropriate number of columns
+                    return;
                 }
             }
         }
