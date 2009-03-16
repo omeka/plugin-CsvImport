@@ -275,7 +275,6 @@ class CsvImport_File
                      ($colCount > 0 && count($row) != $colCount) ) {
                     // the line does not have the appropriate number of columns
                     $this->_isValid = false;
-                    exit;                        
                     return;
                 }
             }
