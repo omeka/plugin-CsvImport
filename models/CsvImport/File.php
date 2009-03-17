@@ -302,6 +302,7 @@ class CsvImport_File
     **/
 	private function _validate()
 	{
+	    
         // make sure the csv file has not already been validated
         if ($this->_isValid !== null) {
             return;
