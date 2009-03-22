@@ -7,7 +7,6 @@
  * @version    $Id:$
  **/
 
-
 /**
  * CsvImport_ColumnMap - represents a mapping 
  * from a column in a csv file to an item element, file, or tag

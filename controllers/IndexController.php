@@ -4,13 +4,13 @@
  * @version $Id$
  * @copyright Center for History and New Media, 2008
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
- * @package CvsImport
+ * @package CsvImport
  */
 
 /**
  * The CvsImport index controller class.
  *
- * @package SimplePages
+ * @package CsvImport
  * @author CHNM
  * @copyright Center for History and New Media, 2008
  */

@@ -7,7 +7,6 @@
  * @version    $Id:$
  **/
 
-
 /**
  * CsvImport_File - represents a csv file
  * 
