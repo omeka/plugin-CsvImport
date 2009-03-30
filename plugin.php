@@ -165,15 +165,30 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
     $colExamples = $csvImportFile->getColumnExamples();
     
     $itemElementIdsToNames = array();
+	$ht .= '<style type="text/css">table td {vertical-align:top;}</style>';
+	$ht .= '<table class="simple" cellspacing="0" cellpadding="0">';
+	$ht .= '<thead>';
+	$ht .= '<tr>';
+	$ht .= '<th>Column</th>';
+	$ht .= '<th>Example from CSV File</th>';
+	$ht .= '<th>Map To Element</th>';
+	$ht .= '<th>Tags?</th>';
+	$ht .= '<th>Path to File?</th>';
+	$ht .= '</thead>';
+	$ht .= '<tbody>';
+	
     for($i = 0; $i < count($colNames); $i++) {
-        $ht .= '<div class="csv-import-column-map">';
-        $ht .= '<h3>Column: '. $colNames[$i] . '</h3>';
-        $ht .= '<p class="csv_import_column_examples">Example: ' . $colExamples[$i] . '</p>';         
-        $ht .= csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId);
-        $ht .= csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i, 'Tags?');
-        $ht .= csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i, 'URL To File?');
-        $ht .= '</div>';
+        $ht .= '<tr>';
+        $ht .= '<td><strong>'.$colNames[$i].'</strong></td>';
+        $ht .= '<td>&#8220;' . $colExamples[$i] . '&#8221;</td>';         
+        $ht .= '<td>'.csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId).'</td>';
+        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i).'</td>';
+        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i).'</td>';
+        $ht .= '</tr>';
     }
+	$ht .= '</tbody>';
+	$ht .= '</table>';
+	
     return $ht;
 }
 
