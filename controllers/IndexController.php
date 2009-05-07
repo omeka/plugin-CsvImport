@@ -35,11 +35,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 // make sure the file is correctly formatted
                 $csvImportFile = new CsvImport_File($_POST['csv_import_file_name']);
                 
-                if (!$csvImportFile->isPreValid()) {
+                
+                if (!$csvImportFile->isPreValid()) {                    
                     $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
-                } else {
+                } else {                    
                     // save csv file and item type to the session
-                    $csvImportSession->csvImportFile = $csvImportFile;
+                    $csvImportSession->csvImportFile = $csvImportFile;                    
                     $csvImportSession->csvImportItemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
                     $csvImportSession->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
                     $csvImportSession->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
@@ -66,7 +67,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
         // get the csv file to import
         $csvImportFile = $csvImportSession->csvImportFile;
-        
+                
         // pass the csv file and item type to the view
         $view->err = '';
         $view->csvImportFile = $csvImportFile;
@@ -212,8 +213,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     // execute a shell command in the background
     private function _background($shellCmd)
     {
-        //echo $shellCmd;
-        //exit;
+        //echo $shellCmd; exit;
         exec("nice $shellCmd > /dev/null 2>&1 &"); 
     }
 }

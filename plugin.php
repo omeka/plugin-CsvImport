@@ -308,7 +308,7 @@ function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
 *  
 * @return string
 */
-function csv_import_checkbox($checkBoxName, $checkBoxLabel) 
+function csv_import_checkbox($checkBoxName, $checkBoxLabel='') 
 {
     $ht = '';
     $ht .= '<div class="field">';
