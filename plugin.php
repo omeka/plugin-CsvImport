@@ -207,8 +207,8 @@ function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
     
     $ht = '';
     $ht .= '<div>';
-    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId);
-    $ht .= '<a class="add-element" onclick="' . "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "')" . ';">Add Element</a>';
+    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId, $elementsListName, $elementsHiddenInputName);
+    //$ht .= '<a class="add-element" onclick="' . "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "')" . ';">Add Element</a>';
     $ht .= '<input type="hidden" value="' . csv_import_get_default_value($elementsHiddenInputName) . '" name="' . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" />';
     $ht .= '<ul id="' . $elementsListName . '"></ul>';
     //$ht .= hidden(array('name' => $elementsHiddenInputName, 'id' => $elementsHiddenInputName),  csv_import_get_default_value($elementsHiddenInputName)));
@@ -222,16 +222,19 @@ function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
 *  
 * @return string
 */
-function csv_import_get_item_elements_drop_down($dropDownName, $itemTypeId)
+function csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId, $elementsListName, $elementsHiddenInputName)
 {    
     $ht = '';
     
     // get an associative array of elements where the key is the element set name and the value is the array of elements associated with the element set
     // order the element sets by: Dublin Core, item type, and then all other element sets
     $elementsByElementSetName = csv_import_get_elements_by_element_set_name($itemTypeId);
+    
+    $onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "');this.selectedIndex=0;";
+    
         
     // get the select dropdown box
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $elementsByElementSetName, csv_import_get_default_value($dropDownName), 'Elements');
+    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'onchange'=>$onChange), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), 'Elements');
     
     return $ht;
 }
