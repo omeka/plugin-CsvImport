@@ -53,7 +53,7 @@ head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 
                         echo $csvImport->status;
                         $errorDetails = $csvImport->error_details;
                         if ($csvImport->hasErrorStatus() && !empty($errorDetails)) {
-                           echo '<br/>' . $csvImport->error_details;
+                           echo '<br/>' . str_replace("\n", '<br/><br/>', $csvImport->error_details);
                         }
                     ?>
                     </td>

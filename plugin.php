@@ -108,21 +108,22 @@ function csv_import_admin_header($request)
 * Get the default value for an element.  
 * If the user has already submitted the value, then use that as the default, 
 * else return null
-*  
+*
+* @param string Element input name
+* @param string Default value of the element  
 * @return string
 */
-function csv_import_get_default_value($htmlInputElementName) 
+function csv_import_get_default_value($htmlInputElementName, $defaultValue = null) 
 {
     // set the default file if the form is already submitted
-    $default = null;
     if (isset($_POST[$htmlInputElementName])) {
-        $default = $_POST[$htmlInputElementName];
+        $defaultValue = $_POST[$htmlInputElementName];
     }
-    return $default;
+    return $defaultValue;
 }
 
 /**
-* Get the checkbox html code for csv files.
+* Get the dropdown html code for csv files.
 *  
 * @return string
 */
@@ -309,14 +310,17 @@ function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
 
 /**
 * Get the checkbox html code.  Used for specifying whether items are public or featured
-*  
+*
+* @param string $checkBoxName
+* @param string $checkBoxLabel
+* @param string $isCheckedByDefault 
 * @return string
 */
-function csv_import_checkbox($checkBoxName, $checkBoxLabel='') 
+function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $isCheckedByDefault=false) 
 {
     $ht = '';
     $ht .= '<div class="field">';
-    $checked = (bool) csv_import_get_default_value($checkBoxName);
+    $checked = (bool) csv_import_get_default_value($checkBoxName, $isCheckedByDefault);
     $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null, $checkBoxLabel);
     $ht .= '</div>';
     return $ht;
