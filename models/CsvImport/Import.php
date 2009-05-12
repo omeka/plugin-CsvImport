@@ -28,6 +28,7 @@ class CsvImport_Import extends Omeka_Record {
 	public $is_public;
 	public $is_featured;
 	public $status;
+	public $error_details;
 	public $serialized_column_maps;
 
     public $stop_import_if_file_download_error;
@@ -57,6 +58,7 @@ class CsvImport_Import extends Omeka_Record {
                                 'is_public' => $isPublic, 
                                 'is_featured' => $isFeatured,
                                 'status' => '',
+                                'error_details' => '',
                                 'stop_import_if_file_download_error' => $stopImportIfFileDownloadError,
                                 '_columnMaps' => $columnMaps)
                             );
@@ -263,15 +265,17 @@ class CsvImport_Import extends Omeka_Record {
     	    try {
     	        $files = insert_files_for_item($item, $fileMetadata['file_transfer_type'], $url, array('ignore_invalid_files' => (!$this->stop_import_if_file_download_error)));
     	    } catch(Exception $e) {
+    	        //echo $e; exit;
     	        if ($this->stop_import_if_file_download_error){
     	            $this->status = self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD;
+            	    if ($e instanceof Omeka_File_Ingest_InvalidException) {
+            	        $this->error_details = $urlForFile . ' ' . $e->getMessage();
+            	    }
+            	    release_object($files);
+    	            break;
     	        }
     	    }
     	    release_object($files);
-    	    
-    	    if ($this->status == self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD) {
-    	        break;
-    	    }
 	    }
 	    
 	    // reset the tags metadata back to null for the next row
@@ -359,6 +363,17 @@ class CsvImport_Import extends Omeka_Record {
 	    return $this->status;
 	}
 	
+	public function hasErrorStatus()
+	{
+	    return (($this->status == self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) || 
+		       ($this->status == self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD));
+	}
+	
+	public function getErrorDetails()
+	{
+	    return $this->error_details;
+	}
+	
 	// returns the number of items currently imported.  
 	// if a user undoes an import, it decreases the count to show the number of items left to unimport
 	public function getImportedItemCount()
@@ -371,7 +386,8 @@ class CsvImport_Import extends Omeka_Record {
 	}
 	
 	// returns the total number of items to import
-	public function getItemCount() {
+	public function getItemCount() 
+	{
 	    if ($this->item_count == 0) {
 	        $this->item_count = $this->getCsvFile()->getRowCount() - 1; // remove 1 for the header row
 	    }

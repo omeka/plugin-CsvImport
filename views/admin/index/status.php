@@ -3,7 +3,7 @@
 head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
 
 ?>
-<h1>CsvImport</h1>
+<h1>CSV Import</h1>
 <ul id="section-nav" class="navigation">
     <li class="">
         <a href="<?php echo uri('csv-import') ?>">Import Items</a>
@@ -48,7 +48,15 @@ head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 
                           }
                     ?>
                     </td>
-                    <td><? echo $csvImport->status; ?></td>
+                    <td>
+                    <? 
+                        echo $csvImport->status;
+                        $errorDetails = $csvImport->error_details;
+                        if ($csvImport->hasErrorStatus() && !empty($errorDetails)) {
+                           echo '<br/>' . $csvImport->error_details;
+                        }
+                    ?>
+                    </td>
                     <?php
                     if ( $csvImport->status == CsvImport_Import::STATUS_COMPLETED_IMPORT ||
                          $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD) {

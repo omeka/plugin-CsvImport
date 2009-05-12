@@ -2,7 +2,7 @@
 
 head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
 
-echo '<h1>CsvImport</h1>';
+echo '<h1>CSV Import</h1>';
 
 echo '<ul id="section-nav" class="navigation">';
 echo '<li class="current">';
