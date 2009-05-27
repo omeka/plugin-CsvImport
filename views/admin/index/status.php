@@ -49,7 +49,7 @@ head(array('title' => 'CsvImport', 'bodyclass' => 'primary', 'content_class' => 
                     ?>
                     </td>
                     <td>
-                    <? 
+                    <?php 
                         echo $csvImport->status;
                         $errorDetails = $csvImport->error_details;
                         if ($csvImport->hasErrorStatus() && !empty($errorDetails)) {
