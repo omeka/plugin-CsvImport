@@ -20,7 +20,7 @@ if (!empty($err)) {
     echo '<p class="error">' . $err . '</p>';
 }
 echo csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId);
-echo submit(array('name'=>'csv_import_submit', 'class'=>'submit submit-medium'), 'Import Csv File');
+echo submit(array('name'=>'csv_import_submit', 'class'=>'submit submit-medium'), 'Import CSV File');
 echo '</form>';
 echo '</div>';
 
