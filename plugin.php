@@ -21,6 +21,7 @@ add_plugin_hook('uninstall', 'csv_import_uninstall');
 add_plugin_hook('config_form', 'csv_import_config_form');
 add_plugin_hook('config', 'csv_import_config');
 add_plugin_hook('admin_theme_header', 'csv_import_admin_header');
+add_plugin_hook('define_acl', 'csv_import_define_acl');
 
 add_filter('admin_navigation_main', 'csv_import_admin_navigation');
 
@@ -86,14 +87,29 @@ function csv_import_uninstall()
 }
 
 /**
+ * Defines the ACL for the reports controllers.
+ *
+ * @param Omeka_Acl $acl Access control list
+ */
+function csv_import_define_acl($acl)
+{
+    // only allow super users and admins to import csv files
+    $acl->loadResourceList(array(
+                                    'CsvImport_Index' => array('index', 'map-columns', 'undo-import', 'clear-history', 'status')
+                          ));
+}
+
+/**
  * Add the admin navigation for the plugin.
  * 
  * @return array
  */
 function csv_import_admin_navigation($tabs)
 {
-  $tabs['CSV Import'] = uri('csv-import');
-  return $tabs;
+    if (get_acl()->checkUserPermission('CsvImport_Index', 'index')) {
+        $tabs['CSV Import'] = uri('csv-import');        
+    }
+    return $tabs;
 }
 
 function csv_import_admin_header($request)
