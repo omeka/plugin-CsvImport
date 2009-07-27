@@ -196,7 +196,7 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 	$ht .= '<th>Example from CSV File</th>';
 	$ht .= '<th>Map To Element</th>';
 	$ht .= '<th>Tags?</th>';
-	$ht .= '<th>Path to File?</th>';
+	$ht .= '<th>File?</th>';
 	$ht .= '</thead>';
 	$ht .= '<tbody>';
 	
@@ -257,7 +257,7 @@ function csv_import_get_item_elements_drop_down($elementsDropDownName, $itemType
     
         
     // get the select dropdown box
-    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'onchange'=>$onChange), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), 'Elements');
+    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'onchange'=>$onChange), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), null);
     
     return $ht;
 }
