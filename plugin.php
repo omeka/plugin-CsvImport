@@ -9,7 +9,6 @@
  * @author CHNM
  **/
 
-define('CSV_IMPORT_PLUGIN_VERSION',  get_plugin_ini('CsvImport', 'version'));
 define('CSV_IMPORT_DIRECTORY', dirname(__FILE__));
 define('CSV_IMPORT_CSV_FILES_DIRECTORY', CSV_IMPORT_DIRECTORY . DIRECTORY_SEPARATOR . 'csv_files');
 define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY . DIRECTORY_SEPARATOR . 'background_scripts');
@@ -36,10 +35,7 @@ add_filter('admin_navigation_main', 'csv_import_admin_navigation');
  * @return void
  */
 function csv_import_install()
-{
-    // set the plugin version option
-    set_option('csv_import_plugin_version', CSV_IMPORT_PLUGIN_VERSION);
-    
+{    
     $db = get_db();
     
     // create csv imports table
@@ -77,8 +73,7 @@ function csv_import_install()
  */
 function csv_import_uninstall()
 {
-    // delete the plugin version number.
-    delete_option('csv_import_plugin_version');
+    // delete the plugin options
     delete_option('csv_import_memory_limit');
     delete_option('csv_import_php_path');
     
