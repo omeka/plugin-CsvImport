@@ -115,7 +115,7 @@ function csv_import_admin_navigation($tabs)
 function csv_import_admin_header($request)
 {
     if ($request->getModuleName() == 'csv-import') {
-        echo '<link rel="stylesheet" href="' . css('csv_import_main') . '" />';
+        echo '<link rel="stylesheet" href="' . html_escape(css('csv_import_main')) . '" />';
         echo js('csv_import_main');
     }
 }
@@ -152,7 +152,7 @@ function csv_import_get_file_drop_down($dropDownName, $dropDownLabel)
     }
             
     $ht .= '<div class="field">';
-    $ht .= select( array('name' => $dropDownName, 'id' => $dropDownName), $values, csv_import_get_default_value($dropDownName), $dropDownLabel);
+    $ht .= select(array('name' => $dropDownName, 'id' => $dropDownName), $values, csv_import_get_default_value($dropDownName), $dropDownLabel);
     $ht .= '</div>';
     return $ht;
 }
@@ -183,8 +183,7 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
     $colExamples = $csvImportFile->getColumnExamples();
     
     $itemElementIdsToNames = array();
-	$ht .= '<style type="text/css">table td {vertical-align:top;}</style>';
-	$ht .= '<table class="simple" cellspacing="0" cellpadding="0">';
+	$ht .= '<table id="csv-import-column-mappings-table" class="simple" cellspacing="0" cellpadding="0">';
 	$ht .= '<thead>';
 	$ht .= '<tr>';
 	$ht .= '<th>Column</th>';
@@ -192,13 +191,14 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 	$ht .= '<th>Map To Element</th>';
 	$ht .= '<th>Tags?</th>';
 	$ht .= '<th>File?</th>';
+	$ht .= '</tr>';
 	$ht .= '</thead>';
 	$ht .= '<tbody>';
 	
     for($i = 0; $i < count($colNames); $i++) {
         $ht .= '<tr>';
         $ht .= '<td><strong>'.$colNames[$i].'</strong></td>';
-        $ht .= '<td>&#8220;' . $colExamples[$i] . '&#8221;</td>';         
+        $ht .= '<td>&quot;' . $colExamples[$i] . '&quot;</td>';         
         $ht .= '<td>'.csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId).'</td>';
         $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i).'</td>';
         $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i).'</td>';
@@ -226,10 +226,8 @@ function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
     $ht = '';
     $ht .= '<div>';
     $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId, $elementsListName, $elementsHiddenInputName);
-    //$ht .= '<a class="add-element" onclick="' . "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "')" . ';">Add Element</a>';
     $ht .= '<input type="hidden" value="' . csv_import_get_default_value($elementsHiddenInputName) . '" name="' . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" />';
-    $ht .= '<ul id="' . $elementsListName . '"></ul>';
-    //$ht .= hidden(array('name' => $elementsHiddenInputName, 'id' => $elementsHiddenInputName),  csv_import_get_default_value($elementsHiddenInputName)));
+    $ht .= '<span id="' . $elementsListName . '"></span>';
     $ht .= '</div>';
     return $ht;
 }
@@ -247,10 +245,8 @@ function csv_import_get_item_elements_drop_down($elementsDropDownName, $itemType
     // get an associative array of elements where the key is the element set name and the value is the array of elements associated with the element set
     // order the element sets by: Dublin Core, item type, and then all other element sets
     $elementsByElementSetName = csv_import_get_elements_by_element_set_name($itemTypeId);
-    
     $onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "');this.selectedIndex=0;";
     
-        
     // get the select dropdown box
     $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'onchange'=>$onChange), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), null);
     
@@ -332,12 +328,15 @@ function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
 * @param string $isCheckedByDefault 
 * @return string
 */
-function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $isCheckedByDefault=false) 
+function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $divClass = '',  $isCheckedByDefault=false) 
 {
     $ht = '';
-    $ht .= '<div class="field">';
+    $ht .= '<div' . (!empty($divClass) ? (' class="' . html_escape($divClass) . '" ') : '' ) .  '>';
     $checked = (bool) csv_import_get_default_value($checkBoxName, $isCheckedByDefault);
-    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null, $checkBoxLabel);
+    if ($checkBoxLabel) {
+        $ht .= '<label for="' . html_escape($checkBoxName) . '">' . html_escape($checkBoxLabel) . '</label>';        
+    }
+    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null);
     $ht .= '</div>';
     return $ht;
 }

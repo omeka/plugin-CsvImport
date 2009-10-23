@@ -1,6 +1,13 @@
-function csvImportAddElementToColumnMap(elementsListId, elementsDropDownId, elementsHiddenInputId) {
+function csvImportAddElementToColumnMap(elementsListDivId, elementsDropDownId, elementsHiddenInputId) {
+    // element list div
+    var eListDiv = $(elementsListDivId);
+    
     // elements list
-    var eList = $(elementsListId);
+    var eList = eListDiv.firstChild;
+    if (!eList) {
+        eList = csvImportCreateNode('ul', '');  
+        eListDiv.appendChild(eList);
+    }
     
     // selected element id
     var sElementId = $(elementsDropDownId).value;
@@ -8,7 +15,7 @@ function csvImportAddElementToColumnMap(elementsListId, elementsDropDownId, elem
     // new element 
     var nElement = csvImportCreateNode('li', csvImportGetLabelFromDropDown(elementsDropDownId));
     nElement.setAttribute('class', 'csv-import-element-delete');    
-    nElement.setAttribute('onclick', 'csvImportRemoveElementFromColumnMap(' + "'" + sElementId + "'" + ',' + "'" + elementsListId + "'"  + ',' + "'" + elementsHiddenInputId + "'" + ',this);');
+    nElement.setAttribute('onclick', 'csvImportRemoveElementFromColumnMap(' + "'" + sElementId + "'" + ',' + "'" + elementsListDivId + "'"  + ',' + "'" + elementsHiddenInputId + "'" + ',this);');
     
     // if the element is new, add it to the elements list
     if (!csvImportColumnMapHasElement(sElementId, elementsHiddenInputId)) {
@@ -20,12 +27,21 @@ function csvImportAddElementToColumnMap(elementsListId, elementsDropDownId, elem
     }
 }
 
-function csvImportRemoveElementFromColumnMap(elementId, elementsListId, elementsHiddenInputId, elementListItem) {
+function csvImportRemoveElementFromColumnMap(elementId, elementsListDivId, elementsHiddenInputId, elementListItem) {
+    // element list div
+    var eListDiv = $(elementsListDivId);
+    
     // elements list
-    var eList = $(elementsListId);
+    var eList = eListDiv.firstChild;
     
     // remove the element from the list
     eList.removeChild(elementListItem);
+    
+    // remove the list if it is empty
+    if (!eList.firstChild) {
+        eListDiv.removeChild(eList);
+    }
+    
     
     // rebuild the hidden text without the element
     var elementIds = $(elementsHiddenInputId).value.split(',');

@@ -197,8 +197,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         } else {
             $scriptFileName = 'background-undo-import.php';
         }
-        $phpCommandPath = get_option('csv_import_php_path');
-        $scriptFilePath = CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY . DIRECTORY_SEPARATOR . $scriptFileName;
+        $phpCommandPath = escapeshellcmd(get_option('csv_import_php_path'));
+        $scriptFilePath = escapeshellarg(CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY . DIRECTORY_SEPARATOR . $scriptFileName);
         $importId = escapeshellarg($csvImport->id);
         $user = Omeka_Context::getInstance()->getCurrentUser();
         $userId = escapeshellarg($user->id);
