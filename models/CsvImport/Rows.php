@@ -98,9 +98,9 @@ class CsvImport_Rows implements Iterator
                     return;
                 }
             }
+            fclose($this->_handle);
         }
-                        
-        fclose($this->_handle);
+                                
         $this->_handle = null;
         $this->_hasMoreRows = false;
         
