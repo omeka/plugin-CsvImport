@@ -36,7 +36,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $csvImportFile = new CsvImport_File($_POST['csv_import_file_name']);
                 
                 
-                if (!$csvImportFile->isPreValid()) {                    
+                if (!$csvImportFile->isValid(2)) {                    
                     $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
                 } else {                    
                     // save csv file and item type to the session

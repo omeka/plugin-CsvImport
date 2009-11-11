@@ -67,7 +67,7 @@ class CsvImport_Import extends Omeka_Record {
 		
 	protected function beforeSave()
 	{
-	    if ($this->item_count == null) {
+	    if (!$this->item_count) {
 	        $this->item_count = 0;
 	    }
 	    // serialize the column num to element id mapping
