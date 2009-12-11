@@ -14,11 +14,9 @@
 
 <div id="primary">
     <h2>Step 1: Select File and Item Settings</h2>
+    <?php echo flash(); ?>
     <form id="csvimport" method="post" action="">
         <?php
-            if (!empty($err)) {
-                echo '<p class="error">' . html_escape($err) . '</p>';
-            }
             echo csv_import_get_file_drop_down('csv_import_file_name', 'CSV File');
             echo csv_import_get_item_types_drop_down('csv_import_item_type_id', 'Item Type');
             echo csv_import_get_collections_drop_down('csv_import_collection_id', 'Collection');

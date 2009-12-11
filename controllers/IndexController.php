@@ -24,20 +24,21 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $view = $this->view;
         
         // check the form submit button
-        $view->err = '';
         if (isset($_POST['csv_import_submit'])) {
 
             //make sure the user selected a file
-            if (empty($_POST['csv_import_file_name'])) {
-                $view->err = 'Please select a file to import.';
-            } else {
+            if (trim($_POST['csv_import_file_name']) == '') {
                 
+                $this->flashError('Please select a file to import.');                
+            
+            } else {
+                    
                 // make sure the file is correctly formatted
                 $csvImportFile = new CsvImport_File($_POST['csv_import_file_name']);
                 
-                
-                if (!$csvImportFile->isValid(2)) {                    
-                    $view->err = "Your file is incorrectly formatted.  Please select a valid CSV file.";
+                $maxRowsToValidate = 2;
+                if (!$csvImportFile->isValid($maxRowsToValidate)) {                    
+                    $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
                 } else {                    
                     // save csv file and item type to the session
                     $csvImportSession->csvImportFile = $csvImportFile;                    
@@ -51,25 +52,26 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 }                
             }
         }
-        
     }
     
     public function mapColumnsAction()
     {
-        // get the session and view
+        $hasError = false;
+        
+        // get the session and view        
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
+        $view = $this->view;
+        
+        // get the session variables
         $itemsArePublic = $csvImportSession->csvImportItemsArePublic;
         $itemsAreFeatured = $csvImportSession->csvImportItemsAreFeatured;
         $collectionId = $csvImportSession->csvImportCollectionId;
         $stopImportIfFileDownloadError = $csvImportSession->csvImportStopImportIfFileDownloadError;
         
-        $view = $this->view;
-
         // get the csv file to import
         $csvImportFile = $csvImportSession->csvImportFile;
                 
         // pass the csv file and item type to the view
-        $view->err = '';
         $view->csvImportFile = $csvImportFile;
         $view->csvImportItemTypeId = $csvImportSession->csvImportItemTypeId;
         $view->csvImportFileImport = null;        
@@ -106,21 +108,29 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 }
             }           
             
-            // make sure the user maps at least one column
+            // make sure the user maps have at least one column
             if (count($columnMaps) == 0) {
-                $view->err = 'Please map at least one column to an element, file, or tag.';
+                $this->flashError('Please map at least one column to an element, file, or tag.');
+                $hasError = true;
             }
             
             // if there are no errors with the column mappings, then run the import and goto the status page
-            if (empty($view->err)) {
+            if (!$hasError) {
                 
                 // do the import in the background
                 $csvImport = new CsvImport_Import();
                 $csvImport->initialize($csvImportFile->getFileName(), $csvImportSession->csvImportItemTypeId, $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
-                $this->_backgroundImport($csvImport);
+                $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
+                $csvImport->save();
+                
+                // dispatch the background process to import the items
+                $user = current_user();
+                $args = array();
+                $args['import_id'] = $csvImport->id;
+                ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
                 
                 //redirect to column mapping page
-                $this->flashSuccess("Successfully started import. Reload this page for status updates.");
+                $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
                 $this->redirect->goto('status');
                 
             }  
@@ -134,10 +144,18 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $importId = $this->_getParam("id");
         $csvImport = $cit->find($importId);
         if ($csvImport) {
-            // undo the import in the background
-            $this->_backgroundUndoImport($csvImport);
+            
+            // change the status of the import
+            $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
+            $csvImport->save();
+
+            // // dispatch the background process to undo the import
+            $user = current_user();
+            $args = array();
+            $args['import_id'] = $importId;
+            ProcessDispatcher::startProcess('CsvImport_UndoImportProcess', $user, $args);
         }
-        $this->flashSuccess("Successfully started undo import. Reload this page for status updates.");
+        $this->flashSuccess("Successfully started to undo the import. Reload this page for status updates.");
         $this->redirect->goto('status');
     }
     
@@ -159,61 +177,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     }
     
     public function statusAction() 
-    {
-        // get the session and view
-        $csvImportSession = new Zend_Session_Namespace('CsvImport');
-        $view = $this->view;
-        
-        //get the imports
-        $view->csvImports =  CsvImport_Import::getImports();
-    }
-    
-    // import items in the background from csv file
-    private function _backgroundImport($csvImport)
-    {
-        $this->_backgroundImportOrUndoImport($csvImport, true);
-    }
-    
-    // undo the import in the background by deleting the imported items
-    private function _backgroundUndoImport($csvImport)
-    {
-        $this->_backgroundImportOrUndoImport($csvImport, false);
-    }
-    
-    // since import and undo import share similar code, this function can do either
-    private function _backgroundImportOrUndoImport($csvImport, $isImport) 
     {   
-         // make sure the import is saved in the database has a start status
-         if ($isImport) {
-             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
-         } else {
-             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
-         }       
-        $csvImport->save();
-
-        // Create shell command
-        if ($isImport) {
-            $scriptFileName = 'background-import.php';
-        } else {
-            $scriptFileName = 'background-undo-import.php';
-        }
-        $phpCommandPath = escapeshellcmd(get_option('csv_import_php_path'));
-        $scriptFilePath = escapeshellarg(CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY . DIRECTORY_SEPARATOR . $scriptFileName);
-        $importId = escapeshellarg($csvImport->id);
-        $user = Omeka_Context::getInstance()->getCurrentUser();
-        $userId = escapeshellarg($user->id);
-
-        // Set the command and run the script in the background.
-        $shellCmd = "$phpCommandPath $scriptFilePath -i $importId -u $userId";
-
-        // execute a background script that does the import or undoes the import
-        $this->_background($shellCmd);
-    }
-
-    // execute a shell command in the background
-    private function _background($shellCmd)
-    {
-        //echo $shellCmd; exit;
-        exec("nice $shellCmd > /dev/null 2>&1 &"); 
+        //get the imports
+        $this->view->csvImports =  CsvImport_Import::getImports();
     }
 }

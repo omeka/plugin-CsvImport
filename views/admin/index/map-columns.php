@@ -14,13 +14,10 @@
 
 <div id="primary">
     <h2>Step 2: Map Columns To Elements, Tags, or Files</h2>
+    <?php echo flash(); ?>
+    
     <form id="csvimport" method="post" action="">
-        <?php
-            if (!empty($err)) {
-                echo '<p class="error">' .html_escape($err) . '</p>';
-            }
-            echo csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId);
-        ?>
+        <?php echo csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId); ?>
         <fieldset>
             <?php echo submit(array('name'=>'csv_import_submit', 'class'=>'submit submit-medium'), 'Import CSV File'); ?>
         </fieldset>

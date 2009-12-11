@@ -22,6 +22,7 @@ define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX', CSV_IMPORT_COLUMN_M
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
+add_plugin_hook('upgrade', 'csv_import_upgrade');
 add_plugin_hook('config_form', 'csv_import_config_form');
 add_plugin_hook('config', 'csv_import_config');
 add_plugin_hook('admin_theme_header', 'csv_import_admin_header');
@@ -83,6 +84,15 @@ function csv_import_uninstall()
     $db->query($sql);
     $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imported_items`";
     $db->query($sql);
+    
+}
+
+/** Upgrade the plugin.
+ *
+ * @return void
+ */ 
+function csv_import_upgrade($oldVersion, $newVersion)
+{
     
 }
 
@@ -342,28 +352,11 @@ function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $divClass = '',  
 }
 
 function csv_import_config_form()
-{
-    if (!$path = get_option('csv_import_php_path')) {
-        // Get the path to the PHP-CLI command. This does not account for
-        // servers without a PHP CLI or those with a different command name for
-        // PHP, such as "php5".
-        $command = 'which php 2>&0';
-        $lastLineOutput = exec($command, $output, $returnVar);
-        $path = $returnVar == 0 ? trim($lastLineOutput) : '';
-    }
-   
+{  
     if (!$memoryLimit = get_option('csv_import_memory_limit')) {
         $memoryLimit = ini_get('memory_limit');
     }
 ?>
-    <div class="field">
-        <label for="csv_import_php_path">Path to PHP-CLI</label>
-        <?php echo __v()->formText('csv_import_php_path', $path, null);?>
-        <p class="explanation">Path to your server's PHP-CLI command. The PHP
-        version must correspond to normal Omeka requirements. Some web hosts use PHP
-        4.x for their default PHP-CLI, but many provide an alternative path to a
-        PHP-CLI 5 binary. Check with your web host for more information.</p>
-    </div>
     <div class="field">
         <label for="csv_import_memory_limit">Memory Limit</label>
         <?php echo __v()->formText('csv_import_memory_limit', $memoryLimit, null);?>
@@ -380,6 +373,5 @@ function csv_import_config_form()
 
 function csv_import_config()
 {
-    set_option('csv_import_php_path', $_POST['csv_import_php_path']);
     set_option('csv_import_memory_limit', $_POST['csv_import_memory_limit']);
 }
