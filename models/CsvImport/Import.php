@@ -63,6 +63,8 @@ class CsvImport_Import extends Omeka_Record {
                                 'stop_import_if_file_download_error' => $stopImportIfFileDownloadError,
                                 '_columnMaps' => $columnMaps)
                             );
+                            
+        $this->item_count = $this->getItemCount();                            
 	}
 		
 	protected function beforeSave()

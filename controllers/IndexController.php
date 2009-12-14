@@ -19,6 +19,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 {
     public function indexAction() 
     {
+        if (!$this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('error');    
+        }
+        
         // get the session and view
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
@@ -54,8 +58,19 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
     }
     
+    public function errorAction()
+    {
+        if ($this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('index');    
+        }
+    }
+    
     public function mapColumnsAction()
     {
+        if (!$this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('error');    
+        }
+        
         $hasError = false;
         
         // get the session and view        
@@ -139,6 +154,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function undoImportAction()
     {
+        if (!$this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('error');    
+        }
+        
         $db = get_db();
         $cit = $db->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
@@ -161,6 +180,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function clearHistoryAction()
     {
+        if (!$this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('error');    
+        }
+        
         $db = get_db();
         $cit = $db->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
@@ -177,8 +200,23 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     }
     
     public function statusAction() 
-    {   
+    {
+        if (!$this->_hasValidPHPCliPath()) {
+            $this->redirect->goto('error');    
+        }
+                
         //get the imports
         $this->view->csvImports =  CsvImport_Import::getImports();
+    }
+    
+    private function _hasValidPHPCliPath()
+    {
+        try {
+            $p = ProcessDispatcher::getPHPCliPath();
+        } catch (Exception $e) {
+            $this->flashError('Your PHP-CLI path setting is invalid.'.  "\n"  . 'Please change the setting in ' . CONFIG_DIR . DIRECTORY_SEPARATOR . 'config.ini' . "\n" . 'If you do not know how to do this, please check with your system or server administrator.');
+            return false;
+        }
+        return true;
     }
 }
