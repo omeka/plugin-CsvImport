@@ -1,4 +1,10 @@
-#csv-import-column-mappings-table td {vertical-align:top;}
+#csvimport {
+  overflow: visible;
+}
+
+#csv-import-column-mappings-table td {
+  vertical-align:top;
+}
 
 .csv-import-column-map {
     border-top:2px solid #D7D5C4; 
