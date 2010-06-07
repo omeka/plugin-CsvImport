@@ -15,6 +15,7 @@ define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY . DIRECTO
 
 define('CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX', 'csv_import_column_map_tag_');
 define('CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX', 'csv_import_column_map_file_');
+define('CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX', 'csv_import_column_map_html_');
 
 define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX', 'csv_import_column_map_elements_list_');
 define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX', CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'dropdown_');
@@ -199,6 +200,7 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 	$ht .= '<th>Column</th>';
 	$ht .= '<th>Example from CSV File</th>';
 	$ht .= '<th>Map To Element</th>';
+	$ht .= '<th>Use HTML?</th>';
 	$ht .= '<th>Tags?</th>';
 	$ht .= '<th>File?</th>';
 	$ht .= '</tr>';
@@ -210,6 +212,7 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
         $ht .= '<td><strong>'.$colNames[$i].'</strong></td>';
         $ht .= '<td>&quot;' . $colExamples[$i] . '&quot;</td>';         
         $ht .= '<td>'.csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId).'</td>';
+        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $i).'</td>';
         $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i).'</td>';
         $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i).'</td>';
         $ht .= '</tr>';

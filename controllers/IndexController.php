@@ -118,6 +118,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     if ($elementId) {
                         $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
                         $columnMap->addElementId($elementId);
+                        $columnMap->setDataIsHtml((boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $colIndex]);
                         $columnMaps[] = $columnMap;                        
                     }
                 }

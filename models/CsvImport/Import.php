@@ -105,7 +105,8 @@ class CsvImport_Import extends Omeka_Record {
                 'collection_id'  => $this->collection_id
             );
             
-            // create a map from the column index number to an array of element set name and element name pairs 
+            // create a map from the column index number to an array of element infos, where each element info contains 
+            // the element set name, element name, and whether the element text is html or not 
             $colNumToElementInfosMap = array();
 
             $colNumMapsToTag = array();
@@ -138,7 +139,9 @@ class CsvImport_Import extends Omeka_Record {
                     $element = $et->find($elementId);
                     $es = $db->getTable('ElementSet');
                     $elementSet = $es->find($element['element_set_id']);
-                    $elementInfo = array('element_name' => $element->name, 'element_set_name' => $elementSet->name);
+                    $elementInfo = array('element_name' => $element->name, 
+                                         'element_set_name' => $elementSet->name, 
+                                         'element_text_is_html' => $columnMap->getDataIsHtml());
                     
                     // make sure that an array of element infos exists for the column index
                     if (!is_array($colNumToElementInfosMap[$columnIndex])) {
@@ -215,6 +218,7 @@ class CsvImport_Import extends Omeka_Record {
     	            // get the element name and element set name
         	        $elementName = $elementInfo['element_name'];
         	        $elementSetName = $elementInfo['element_set_name'];
+        	        $elementTextIsHtml = (boolean) $elementInfo['element_text_is_html'];
 
         	        // make sure the element set exists
         	        if(!isset($itemElementTexts[$elementSetName])) {
@@ -227,9 +231,8 @@ class CsvImport_Import extends Omeka_Record {
         	        }
 
         	        // add the element text from the column value
-        	        $itemElementText = array('text' => $columnValue, 'html' => false);
+        	        $itemElementText = array('text' => $columnValue, 'html' => $elementTextIsHtml);
         	        array_push($itemElementTexts[$elementSetName][$elementName], $itemElementText);
-
     	        }
 	        }
 	        

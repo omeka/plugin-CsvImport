@@ -27,13 +27,15 @@ class CsvImport_ColumnMap
    	/**
    * @param string $columnIndex	the id of the column, starting at 0 from left to right in the csv file
    * @param string $targetType	the type of target that the column maps to, including: 'Element', 'Tag', or 'File'
-   * 
+   * @param array $elementIds  the element ids to which a column maps
+   * @param boolean $dataIsHtml whether the column data is HTML
    **/
-    public function __construct( $columnIndex, $targetType, $elementIds=array()) 
+    public function __construct( $columnIndex, $targetType, $elementIds=array(), $dataIsHtml=false) 
 	{
 		$this->_columnIndex = $columnIndex;
 		$this->_targetType = $targetType;
 		$this->_elementIds = $elementIds;
+		$this->_dataIsHtml = $dataIsHtml;
 	}
 	
 	/**
@@ -79,6 +81,27 @@ class CsvImport_ColumnMap
          return $this->_targetType == self::TARGET_TYPE_FILE;
  	}
  	
+ 	/**
+ 	* Returns whether the column data is HTML. 
+ 	* 
+ 	* @return boolean
+ 	**/
+ 	public function getDataIsHtml()
+ 	{
+ 	    return $this->_dataIsHtml;
+ 	}
+ 	
+ 	/**
+ 	* Sets whether the column data is HTML. 
+ 	* 
+ 	* @param boolean Whether the column data contains HTML
+ 	* @return void
+ 	**/
+ 	public function setDataIsHtml($dataIsHtml)
+ 	{
+ 	    $this->_dataIsHtml = $dataIsHtml;
+ 	}
+ 	 	
  	/**
     * Get the element ids to which the column maps.
     * Only useful if the column maps to an element.
