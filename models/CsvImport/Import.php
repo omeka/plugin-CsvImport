@@ -250,7 +250,7 @@ class CsvImport_Import extends Omeka_Record {
 	        // process the files
 	        if ($colNumMapsToFile[$colIndex]) {
                 $urlForFile = trim($columnValue);
-                if (!in_array($urlForFile, $urlsForFiles)) {
+                if (!in_array($urlForFile, $urlsForFiles) && ($urlForFile != "")) {
                     $urlsForFiles[] = $urlForFile;
                 }        
             }        
