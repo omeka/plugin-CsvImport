@@ -279,7 +279,7 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
 {
     $db = get_db();    
     $es = $db->getTable('ElementSet');
-    $elementSets = $es->findAll();
+    $elementSets = $es->findByRecordType('Item');
     
     $elementsByElementSetName = array(); // associative array that maps element set name to arrays of item elements
         
