@@ -23,6 +23,13 @@
         </fieldset>
     </form>
 </div>
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function () {
+    Omeka.CsvImport.enableElementMapping();
+});
+//]]>
+</script>
 <?php 
     foot(); 
 ?>

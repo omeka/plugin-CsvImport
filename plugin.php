@@ -127,7 +127,7 @@ function csv_import_admin_header($request)
 {
     if ($request->getModuleName() == 'csv-import') {
         echo '<link rel="stylesheet" href="' . html_escape(css('csv_import_main')) . '" />';
-        echo js('csv_import_main');
+        echo js('csv-import');
     }
 }
 
@@ -261,7 +261,7 @@ function csv_import_get_item_elements_drop_down($elementsDropDownName, $itemType
     $onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "');this.selectedIndex=0;";
     
     // get the select dropdown box
-    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'onchange'=>$onChange), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), null);
+    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'class'=>'csv-import-element-select'), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), null);
     
     return $ht;
 }
