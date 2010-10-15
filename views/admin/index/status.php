@@ -24,7 +24,7 @@
             <thead>
                 <tr>
                     <th>Import Date</th>
-                    <th>Csv File</th>
+                    <th>CSV File</th>
                     <th>Item Count</th>
                     <th>Status</th>
                     <th>Action</th>
