@@ -126,8 +126,8 @@ function csv_import_admin_navigation($tabs)
 function csv_import_admin_header($request)
 {
     if ($request->getModuleName() == 'csv-import') {
-        echo '<link rel="stylesheet" href="' . html_escape(css('csv_import_main')) . '" />';
-        echo js('csv-import');
+        queue_css('csv_import_main');
+        queue_js('csv-import');
     }
 }
 
