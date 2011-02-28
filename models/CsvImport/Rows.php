@@ -2,7 +2,7 @@
 /**
  * CsvImport_Rows class
  *
- * @copyright  Center for History and New Media, 2008
+ * @copyright  Center for History and New Media, 2008-2011
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt
  * @version    $Id:$
  **/

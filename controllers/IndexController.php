@@ -2,7 +2,7 @@
 
 /**
  * @version $Id$
- * @copyright Center for History and New Media, 2008
+ * @copyright Center for History and New Media, 2008-2011
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  * @package CsvImport
  */
@@ -12,9 +12,8 @@
  *
  * @package CsvImport
  * @author CHNM
- * @copyright Center for History and New Media, 2008
+ * @copyright Center for History and New Media, 2008-2011
  */
-
 class CsvImport_IndexController extends Omeka_Controller_Action
 {
     public function preDispatch()
