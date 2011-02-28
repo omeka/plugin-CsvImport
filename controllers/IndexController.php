@@ -17,12 +17,17 @@
 
 class CsvImport_IndexController extends Omeka_Controller_Action
 {
+    public function preDispatch()
+    {
+        if (($this->getRequest()->getActionName() != 'error')
+            && !$this->_hasValidPHPCliPath()
+        ) {
+            $this->_helper->redirector->goto('error');    
+        }
+    }
+
     public function indexAction() 
     {
-        if (!$this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('error');    
-        }
-        
         // get the session and view
         $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
@@ -67,10 +72,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function mapColumnsAction()
     {
-        if (!$this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('error');    
-        }
-        
         $hasError = false;
         
         // get the session and view        
@@ -155,10 +156,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function undoImportAction()
     {
-        if (!$this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('error');    
-        }
-        
         $db = get_db();
         $cit = $db->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
@@ -181,10 +178,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function clearHistoryAction()
     {
-        if (!$this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('error');    
-        }
-        
         $db = get_db();
         $cit = $db->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
@@ -202,10 +195,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function statusAction() 
     {
-        if (!$this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('error');    
-        }
-                
         //get the imports
         $this->view->csvImports =  CsvImport_Import::getImports();
     }
