@@ -57,7 +57,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     $csvImportSession->csvImportCollectionId = $_POST['csv_import_collection_id'];
                     $csvImportSession->csvImportStopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
                     //redirect to column mapping page
-                    $this->redirect->goto('map-columns');   
+                    $this->_helper->redirector->goto('map-columns');   
                 }                
             }
         }
@@ -66,7 +66,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function errorAction()
     {
         if ($this->_hasValidPHPCliPath()) {
-            $this->redirect->goto('index');    
+            $this->_helper->redirector->goto('index');    
         }
     }
     
@@ -146,9 +146,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $args['import_id'] = $csvImport->id;
                 ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
                 
-                //redirect to column mapping page
+                //_helper->redirector to column mapping page
                 $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
-                $this->redirect->goto('status');
+                $this->_helper->redirector->goto('status');
                 
             }  
         }   
@@ -173,7 +173,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             ProcessDispatcher::startProcess('CsvImport_UndoImportProcess', $user, $args);
         }
         $this->flashSuccess("Successfully started to undo the import. Reload this page for status updates.");
-        $this->redirect->goto('status');
+        $this->_helper->redirector->goto('status');
     }
     
     public function clearHistoryAction()
@@ -190,7 +190,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $this->flashSuccess("Successfully cleared the history of the import.");
             }
         }
-        $this->redirect->goto('status');
+        $this->_helper->redirector->goto('status');
     }
     
     public function statusAction() 
