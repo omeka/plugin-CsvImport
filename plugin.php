@@ -11,15 +11,19 @@
 
 define('CSV_IMPORT_DIRECTORY', dirname(__FILE__));
 define('CSV_IMPORT_CSV_FILES_DIRECTORY', CSV_IMPORT_DIRECTORY . '/csv_files');
-define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY . '/background_scripts');
+define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY 
+    . '/background_scripts');
 
 define('CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX', 'column_map_tag_');
 define('CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX', 'column_map_file_');
 define('CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX', 'column_map_html_');
 
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX', 'column_map_elements_list_');
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX', CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'dropdown_');
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX', CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'hidden_input_'); 
+define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX', 
+    'column_map_elements_list_');
+define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX', 
+    CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'dropdown_');
+define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX', 
+    CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'hidden_input_'); 
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
@@ -106,8 +110,10 @@ function csv_import_define_acl($acl)
 {
     // only allow super users and admins to import csv files
     $acl->loadResourceList(array(
-                                    'CsvImport_Index' => array('index', 'map-columns', 'undo-import', 'clear-history', 'status')
-                          ));
+        'CsvImport_Index' => array('index', 
+        'map-columns', 'undo-import', 
+        'clear-history', 'status')
+    ));
 }
 
 /**
@@ -132,14 +138,12 @@ function csv_import_admin_header($request)
 }
 
 /**
-* Get the default value for an element.  
-* If the user has already submitted the value, then use that as the default, 
-* else return null
-*
-* @param string Element input name
-* @param string Default value of the element  
-* @return string
-*/
+ * Get the default value for an element.  If the user has already submitted the 
+ * value, then use that as the default, else return null.
+ *
+ * @param string Element input name
+ * @param string Default value of the element  @return string
+ */
 function csv_import_get_default_value($htmlInputElementName, $defaultValue = null) 
 {
     // set the default file if the form is already submitted
@@ -161,7 +165,8 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
     $colExamples = $csvImportFile->getColumnExamples();
     
     $itemElementIdsToNames = array();
-	$ht .= '<table id="csv-import-column-mappings-table" class="simple" cellspacing="0" cellpadding="0">';
+    $ht .= '<table id="csv-import-column-mappings-table" class="simple" '
+         . 'cellspacing="0" cellpadding="0">';
 	$ht .= '<thead>';
 	$ht .= '<tr>';
 	$ht .= '<th>Column</th>';
@@ -178,10 +183,17 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
         $ht .= '<tr>';
         $ht .= '<td><strong>'.$colNames[$i].'</strong></td>';
         $ht .= '<td>&quot;' . $colExamples[$i] . '&quot;</td>';         
-        $ht .= '<td>'.csv_import_get_elements_for_column_mapping($i, $csvImportItemTypeId).'</td>';
-        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $i).'</td>';
-        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i).'</td>';
-        $ht .= '<td>'.csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i).'</td>';
+        $ht .= '<td>' . csv_import_get_elements_for_column_mapping($i, 
+            $csvImportItemTypeId) . '</td>';
+        $ht .= '<td>' 
+            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
+            . $i) . '</td>';
+        $ht .= '<td>' 
+            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX 
+            . $i) . '</td>';
+        $ht .= '<td>' 
+            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX 
+            . $i) . '</td>';
         $ht .= '</tr>';
     }
 	$ht .= '</tbody>';
@@ -191,54 +203,71 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 }
 
 /**
-* Gets a div that allows users to add and remove elements for an column mapping
-* 
-* @todo Fix the hidden helper function so it does not echo the output and then use it. 
-* @return string
-*/
-
+ * Gets a div that allows users to add and remove elements for an column mapping
+ * 
+ * @todo Fix the hidden helper function so it does not echo the output and then 
+ * use it.  @return string
+ */
 function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
 {
-    $elementsDropDownName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX . $columnIndex;
-    $elementsHiddenInputName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $columnIndex;
-    $elementsListName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . $columnIndex;
+    $elementsDropDownName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX 
+        . $columnIndex;
+    $elementsHiddenInputName 
+        = CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $columnIndex;
+    $elementsListName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX 
+        . $columnIndex;
     
     $ht = '';
     $ht .= '<div>';
-    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId, $elementsListName, $elementsHiddenInputName);
-    $ht .= '<input type="hidden" value="' . csv_import_get_default_value($elementsHiddenInputName) . '" name="' . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" />';
+    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, 
+        $itemTypeId, $elementsListName, $elementsHiddenInputName);
+    $ht .= '<input type="hidden" value="' 
+        . csv_import_get_default_value($elementsHiddenInputName) . '" name="' 
+        . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" 
+        />';
     $ht .= '<span id="' . $elementsListName . '"></span>';
     $ht .= '</div>';
     return $ht;
 }
 
 /**
-* Get the drop down html code that includes item elements from all of the item element sets,
-* except for the "Item Type Metadata" element set, only get the elements for the item type
+* Get the drop down html code that includes item elements from all of the item 
+* element sets, except for the "Item Type Metadata" element set, only get the 
+* elements for the item type
 *  
 * @return string
 */
-function csv_import_get_item_elements_drop_down($elementsDropDownName, $itemTypeId, $elementsListName, $elementsHiddenInputName)
+function csv_import_get_item_elements_drop_down($elementsDropDownName, 
+    $itemTypeId, $elementsListName, $elementsHiddenInputName)
 {    
     $ht = '';
     
-    // get an associative array of elements where the key is the element set name and the value is the array of elements associated with the element set
-    // order the element sets by: Dublin Core, item type, and then all other element sets
-    $elementsByElementSetName = csv_import_get_elements_by_element_set_name($itemTypeId);
-    $onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', '" . $elementsDropDownName ."', '" . $elementsHiddenInputName . "');this.selectedIndex=0;";
+    // get an associative array of elements where the key is the element set 
+    // name and the value is the array of elements associated with the element 
+    // set order the element sets by: Dublin Core, item type, and then all other element 
+    // sets
+    $elementsByElementSetName = 
+        csv_import_get_elements_by_element_set_name($itemTypeId);
+    //$onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', 
+    //'" . $elementsDropDownName ."', '" . $elementsHiddenInputName 
+    //. "');this.selectedIndex=0;";
     
     // get the select dropdown box
-    $ht .= select( array('name' => $elementsDropDownName, 'id' => $elementsDropDownName, 'class'=>'csv-import-element-select'), $elementsByElementSetName, csv_import_get_default_value($elementsDropDownName), null);
+    $ht .= select( array('name' => $elementsDropDownName, 'id' => 
+        $elementsDropDownName, 'class'=>'csv-import-element-select'), 
+        $elementsByElementSetName, 
+        csv_import_get_default_value($elementsDropDownName), null);
     
     return $ht;
 }
 
 /**
-* Get an associative array of elements where the key is the element set name and the value is an array of elements.
-* The associative array will include the following sets of elements in the following order: 
-* Dublin Core element set,
-* the set of elements associated with the item type,
-* and then every other element set.  Assumes that Dublin Core element set is the first element set in the database.
+* Get an associative array of elements where the key is the element set name and 
+* the value is an array of elements. The associative array will include the 
+* following sets of elements in the following order: Dublin Core element set, 
+* the set of elements associated with the item type, and then every other 
+* element set.  Assumes that Dublin Core element set is the first element set 
+* in the database.
 *  
 * @return string
 */
@@ -256,28 +285,36 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
             // get the elements for the item type
             case 'Item Type Metadata':
                 if (!empty($itemTypeId)) {
-                    $sql = "SELECT e.id, e.name FROM `{$db->prefix}item_types_elements` AS ite, `{$db->prefix}elements` AS e
-                            WHERE `ite`.`item_type_id` = ? AND `e`.`id` = `ite`.`element_id`";        
-                    $query = $db->query($sql, array($itemTypeId));
+                    $sql = "SELECT e.id, e.name FROM 
+                        `{$db->prefix}item_types_elements` AS ite, 
+                        `{$db->prefix}elements` AS e
+                            WHERE `ite`.`item_type_id` = ? AND `e`.`id` 
+                            = `ite`.`element_id`";        $query 
+                            = $db->query($sql, array($itemTypeId));
                     $itElementIdsToElementNames = array();
                     while ($itElement = $query->fetch()) {
-                        $itElementIdsToElementNames[$itElement['id']] = $itElement['name'];
+                        $itElementIdsToElementNames[$itElement['id']] 
+                            = $itElement['name'];
                     }
                     
                     $itt = $db->getTable('ItemType');
                     $itemType = $itt->find($itemTypeId);
-                    $elementsByElementSetName[$elementSet['name'] . ' - ' . $itemType['name']] = $itElementIdsToElementNames;   
-                }
+                    $elementsByElementSetName[$elementSet['name'] 
+                        . ' - ' . $itemType['name']] 
+                        = $itElementIdsToElementNames;   }
             break;
             
-            // get the elements from the Dublin Core and each of the other element sets
+            // get the elements from the Dublin Core and each of the other 
+                    // element sets
             default:
                 $oElementIdsToElementNames = array();
                 $oElements = $elementSet->getElements();
                 foreach($oElements as $oElement) {
-                    $oElementIdsToElementNames[$oElement['id']] = $oElement['name'];
+                    $oElementIdsToElementNames[$oElement['id']] 
+                        = $oElement['name'];
                 }
-                $elementsByElementSetName[$elementSet['name']] =  $oElementIdsToElementNames;
+                $elementsByElementSetName[$elementSet['name']] 
+                    =  $oElementIdsToElementNames;
             break;
         }
     }
@@ -296,12 +333,15 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
 function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $divClass = '',  $isCheckedByDefault=false) 
 {
     $ht = '';
-    $ht .= '<div' . (!empty($divClass) ? (' class="' . html_escape($divClass) . '" ') : '' ) .  '>';
-    $checked = (bool) csv_import_get_default_value($checkBoxName, $isCheckedByDefault);
+    $ht .= '<div' . (!empty($divClass) ? (' class="' . html_escape($divClass) 
+        . '" ') : '' ) .  '>';
+    $checked = (bool) csv_import_get_default_value($checkBoxName, 
+        $isCheckedByDefault);
     if ($checkBoxLabel) {
-        $ht .= '<label for="' . html_escape($checkBoxName) . '">' . html_escape($checkBoxLabel) . '</label>';        
-    }
-    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => $checkBoxName), $checked, null);
+        $ht .= '<label for="' . html_escape($checkBoxName) . '">' 
+            . html_escape($checkBoxLabel) . '</label>';        }
+    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => 
+    $checkBoxName), $checked, null);
     $ht .= '</div>';
     return $ht;
 }
@@ -315,13 +355,13 @@ function csv_import_config_form()
     <div class="field">
         <label for="csv_import_memory_limit">Memory Limit</label>
         <?php echo __v()->formText('csv_import_memory_limit', $memoryLimit, null);?>
-        <p class="explanation">Set a high memory limit to avoid memory allocation
-        issues during harvesting. Examples include 128M, 1G, and -1. The available
-        options are K (for Kilobytes), M (for Megabytes) and G (for Gigabytes).
-        Anything else assumes bytes. Set to -1 for an infinite limit. Be advised
-        that many web hosts set a maximum memory limit, so this setting may be
-        ignored if it exceeds the maximum allowable limit. Check with your web host
-        for more information.</p>
+        <p class="explanation">Set a high memory limit to avoid memory 
+allocation issues during harvesting. Examples include 128M, 1G, and -1. The 
+available options are K (for Kilobytes), M (for Megabytes) and G (for 
+Gigabytes). Anything else assumes bytes. Set to -1 for an infinite limit. Be 
+advised that many web hosts set a maximum memory limit, so this setting may be 
+ignored if it exceeds the maximum allowable limit. Check with your web host for 
+more information.</p>
     </div>
 <?php
 }
@@ -330,3 +370,9 @@ function csv_import_config()
 {
     set_option('csv_import_memory_limit', $_POST['csv_import_memory_limit']);
 }
+
+function csv_error_handler($errno , $errstr, $errfile, $errline, array $errcontext)
+{
+    die("$errstr ($errfile:$errline)");
+}
+set_error_handler('csv_error_handler');
