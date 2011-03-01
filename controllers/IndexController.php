@@ -45,10 +45,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
 
-        //make sure the user selected a file
-        //if (trim($_POST['csv_import_file_name']) == '') {
-            //$this->flashError('Please select a file to import.');                
-
         // make sure the file is correctly formatted
         $file = new CsvImport_File($_POST['csv_import_file_name']);
         

@@ -21,16 +21,23 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post'); 
         $csvFiles = CsvImport_File::getFiles();
+
+        $values = array(0 => 'Select A File');
         foreach ($csvFiles as $csvFile) {
             $values[$csvFile->getFileName()] = $csvFile->getFileName();
         }
-        array_unshift($values, 'Select A File');
         $this->addElement('select', 'csv_import_file_name', array(
             'label' => 'CSV File',
             'multiOptions' => $values,
             'required' => true,
             'validators' => array(
-                'NotEmpty'
+                array('InArray', true, array($csvFiles, 
+                    'messages' => array(
+                        Zend_Validate_InArray::NOT_IN_ARRAY => "The given "
+                            . "choice is not a valid CSV file.  Please choose"
+                            . " a file from the list."  
+                    )
+                )),
             ),
         ));
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
