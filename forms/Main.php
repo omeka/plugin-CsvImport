@@ -24,10 +24,14 @@ class CsvImport_Form_Main extends Omeka_Form
         foreach ($csvFiles as $csvFile) {
             $values[$csvFile->getFileName()] = $csvFile->getFileName();
         }
+        array_unshift($values, 'Select A File');
         $this->addElement('select', 'csv_import_file_name', array(
             'label' => 'CSV File',
             'multiOptions' => $values,
             'required' => true,
+            'validators' => array(
+                'NotEmpty'
+            ),
         ));
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         array_unshift($values, 'Select Item Type');

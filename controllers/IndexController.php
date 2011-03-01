@@ -41,29 +41,31 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
 
-        //make sure the user selected a file
-        if (trim($_POST['csv_import_file_name']) == '') {
-            $this->flashError('Please select a file to import.');                
-        } else {
-                
-            // make sure the file is correctly formatted
-            $file = new CsvImport_File($_POST['csv_import_file_name']);
-            
-            $maxRowsToValidate = 2;
-            if (!$file->isValid($maxRowsToValidate)) {                    
-                $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
-            } else {                    
-                // save csv file and item type to the session
-                $this->session->file = $file;                    
-                $this->session->itemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
-                $this->session->itemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
-                $this->session->itemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
-                $this->session->collectionId = $_POST['csv_import_collection_id'];
-                $this->session->stopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
-                //redirect to column mapping page
-                $this->_helper->redirector->goto('map-columns');   
-            }                
+        if (!$form->isValid($this->getRequest()->getPost())) {
+            return;
         }
+
+        //make sure the user selected a file
+        //if (trim($_POST['csv_import_file_name']) == '') {
+            //$this->flashError('Please select a file to import.');                
+
+        // make sure the file is correctly formatted
+        $file = new CsvImport_File($_POST['csv_import_file_name']);
+        
+        $maxRowsToValidate = 2;
+        if (!$file->isValid($maxRowsToValidate)) {                    
+            $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
+        } else {                    
+            // save csv file and item type to the session
+            $this->session->file = $file;                    
+            $this->session->itemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
+            $this->session->itemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
+            $this->session->itemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
+            $this->session->collectionId = $_POST['csv_import_collection_id'];
+            $this->session->stopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
+            //redirect to column mapping page
+            $this->_helper->redirector->goto('map-columns');   
+        }                
     }
     
     public function errorAction()

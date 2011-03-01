@@ -231,6 +231,10 @@ class CsvImport_File
         $colCount = 0;
         $rowCount = 0;
 
+        if (!file_exists($this->getFilePath())) {
+            return false;
+        }
+
         ini_set('auto_detect_line_endings', true);
         if ($handle = fopen($this->getFilePath(), 'r')) {
             // process each row of data
