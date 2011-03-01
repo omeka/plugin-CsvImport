@@ -26,7 +26,7 @@ class CsvImport_Form_Main extends Omeka_Form
         foreach ($csvFiles as $csvFile) {
             $values[$csvFile->getFileName()] = $csvFile->getFileName();
         }
-        $this->addElement('select', 'csv_import_file_name', array(
+        $this->addElement('select', 'file_name', array(
             'label' => 'CSV File',
             'multiOptions' => $values,
             'required' => true,
@@ -42,27 +42,27 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         array_unshift($values, 'Select Item Type');
-        $this->addElement('select', 'csv_import_item_type_id', array(
+        $this->addElement('select', 'item_type_id', array(
             'label' => 'Item Type',
             'multiOptions' => $values,
         ));
         $values = get_db()->getTable('Collection')->findPairsForSelectForm();
         array_unshift($values, 'Select Collection');
-        $this->addElement('select', 'csv_import_collection_id', array(
+        $this->addElement('select', 'collection_id', array(
             'label' => 'Collection',
             'multiOptions' => $values,
         ));
-        $this->addElement('checkbox', 'csv_import_items_are_public', array(
+        $this->addElement('checkbox', 'items_are_public', array(
             'label' => 'Items Are Public?',
         ));
-        $this->addElement('checkbox', 'csv_import_items_are_featured', array(
+        $this->addElement('checkbox', 'items_are_featured', array(
             'label' => 'Items Are Featured?',
         ));
-        $this->addElement('checkbox', 'csv_import_stop_import_if_file_download_error', array(
+        $this->addElement('checkbox', 'stop_import_if_file_download_error', array(
             'label' => 'Stop Import If A File For An Item Cannot Be Downloaded?',
             'checked' => true,
         ));
-        $this->addElement('submit', 'csv_import_submit', array(
+        $this->addElement('submit', 'submit', array(
             'label' => 'Next',
             'class' => 'submit submit-medium',
         ));
