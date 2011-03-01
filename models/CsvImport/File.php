@@ -88,7 +88,7 @@ class CsvImport_File
    */	
 	public function getFilePath() 
 	{
-	    return CSV_IMPORT_CSV_FILES_DIRECTORY .  DIRECTORY_SEPARATOR . $this->_fileName;
+	    return CSV_IMPORT_CSV_FILES_DIRECTORY .  '/' . $this->_fileName;
 	}
 
 	/**

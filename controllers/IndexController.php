@@ -190,7 +190,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         try {
             $p = ProcessDispatcher::getPHPCliPath();
         } catch (Exception $e) {
-            $this->flashError('Your PHP-CLI path setting is invalid.'.  "\n"  . 'Please change the setting in ' . CONFIG_DIR . DIRECTORY_SEPARATOR . 'config.ini' . "\n" . 'If you do not know how to do this, please check with your system or server administrator.');
+            $this->flashError('Your PHP-CLI path setting is invalid.'.  "\n"  . 'Please change the setting in ' . CONFIG_DIR . '/config.ini' . "\n" . 'If you do not know how to do this, please check with your system or server administrator.');
             return false;
         }
         return true;
