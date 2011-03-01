@@ -16,6 +16,12 @@
  */
 class CsvImport_IndexController extends Omeka_Controller_Action
 {
+
+    public function init()
+    {
+        $this->session = new Zend_Session_Namespace('CsvImport');
+    }
+
     public function preDispatch()
     {
         if (($this->getRequest()->getActionName() != 'error')
@@ -28,7 +34,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function indexAction() 
     {
         // get the session and view
-        $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
         
         // check the form submit button
@@ -49,12 +54,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
                 } else {                    
                     // save csv file and item type to the session
-                    $csvImportSession->csvImportFile = $csvImportFile;                    
-                    $csvImportSession->csvImportItemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
-                    $csvImportSession->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
-                    $csvImportSession->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
-                    $csvImportSession->csvImportCollectionId = $_POST['csv_import_collection_id'];
-                    $csvImportSession->csvImportStopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
+                    $this->session->csvImportFile = $csvImportFile;                    
+                    $this->session->csvImportItemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
+                    $this->session->csvImportItemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
+                    $this->session->csvImportItemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
+                    $this->session->csvImportCollectionId = $_POST['csv_import_collection_id'];
+                    $this->session->csvImportStopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
                     //redirect to column mapping page
                     $this->_helper->redirector->goto('map-columns');   
                 }                
@@ -73,22 +78,20 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     {
         $hasError = false;
         
-        // get the session and view        
-        $csvImportSession = new Zend_Session_Namespace('CsvImport');
         $view = $this->view;
         
         // get the session variables
-        $itemsArePublic = $csvImportSession->csvImportItemsArePublic;
-        $itemsAreFeatured = $csvImportSession->csvImportItemsAreFeatured;
-        $collectionId = $csvImportSession->csvImportCollectionId;
-        $stopImportIfFileDownloadError = $csvImportSession->csvImportStopImportIfFileDownloadError;
+        $itemsArePublic = $this->session->csvImportItemsArePublic;
+        $itemsAreFeatured = $this->session->csvImportItemsAreFeatured;
+        $collectionId = $this->session->csvImportCollectionId;
+        $stopImportIfFileDownloadError = $this->session->csvImportStopImportIfFileDownloadError;
         
         // get the csv file to import
-        $csvImportFile = $csvImportSession->csvImportFile;
+        $csvImportFile = $this->session->csvImportFile;
                 
         // pass the csv file and item type to the view
         $view->csvImportFile = $csvImportFile;
-        $view->csvImportItemTypeId = $csvImportSession->csvImportItemTypeId;
+        $view->csvImportItemTypeId = $this->session->csvImportItemTypeId;
         $view->csvImportFileImport = null;        
                 
         // process submitted column mappings
@@ -135,7 +138,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 
                 // do the import in the background
                 $csvImport = new CsvImport_Import();
-                $csvImport->initialize($csvImportFile->getFileName(), $csvImportSession->csvImportItemTypeId, $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
+                $csvImport->initialize($csvImportFile->getFileName(), $this->session->csvImportItemTypeId, $collectionId, $itemsArePublic, $itemsAreFeatured, $stopImportIfFileDownloadError, $columnMaps);
                 $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
                 $csvImport->save();
                 
