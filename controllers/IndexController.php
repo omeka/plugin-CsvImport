@@ -34,33 +34,32 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function indexAction() 
     {
         // check the form submit button
-        if (isset($_POST['csv_import_submit'])) {
+        if (!$this->getRequest()->isPost()) {
+            return;
+        }
 
-            //make sure the user selected a file
-            if (trim($_POST['csv_import_file_name']) == '') {
+        //make sure the user selected a file
+        if (trim($_POST['csv_import_file_name']) == '') {
+            $this->flashError('Please select a file to import.');                
+        } else {
                 
-                $this->flashError('Please select a file to import.');                
+            // make sure the file is correctly formatted
+            $file = new CsvImport_File($_POST['csv_import_file_name']);
             
-            } else {
-                    
-                // make sure the file is correctly formatted
-                $file = new CsvImport_File($_POST['csv_import_file_name']);
-                
-                $maxRowsToValidate = 2;
-                if (!$file->isValid($maxRowsToValidate)) {                    
-                    $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
-                } else {                    
-                    // save csv file and item type to the session
-                    $this->session->file = $file;                    
-                    $this->session->itemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
-                    $this->session->itemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
-                    $this->session->itemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
-                    $this->session->collectionId = $_POST['csv_import_collection_id'];
-                    $this->session->stopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
-                    //redirect to column mapping page
-                    $this->_helper->redirector->goto('map-columns');   
-                }                
-            }
+            $maxRowsToValidate = 2;
+            if (!$file->isValid($maxRowsToValidate)) {                    
+                $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
+            } else {                    
+                // save csv file and item type to the session
+                $this->session->file = $file;                    
+                $this->session->itemTypeId = empty($_POST['csv_import_item_type_id']) ? 0 : $_POST['csv_import_item_type_id'];
+                $this->session->itemsArePublic = ($_POST['csv_import_items_are_public'] == '1');
+                $this->session->itemsAreFeatured = ($_POST['csv_import_items_are_featured'] == '1');
+                $this->session->collectionId = $_POST['csv_import_collection_id'];
+                $this->session->stopImportIfFileDownloadError = $_POST['csv_import_stop_import_if_file_download_error'];
+                //redirect to column mapping page
+                $this->_helper->redirector->goto('map-columns');   
+            }                
         }
     }
     
@@ -87,72 +86,72 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->view->itemTypeId = $this->session->itemTypeId;
         $this->view->fileImport = null;        
                 
-        // process submitted column mappings
-        if (isset($_POST['csv_import_submit'])) {
+        if (!$this->getRequest()->isPost()) {
+            return;
+        }
             
-            // create the column maps
-            $columnMaps = array();
-            $colCount = $file->getColumnCount();
-            for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
-                
-                // if applicable, add mapping to tags
-                if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == '1') {
-                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_TAG);
-                    $columnMaps[] = $columnMap;
-                }
-                
-                // if applicable, add mapping to file
-                if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] == '1') {
-                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_FILE);
-                    $columnMaps[] = $columnMap;
-                }
-                                
-                // if applicable, add mapping to elements
-                $rawElementIds = explode(',', $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $colIndex]);
-                foreach($rawElementIds as $rawElementId) {
-                    $elementId = trim($rawElementId);
-                    if ($elementId) {
-                        $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
-                        $columnMap->addElementId($elementId);
-                        $columnMap->setDataIsHtml((boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $colIndex]);
-                        $columnMaps[] = $columnMap;                        
-                    }
-                }
-            }           
+        // create the column maps
+        $columnMaps = array();
+        $colCount = $file->getColumnCount();
+        for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
             
-            // make sure the user maps have at least one column
-            if (count($columnMaps) == 0) {
-                $this->flashError('Please map at least one column to an element, file, or tag.');
-                $hasError = true;
+            // if applicable, add mapping to tags
+            if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == '1') {
+                $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_TAG);
+                $columnMaps[] = $columnMap;
             }
             
-            // if there are no errors with the column mappings, then run the import and goto the status page
-            if (!$hasError) {
-                
-                // do the import in the background
-                $csvImport = new CsvImport_Import();
-                $csvImport->initialize($file->getFileName(), 
-                                       $this->session->itemTypeId, 
-                                       $this->session->collectionId, 
-                                       $this->session->itemsArePublic, 
-                                       $this->session->itemsAreFeatured, 
-                                       $this->session->stopImportIfFileDownloadError, 
-                                       $columnMaps);
-                $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
-                $csvImport->save();
-                
-                // dispatch the background process to import the items
-                $user = current_user();
-                $args = array();
-                $args['import_id'] = $csvImport->id;
-                ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
-                
-                //_helper->redirector to column mapping page
-                $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
-                $this->_helper->redirector->goto('status');
-                
-            }  
-        }   
+            // if applicable, add mapping to file
+            if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] == '1') {
+                $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_FILE);
+                $columnMaps[] = $columnMap;
+            }
+                            
+            // if applicable, add mapping to elements
+            $rawElementIds = explode(',', $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $colIndex]);
+            foreach($rawElementIds as $rawElementId) {
+                $elementId = trim($rawElementId);
+                if ($elementId) {
+                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
+                    $columnMap->addElementId($elementId);
+                    $columnMap->setDataIsHtml((boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $colIndex]);
+                    $columnMaps[] = $columnMap;                        
+                }
+            }
+        }           
+        
+        // make sure the user maps have at least one column
+        if (count($columnMaps) == 0) {
+            $this->flashError('Please map at least one column to an element, file, or tag.');
+            $hasError = true;
+        }
+        
+        // if there are no errors with the column mappings, then run the import and goto the status page
+        if (!$hasError) {
+            
+            // do the import in the background
+            $csvImport = new CsvImport_Import();
+            $csvImport->initialize($file->getFileName(), 
+                                   $this->session->itemTypeId, 
+                                   $this->session->collectionId, 
+                                   $this->session->itemsArePublic, 
+                                   $this->session->itemsAreFeatured, 
+                                   $this->session->stopImportIfFileDownloadError, 
+                                   $columnMaps);
+            $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
+            $csvImport->save();
+            
+            // dispatch the background process to import the items
+            $user = current_user();
+            $args = array();
+            $args['import_id'] = $csvImport->id;
+            ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
+            
+            //_helper->redirector to column mapping page
+            $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
+            $this->_helper->redirector->goto('status');
+            
+        }  
     }
     
     public function undoImportAction()
