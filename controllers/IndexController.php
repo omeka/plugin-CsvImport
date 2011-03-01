@@ -46,7 +46,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
 
         // make sure the file is correctly formatted
-        $file = new CsvImport_File($_POST['file_name']);
+        $file = new CsvImport_File($form->getValue('file_name'));
         
         $maxRowsToValidate = 2;
         if (!$file->isValid($maxRowsToValidate)) {                    
@@ -54,11 +54,14 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         } else {                    
             // save csv file and item type to the session
             $this->session->file = $file;                    
-            $this->session->itemTypeId = empty($_POST['item_type_id']) ? 0 : $_POST['item_type_id'];
-            $this->session->itemsArePublic = ($_POST['items_are_public'] == '1');
-            $this->session->itemsAreFeatured = ($_POST['items_are_featured'] == '1');
-            $this->session->collectionId = $_POST['collection_id'];
-            $this->session->stopImportIfFileDownloadError = $_POST['stop_import_if_file_download_error'];
+            $this->session->itemTypeId = $form->getValue('item_type_id');
+            $this->session->itemsArePublic = 
+                $form->getValue('items_are_public');
+            $this->session->itemsAreFeatured = 
+                $form->getValue('items_are_featured');
+            $this->session->collectionId = $form->getValue('collection_id');
+            $this->session->stopImportIfFileDownloadError = 
+                $form->getValue('stop_import_if_file_download_error');
             //redirect to column mapping page
             $this->_helper->redirector->goto('map-columns');   
         }                
