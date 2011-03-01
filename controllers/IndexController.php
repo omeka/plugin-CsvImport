@@ -79,6 +79,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $hasError = false;
         
         $view = $this->view;
+
+        if (!$this->_sessionIsValid()) {
+            return $this->_helper->redirector->goto('index');
+        }
         
         // get the session variables
         $itemsArePublic = $this->session->itemsArePublic;
@@ -208,6 +212,20 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         } catch (Exception $e) {
             $this->flashError('Your PHP-CLI path setting is invalid.'.  "\n"  . 'Please change the setting in ' . CONFIG_DIR . DIRECTORY_SEPARATOR . 'config.ini' . "\n" . 'If you do not know how to do this, please check with your system or server administrator.');
             return false;
+        }
+        return true;
+    }
+
+    private function _sessionIsValid()
+    {
+        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 'stopImportIfFileDownloadError', 'collectionId', 'itemTypeId');
+
+        foreach ($requiredKeys as $key) {
+            if (!isset($this->session->$key) 
+                || !is_numeric($this->session->$key)
+            ) {
+                return false;
+            }
         }
         return true;
     }
