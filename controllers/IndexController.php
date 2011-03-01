@@ -45,14 +45,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
 
-        // make sure the file is correctly formatted
         $file = new CsvImport_File($form->getValue('file_name'));
         
         $maxRowsToValidate = 2;
         if (!$file->isValid($maxRowsToValidate)) {                    
             $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
         } else {                    
-            // save csv file and item type to the session
             $this->session->file = $file;                    
             $this->session->itemTypeId = $form->getValue('item_type_id');
             $this->session->itemsArePublic = 
@@ -62,7 +60,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             $this->session->collectionId = $form->getValue('collection_id');
             $this->session->stopImportIfFileDownloadError = 
                 $form->getValue('stop_import_if_file_download_error');
-            //redirect to column mapping page
             $this->_helper->redirector->goto('map-columns');   
         }                
     }
@@ -82,10 +79,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return $this->_helper->redirector->goto('index');
         }
         
-        // get the csv file to import
         $file = $this->session->file;
                 
-        // pass the csv file and item type to the view
         $this->view->file = $file;
         $this->view->itemTypeId = $this->session->itemTypeId;
         $this->view->fileImport = null;        
@@ -94,24 +89,20 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
             
-        // create the column maps
         $columnMaps = array();
         $colCount = $file->getColumnCount();
         for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
             
-            // if applicable, add mapping to tags
             if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == '1') {
                 $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_TAG);
                 $columnMaps[] = $columnMap;
             }
             
-            // if applicable, add mapping to file
             if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] == '1') {
                 $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_FILE);
                 $columnMaps[] = $columnMap;
             }
                             
-            // if applicable, add mapping to elements
             $rawElementIds = explode(',', $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $colIndex]);
             foreach($rawElementIds as $rawElementId) {
                 $elementId = trim($rawElementId);
@@ -124,16 +115,13 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             }
         }           
         
-        // make sure the user maps have at least one column
         if (count($columnMaps) == 0) {
             $this->flashError('Please map at least one column to an element, file, or tag.');
             $hasError = true;
         }
         
-        // if there are no errors with the column mappings, then run the import and goto the status page
         if (!$hasError) {
             
-            // do the import in the background
             $csvImport = new CsvImport_Import();
             $csvImport->initialize($file->getFileName(), 
                                    $this->session->itemTypeId, 
@@ -145,13 +133,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
             $csvImport->save();
             
-            // dispatch the background process to import the items
             $user = current_user();
             $args = array();
             $args['import_id'] = $csvImport->id;
             ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
             
-            //_helper->redirector to column mapping page
             $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
             $this->_helper->redirector->goto('status');
             
@@ -166,11 +152,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport = $cit->find($importId);
         if ($csvImport) {
             
-            // change the status of the import
             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
             $csvImport->save();
 
-            // // dispatch the background process to undo the import
             $user = current_user();
             $args = array();
             $args['import_id'] = $importId;
@@ -189,7 +173,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if ($csvImport) {
             if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
                 $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
-                // delete the import object
                 $csvImport->delete();
                 $this->flashSuccess("Successfully cleared the history of the import.");
             }
@@ -199,7 +182,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function statusAction() 
     {
-        //get the imports
         $this->view->csvImports =  CsvImport_Import::getImports();
     }
     
