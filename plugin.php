@@ -150,39 +150,6 @@ function csv_import_get_default_value($htmlInputElementName, $defaultValue = nul
 }
 
 /**
-* Get the dropdown html code for csv files.
-*  
-* @return string
-*/
-function csv_import_get_file_drop_down($dropDownName, $dropDownLabel) 
-{
-    $ht = '';
-    $csvFiles = CsvImport_File::getFiles();
-    foreach ($csvFiles as $csvFile) {
-        $values[$csvFile->getFileName()] = $csvFile->getFileName();
-    }
-            
-    $ht .= '<div class="field">';
-    $ht .= select(array('name' => $dropDownName, 'id' => $dropDownName), $values, csv_import_get_default_value($dropDownName), $dropDownLabel);
-    $ht .= '</div>';
-    return $ht;
-}
-
-/**
-* Get the dropdown box html code for item types
-*  
-* @return string
-*/
-function csv_import_get_item_types_drop_down($dropDownName, $dropDownLabel) 
-{
-    $ht = '';
-    $ht .= '<div class="field">';
-    $ht .= select_item_type(array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
-    $ht .= '</div>';
-    return $ht;
-}
-
-/**
 * Get the html code for mapping columns in the csv file to elements
 *  
 * @return string
@@ -316,21 +283,6 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
     }
     
     return $elementsByElementSetName;
-}
-
-
-/**
-* Get the drop down html code for the collections
-*  
-* @return string
-*/
-function csv_import_get_collections_drop_down($dropDownName, $dropDownLabel)
-{    
-    $ht = '';
-    $ht .= '<div class="field">';
-    $ht .= select_collection( array('name' => $dropDownName, 'id' => $dropDownName), csv_import_get_default_value($dropDownName), $dropDownLabel);
-    $ht .= '</div>';
-    return $ht;
 }
 
 /**

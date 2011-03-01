@@ -33,7 +33,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
     public function indexAction() 
     {
-        // check the form submit button
+        require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
+        $form = new CsvImport_Form_Main();
+        $this->view->form = $form;
+
         if (!$this->getRequest()->isPost()) {
             return;
         }
