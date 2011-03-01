@@ -117,7 +117,7 @@ function csv_import_define_acl($acl)
  */
 function csv_import_admin_navigation($tabs)
 {
-    if (get_acl()->checkUserPermission('CsvImport_Index', 'index')) {
+    if (get_acl()->isAllowed(current_user(), 'CsvImport_Index', 'index')) {
         $tabs['CSV Import'] = uri('csv-import');        
     }
     return $tabs;
