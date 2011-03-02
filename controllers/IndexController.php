@@ -116,32 +116,29 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }           
         
         if (count($columnMaps) == 0) {
-            $this->flashError('Please map at least one column to an element, file, or tag.');
-            $hasError = true;
+            return $this->flashError('Please map at least one column to an '
+                . 'element, file, or tag.');
         }
         
-        if (!$hasError) {
-            
-            $csvImport = new CsvImport_Import();
-            $csvImport->initialize($file->getFileName(), 
-                                   $this->session->itemTypeId, 
-                                   $this->session->collectionId, 
-                                   $this->session->itemsArePublic, 
-                                   $this->session->itemsAreFeatured, 
-                                   $this->session->stopImportIfFileDownloadError, 
-                                   $columnMaps);
-            $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
-            $csvImport->save();
-            
-            $user = current_user();
-            $args = array();
-            $args['import_id'] = $csvImport->id;
-            ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
-            
-            $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
-            $this->_helper->redirector->goto('status');
-            
-        }  
+        $csvImport = new CsvImport_Import();
+        $csvImport->initialize($file->getFileName(), 
+                               $this->session->itemTypeId, 
+                               $this->session->collectionId, 
+                               $this->session->itemsArePublic, 
+                               $this->session->itemsAreFeatured, 
+                               $this->session->stopImportIfFileDownloadError, 
+                               $columnMaps);
+        $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
+        $csvImport->save();
+        
+        $user = current_user();
+        $args = array();
+        $args['import_id'] = $csvImport->id;
+        ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
+
+        $this->session->unsetAll();
+        $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
+        $this->_helper->redirector->goto('status');
     }
     
     public function undoImportAction()
