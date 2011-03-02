@@ -27,7 +27,6 @@ define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX',
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
-add_plugin_hook('upgrade', 'csv_import_upgrade');
 add_plugin_hook('config_form', 'csv_import_config_form');
 add_plugin_hook('config', 'csv_import_config');
 add_plugin_hook('admin_theme_header', 'csv_import_admin_header');
@@ -89,15 +88,6 @@ function csv_import_uninstall()
     $db->query($sql);
     $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imported_items`";
     $db->query($sql);
-    
-}
-
-/** Upgrade the plugin.
- *
- * @return void
- */ 
-function csv_import_upgrade($oldVersion, $newVersion)
-{
     
 }
 
