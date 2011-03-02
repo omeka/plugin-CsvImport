@@ -49,19 +49,19 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         
         $maxRowsToValidate = 2;
         if (!$file->isValid($maxRowsToValidate)) {                    
-            $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
-        } else {                    
-            $this->session->file = $file;                    
-            $this->session->itemTypeId = $form->getValue('item_type_id');
-            $this->session->itemsArePublic = 
-                $form->getValue('items_are_public');
-            $this->session->itemsAreFeatured = 
-                $form->getValue('items_are_featured');
-            $this->session->collectionId = $form->getValue('collection_id');
-            $this->session->stopImportIfFileDownloadError = 
-                $form->getValue('stop_import_if_file_download_error');
-            $this->_helper->redirector->goto('map-columns');   
-        }                
+            return $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
+        }
+
+        $this->session->filename = $form->getValue('file_name');                    
+        $this->session->itemTypeId = $form->getValue('item_type_id');
+        $this->session->itemsArePublic = 
+            $form->getValue('items_are_public');
+        $this->session->itemsAreFeatured = 
+            $form->getValue('items_are_featured');
+        $this->session->collectionId = $form->getValue('collection_id');
+        $this->session->stopImportIfFileDownloadError = 
+            $form->getValue('stop_import_if_file_download_error');
+        $this->_helper->redirector->goto('map-columns');   
     }
     
     public function errorAction()
@@ -79,7 +79,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return $this->_helper->redirector->goto('index');
         }
         
-        $file = $this->session->file;
+        $file = new CsvImport_File($this->session->filename);
                 
         $this->view->file = $file;
         $this->view->itemTypeId = $this->session->itemTypeId;
