@@ -61,7 +61,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             $form->getValue('items_are_featured');
         $this->session->collectionId = $form->getValue('collection_id');
         $this->session->stopImportIfFileDownloadError = 
-            $form->getValue('stop_import_if_file_download_error');
+            $form->getValue('stop_on_file_error');
         $this->_helper->redirector->goto('map-columns');   
     }
     

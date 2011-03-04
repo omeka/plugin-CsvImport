@@ -35,7 +35,7 @@ class CsvImport_Import extends Omeka_Record
     public $error_details;
     public $serialized_column_maps;
 
-    public $stop_import_if_file_download_error;
+    public $stop_on_file_error;
 
     protected $_csvFile;
 
@@ -57,7 +57,7 @@ class CsvImport_Import extends Omeka_Record
             'is_featured' => $isFeatured,
             'status' => '',
             'error_details' => '',
-            'stop_import_if_file_download_error' => 
+            'stop_on_file_error' => 
                 $stopImportIfFileDownloadError,
             '_columnMaps' => $columnMaps)
         );
@@ -221,10 +221,10 @@ class CsvImport_Import extends Omeka_Record
                 $files = insert_files_for_item($item, 
                     $fileMetadata['file_transfer_type'], $url, 
                     array('ignore_invalid_files' => 
-                    (!$this->stop_import_if_file_download_error)));
+                    (!$this->stop_on_file_error)));
             } catch(Exception $e) {
                 if (!($e instanceof Omeka_File_Ingest_InvalidException) || 
-                    $this->stop_import_if_file_download_error) {
+                    $this->stop_on_file_error) {
                     $this->status 
                         = self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD;
                     $this->error_details = $urlForFile . "\n" 

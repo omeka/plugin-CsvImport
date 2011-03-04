@@ -54,7 +54,7 @@ function csv_import_install()
        `item_count` int(10) unsigned NOT NULL,
        `is_public` tinyint(1) default '0',
        `is_featured` tinyint(1) default '0',
-       `stop_import_if_file_download_error` tinyint(1) default '0',
+       `stop_on_file_error` tinyint(1) default '0',
        `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
        `added` timestamp NOT NULL default '0000-00-00 00:00:00',
        PRIMARY KEY  (`id`)
