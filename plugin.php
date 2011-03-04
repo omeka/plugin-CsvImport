@@ -176,13 +176,13 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
         $ht .= '<td>' . csv_import_get_elements_for_column_mapping($i, 
             $csvImportItemTypeId) . '</td>';
         $ht .= '<td>' 
-            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
+            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
             . $i) . '</td>';
         $ht .= '<td>' 
-            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX 
+            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX 
             . $i) . '</td>';
         $ht .= '<td>' 
-            . csv_import_checkbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX 
+            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX 
             . $i) . '</td>';
         $ht .= '</tr>';
     }
@@ -252,88 +252,16 @@ function csv_import_get_item_elements_drop_down($elementsDropDownName,
 }
 
 /**
-* Get an associative array of elements where the key is the element set name and 
-* the value is an array of elements. The associative array will include the 
-* following sets of elements in the following order: Dublin Core element set, 
-* the set of elements associated with the item type, and then every other 
-* element set.  Assumes that Dublin Core element set is the first element set 
-* in the database.
-*  
-* @return string
-*/
+ * @return array
+ */
 function csv_import_get_elements_by_element_set_name($itemTypeId)
 {
-    $db = get_db();    
-    $es = $db->getTable('ElementSet');
-    $elementSets = $es->findByRecordType('Item');
-    
-    $elementsByElementSetName = array(); // associative array that maps element set name to arrays of item elements
-        
-    foreach($elementSets as $elementSet) {
-        switch(trim($elementSet['name'])) {
-        
-            // get the elements for the item type
-            case 'Item Type Metadata':
-                if (!empty($itemTypeId)) {
-                    $sql = "SELECT e.id, e.name FROM 
-                        `{$db->prefix}item_types_elements` AS ite, 
-                        `{$db->prefix}elements` AS e
-                            WHERE `ite`.`item_type_id` = ? AND `e`.`id` 
-                            = `ite`.`element_id`";        $query 
-                            = $db->query($sql, array($itemTypeId));
-                    $itElementIdsToElementNames = array();
-                    while ($itElement = $query->fetch()) {
-                        $itElementIdsToElementNames[$itElement['id']] 
-                            = $itElement['name'];
-                    }
-                    
-                    $itt = $db->getTable('ItemType');
-                    $itemType = $itt->find($itemTypeId);
-                    $elementsByElementSetName[$elementSet['name'] 
-                        . ' - ' . $itemType['name']] 
-                        = $itElementIdsToElementNames;   }
-            break;
-            
-            // get the elements from the Dublin Core and each of the other 
-                    // element sets
-            default:
-                $oElementIdsToElementNames = array();
-                $oElements = $elementSet->getElements();
-                foreach($oElements as $oElement) {
-                    $oElementIdsToElementNames[$oElement['id']] 
-                        = $oElement['name'];
-                }
-                $elementsByElementSetName[$elementSet['name']] 
-                    =  $oElementIdsToElementNames;
-            break;
-        }
-    }
-    
-    return $elementsByElementSetName;
-}
-
-/**
-* Get the checkbox html code.  Used for specifying whether items are public or featured
-*
-* @param string $checkBoxName
-* @param string $checkBoxLabel
-* @param string $isCheckedByDefault 
-* @return string
-*/
-function csv_import_checkbox($checkBoxName, $checkBoxLabel='', $divClass = '',  $isCheckedByDefault=false) 
-{
-    $ht = '';
-    $ht .= '<div' . (!empty($divClass) ? (' class="' . html_escape($divClass) 
-        . '" ') : '' ) .  '>';
-    $checked = (bool) csv_import_get_default_value($checkBoxName, 
-        $isCheckedByDefault);
-    if ($checkBoxLabel) {
-        $ht .= '<label for="' . html_escape($checkBoxName) . '">' 
-            . html_escape($checkBoxLabel) . '</label>';        }
-    $ht .= checkbox($attributes = array('name' => $checkBoxName, 'id' => 
-    $checkBoxName), $checked, null);
-    $ht .= '</div>';
-    return $ht;
+    // @todo Fix ElementTable::findPairsForSelectForm() to use passed 
+    // parameters.  Also add a search filter to return elements for a specific 
+    // item type.
+    $elements = get_db()->getTable('Element')->findPairsForSelectForm();
+    unset($elements[ELEMENT_SET_ITEM_TYPE]);
+    return $elements;
 }
 
 function csv_import_config_form()
