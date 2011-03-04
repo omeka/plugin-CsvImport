@@ -111,15 +111,16 @@ class CsvImport_Import extends Omeka_Record
         // infos, where each element info contains the element set name, 
         // element name, and whether the element text is html or not 
         $colNumToElementInfosMap = array();
-
+        $colNumMapsToFile = array();
         $colNumMapsToTag = array();
 
         foreach($columnMaps as $columnMap) {
             $columnIndex = $columnMap->getColumnIndex();
 
             // check to see if the column maps to a tag
-            $mapsToTag = $colNumMapsToTag[$columnIndex];
-            if (empty($mapsToTag)) {
+            if (isset($colNumMapsToTag[$columnIndex]) 
+                && empty($colNumMapsToTag[$columnIndex])
+            ) {
                 $colNumMapsToTag[$columnIndex] = false;  
             }
             if ($columnMap->mapsToTag()) {
@@ -127,8 +128,9 @@ class CsvImport_Import extends Omeka_Record
             }
 
             // check to see if the column maps to a file
-            $mapsToFile = $colNumMapsToFile[$columnIndex];
-            if (empty($mapsToFile)) {
+            if (isset($colNumMapsToFile[$columnIndex])
+                && empty($mapsToFile)
+            ) {
                 $colNumMapsToFile[$columnIndex] = false;  
             }
             if ($columnMap->mapsToFile()) {
@@ -148,13 +150,16 @@ class CsvImport_Import extends Omeka_Record
 
                 // make sure that an array of element infos exists for the 
                 // column index
-                if (!is_array($colNumToElementInfosMap[$columnIndex])) {
+                if (isset($colNumToElementInfosMap[$columnIndex])
+                    && !is_array($colNumToElementInfosMap[$columnIndex])
+                ) {
                     $colNumToElementInfosMap[$columnIndex] = array();
                 }
 
                 // add the element info if it does not already exist for the 
                 // column index 
-                if (!in_array($elementInfo, 
+                if (isset($colNumToElementInfosMap[$columnIndex])
+                    && !in_array($elementInfo, 
                     $colNumToElementInfosMap[$columnIndex])
                 ) {
                     $colNumToElementInfosMap[$columnIndex][] = $elementInfo; 
@@ -215,7 +220,9 @@ class CsvImport_Import extends Omeka_Record
             $columnValue = $row[$colIndex]['value'];
 
             // process the elements
-            if ( $colNumToElementInfosMap[$colIndex] !== null) {
+            if (isset($colNumToElementInfosMap[$colIndex])
+                && $colNumToElementInfosMap[$colIndex] !== null
+            ) {
                 $elementInfos = $colNumToElementInfosMap[$colIndex];
                 foreach($elementInfos as $elementInfo) {
 
@@ -246,7 +253,7 @@ class CsvImport_Import extends Omeka_Record
             }
 
             // process the tags
-            if ($colNumMapsToTag[$colIndex]) {
+            if (isset($colNumMapsToTag[$colIndex])) {
                 $rawTags = explode(',', $columnValue);
                 foreach($rawTags as $rawTag) {
                     $tag = trim($rawTag);
@@ -257,7 +264,7 @@ class CsvImport_Import extends Omeka_Record
             }
 
             // process the files
-            if ($colNumMapsToFile[$colIndex]) {
+            if (isset($colNumMapsToFile[$colIndex])) {
                 $urlForFile = trim($columnValue);
                 if (!in_array($urlForFile, $urlsForFiles) && ($urlForFile != "")) {
                     $urlsForFiles[] = $urlForFile;
