@@ -1,5 +1,6 @@
 <?php 
-    head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+    head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 
+        'content_class' => 'horizontal-nav'));
 ?>
 <h1>CSV Import</h1>
 
@@ -19,7 +20,9 @@
     <form id="csvimport" method="post" action="">
         <?php echo csv_import_get_column_mappings($file, $itemTypeId); ?>
         <fieldset>
-            <?php echo submit(array('name'=>'csv_import_submit', 'class'=>'submit submit-medium'), 'Import CSV File'); ?>
+        <?php echo submit(array(
+            'name' => 'csv_import_submit', 'class' => 'submit submit-medium'), 
+            'Import CSV File'); ?>
         </fieldset>
     </form>
 </div>
