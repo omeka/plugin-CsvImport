@@ -195,8 +195,7 @@ function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId)
 /**
  * Gets a div that allows users to add and remove elements for an column mapping
  * 
- * @todo Fix the hidden helper function so it does not echo the output and then 
- * use it.  @return string
+ * @return string
  */
 function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
 {
