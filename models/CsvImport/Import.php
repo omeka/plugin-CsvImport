@@ -91,7 +91,6 @@ class CsvImport_Import extends Omeka_Record
         // add an import object
         $db = get_db();
         $csvFile = $this->getCsvFile();
-        $columnMaps = $this->getColumnMaps();
 
         if (!$csvFile->isValid()) {
             $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
@@ -107,65 +106,8 @@ class CsvImport_Import extends Omeka_Record
             'collection_id'  => $this->collection_id
         );
 
-        // create a map from the column index number to an array of element 
-        // infos, where each element info contains the element set name, 
-        // element name, and whether the element text is html or not 
-        $colNumToElementInfosMap = array();
-        $colNumMapsToFile = array();
-        $colNumMapsToTag = array();
-
-        foreach($columnMaps as $columnMap) {
-            $columnIndex = $columnMap->getColumnIndex();
-
-            // check to see if the column maps to a tag
-            if (isset($colNumMapsToTag[$columnIndex]) 
-                && empty($colNumMapsToTag[$columnIndex])
-            ) {
-                $colNumMapsToTag[$columnIndex] = false;  
-            }
-            if ($columnMap->mapsToTag()) {
-                $colNumMapsToTag[$columnIndex] = true;                    
-            }
-
-            // check to see if the column maps to a file
-            if (isset($colNumMapsToFile[$columnIndex])
-                && empty($mapsToFile)
-            ) {
-                $colNumMapsToFile[$columnIndex] = false;  
-            }
-            if ($columnMap->mapsToFile()) {
-                $colNumMapsToFile[$columnIndex] = true;
-            }
-
-            // build element infos from the column map
-            $elementIds = $columnMap->getElementIds();
-            foreach($elementIds as $elementId) {
-                $et = $db->getTable('Element');
-                $element = $et->find($elementId);
-                $es = $db->getTable('ElementSet');
-                $elementSet = $es->find($element['element_set_id']);
-                $elementInfo = array('element_name' => $element->name, 
-                    'element_set_name' => $elementSet->name, 
-                    'element_text_is_html' => $columnMap->getDataIsHtml());
-
-                // make sure that an array of element infos exists for the 
-                // column index
-                if (isset($colNumToElementInfosMap[$columnIndex])
-                    && !is_array($colNumToElementInfosMap[$columnIndex])
-                ) {
-                    $colNumToElementInfosMap[$columnIndex] = array();
-                }
-
-                // add the element info if it does not already exist for the 
-                // column index 
-                if (isset($colNumToElementInfosMap[$columnIndex])
-                    && !in_array($elementInfo, 
-                    $colNumToElementInfosMap[$columnIndex])
-                ) {
-                    $colNumToElementInfosMap[$columnIndex][] = $elementInfo; 
-                }
-            }                                          
-        }
+        list($colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile)
+            = $this->getMapsForImport();
 
         // add item from each row
         $rows = $csvFile->getRows();
@@ -443,5 +385,68 @@ class CsvImport_Import extends Omeka_Record
             $progress = 'NA';
         }
         return $progress;
+    }
+
+    public function getMapsForImport()
+    {
+        // create a map from the column index number to an array of element 
+        // infos, where each element info contains the element set name, 
+        // element name, and whether the element text is html or not 
+        $colNumToElementInfosMap = array();
+        $colNumMapsToFile = array();
+        $colNumMapsToTag = array();
+
+        foreach($this->getColumnMaps() as $columnMap) {
+            $columnIndex = $columnMap->getColumnIndex();
+
+            // check to see if the column maps to a tag
+            if (isset($colNumMapsToTag[$columnIndex]) 
+                && empty($colNumMapsToTag[$columnIndex])
+            ) {
+                $colNumMapsToTag[$columnIndex] = false;  
+            }
+            if ($columnMap->mapsToTag()) {
+                $colNumMapsToTag[$columnIndex] = true;                    
+            }
+
+            // check to see if the column maps to a file
+            if (isset($colNumMapsToFile[$columnIndex])
+                && empty($mapsToFile)
+            ) {
+                $colNumMapsToFile[$columnIndex] = false;  
+            }
+            if ($columnMap->mapsToFile()) {
+                $colNumMapsToFile[$columnIndex] = true;
+            }
+
+            // build element infos from the column map
+            $elementIds = $columnMap->getElementIds();
+            foreach($elementIds as $elementId) {
+                $element = $this->getTable('Element')->find($elementId);
+                $elementSet = $this->getTable('ElementSet')
+                                   ->find($element['element_set_id']);
+                $elementInfo = array('element_name' => $element->name, 
+                    'element_set_name' => $elementSet->name, 
+                    'element_text_is_html' => $columnMap->getDataIsHtml());
+
+                // make sure that an array of element infos exists for the 
+                // column index
+                if (isset($colNumToElementInfosMap[$columnIndex])
+                    && !is_array($colNumToElementInfosMap[$columnIndex])
+                ) {
+                    $colNumToElementInfosMap[$columnIndex] = array();
+                }
+
+                // add the element info if it does not already exist for the 
+                // column index 
+                if (isset($colNumToElementInfosMap[$columnIndex])
+                    && !in_array($elementInfo, 
+                    $colNumToElementInfosMap[$columnIndex])
+                ) {
+                    $colNumToElementInfosMap[$columnIndex][] = $elementInfo; 
+                }
+            }                                          
+        }
+        return array($colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile);
     }
 }
