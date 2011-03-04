@@ -199,8 +199,8 @@ class CsvImport_Import extends Omeka_Record
 
     // adds an item based on the row data
     // returns inserted Item
-    private function addItemFromRow(&$row, &$itemMetadata, 
-        &$colNumToElementInfosMap, &$colNumMapsToTag, &$colNumMapsToFile) 
+    private function addItemFromRow($row, $itemMetadata, 
+        $colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile) 
     {
         // define the element texts for the item
         $itemElementTexts = array();
@@ -217,7 +217,7 @@ class CsvImport_Import extends Omeka_Record
             // process the elements
             if ( $colNumToElementInfosMap[$colIndex] !== null) {
                 $elementInfos = $colNumToElementInfosMap[$colIndex];
-                foreach($elementInfos as &$elementInfo) {
+                foreach($elementInfos as $elementInfo) {
 
                     // get the element name and element set name
                     $elementName = $elementInfo['element_name'];
@@ -248,7 +248,7 @@ class CsvImport_Import extends Omeka_Record
             // process the tags
             if ($colNumMapsToTag[$colIndex]) {
                 $rawTags = explode(',', $columnValue);
-                foreach($rawTags as &$rawTag) {
+                foreach($rawTags as $rawTag) {
                     $tag = trim($rawTag);
                     if (!in_array($tag, $tags)) {
                         $tags[] = $tag;
