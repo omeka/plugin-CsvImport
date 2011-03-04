@@ -86,7 +86,6 @@ class CsvImport_Import extends Omeka_Record
         $this->item_count = $this->getItemCount();
         $this->save(); 
 
-        $db = get_db();
         $csvFile = $this->getCsvFile();
 
         if (!$csvFile->isValid()) {
@@ -282,9 +281,8 @@ class CsvImport_Import extends Omeka_Record
         $this->save();
 
         $itemLimitPerQuery = self::UNDO_IMPORT_LIMIT_PER_QUERY;        
-        $db = get_db();
-        $iit = $db->getTable('CsvImport_ImportedItem');
-        $it = $db->getTable('Item');
+        $iit = $this->getTable('CsvImport_ImportedItem');
+        $it = $this->getTable('Item');
 
         $sql = $iit->getSelect()->where('`import_id` 
             = ?')->limit($itemLimitPerQuery);
@@ -338,10 +336,9 @@ class CsvImport_Import extends Omeka_Record
     // unimport
     public function getImportedItemCount()
     {
-        $db = get_db();
-        $iit = $db->getTable('CsvImport_ImportedItem');
+        $iit = $this->getTable('CsvImport_ImportedItem');
         $sql = $iit->getSelectForCount()->where('`import_id` = ?');
-        $importedItemCount = $db->fetchOne($sql, array($this->id));
+        $importedItemCount = $this->getDb()->fetchOne($sql, array($this->id));
         return $importedItemCount;
     }
 

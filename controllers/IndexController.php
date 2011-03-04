@@ -154,8 +154,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function undoImportAction()
     {
-        $db = get_db();
-        $cit = $db->getTable('CsvImport_Import');
+        $cit = $this->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
         $csvImport = $cit->find($importId);
         if ($csvImport) {
@@ -176,8 +175,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function clearHistoryAction()
     {
-        $db = get_db();
-        $cit = $db->getTable('CsvImport_Import');
+        $cit = $this->getTable('CsvImport_Import');
         $importId = $this->_getParam("id");
         $csvImport = $cit->find($importId);
         if ($csvImport) {
