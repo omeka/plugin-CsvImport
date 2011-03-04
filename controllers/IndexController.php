@@ -49,7 +49,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         
         $maxRowsToValidate = 2;
         if (!$file->isValid($maxRowsToValidate)) {                    
-            return $this->flashError('Your file is incorrectly formatted.  Please select a valid CSV file.');
+            return $this->flashError('Your file is incorrectly formatted. '
+                . 'Please select a valid CSV file.');
         }
 
         $this->session->filename = $form->getValue('file_name');                    
@@ -93,23 +94,32 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $colCount = $file->getColumnCount();
         for($colIndex = 0; $colIndex < $colCount; $colIndex++) {
             
-            if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == '1') {
-                $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_TAG);
+            if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == 
+                '1') {
+                $columnMap = new CsvImport_ColumnMap($colIndex, 
+                    CsvImport_ColumnMap::TARGET_TYPE_TAG);
                 $columnMaps[] = $columnMap;
             }
             
-            if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] == '1') {
-                $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_FILE);
+            if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] 
+                == '1') {
+                $columnMap = new CsvImport_ColumnMap($colIndex, 
+                    CsvImport_ColumnMap::TARGET_TYPE_FILE);
                 $columnMaps[] = $columnMap;
             }
                             
-            $rawElementIds = explode(',', $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $colIndex]);
+            $rawElementIds = explode(',', 
+                $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX 
+                . $colIndex]);
             foreach($rawElementIds as $rawElementId) {
                 $elementId = trim($rawElementId);
                 if ($elementId) {
-                    $columnMap = new CsvImport_ColumnMap($colIndex, CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
+                    $columnMap = new CsvImport_ColumnMap($colIndex, 
+                        CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
                     $columnMap->addElementId($elementId);
-                    $columnMap->setDataIsHtml((boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX . $colIndex]);
+                    $columnMap->setDataIsHtml( 
+                        (boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
+                        . $colIndex]);
                     $columnMaps[] = $columnMap;                        
                 }
             }
@@ -137,7 +147,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
 
         $this->session->unsetAll();
-        $this->flashSuccess("Successfully started the import. Reload this page for status updates.");
+        $this->flashSuccess("Successfully started the import. Reload this page '
+            . 'for status updates.");
         $this->_helper->redirector->goto('status');
     }
     
@@ -155,9 +166,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             $user = current_user();
             $args = array();
             $args['import_id'] = $importId;
-            ProcessDispatcher::startProcess('CsvImport_UndoImportProcess', $user, $args);
+            ProcessDispatcher::startProcess('CsvImport_UndoImportProcess', 
+                $user, $args);
         }
-        $this->flashSuccess("Successfully started to undo the import. Reload this page for status updates.");
+        $this->flashSuccess("Successfully started to undo the import. Reload '
+            . 'this page for status updates.");
         $this->_helper->redirector->goto('status');
     }
     
@@ -168,10 +181,13 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $importId = $this->_getParam("id");
         $csvImport = $cit->find($importId);
         if ($csvImport) {
-            if ($csvImport->status == CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
-                $csvImport->status == CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+            if ($csvImport->status == 
+                CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
+                $csvImport->status == 
+                CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
                 $csvImport->delete();
-                $this->flashSuccess("Successfully cleared the history of the import.");
+                $this->flashSuccess("Successfully cleared the history of the '
+                    . 'import.");
             }
         }
         $this->_helper->redirector->goto('status');
@@ -187,7 +203,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         try {
             $p = ProcessDispatcher::getPHPCliPath();
         } catch (Exception $e) {
-            $this->flashError('Your PHP-CLI path setting is invalid.'.  "\n"  . 'Please change the setting in ' . CONFIG_DIR . '/config.ini' . "\n" . 'If you do not know how to do this, please check with your system or server administrator.');
+            $this->flashError("Your PHP-CLI path setting is invalid.\n"  
+                . "Please change the setting in " . CONFIG_DIR 
+                . "/config.ini\nIf you do not know how to do this, please check "
+                . "with your system or server administrator.");
             return false;
         }
         return true;
@@ -195,7 +214,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
     private function _sessionIsValid()
     {
-        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 'stopImportIfFileDownloadError', 'collectionId', 'itemTypeId');
+        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 
+            'stopImportIfFileDownloadError', 'collectionId', 'itemTypeId');
 
         foreach ($requiredKeys as $key) {
             if (!isset($this->session->$key) 
