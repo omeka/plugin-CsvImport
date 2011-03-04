@@ -404,4 +404,16 @@ class CsvImport_Import extends Omeka_Record {
 	    }
 	    return $this->item_count;
 	}
+
+    public function getProgress()
+    {
+        $importedItemCount = $this->getImportedItemCount();
+        $itemCount = $this->getItemCount();
+        if ($itemCount != -1) {
+          $progress = $importedItemCount . ' / ' . $itemCount;
+        } else {
+          $progress = 'NA';
+        }
+        return $progress;
+    }
 }
