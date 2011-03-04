@@ -101,7 +101,7 @@ class CsvImport_Import extends Omeka_Record
             'collection_id'  => $this->collection_id
         );
 
-        list($colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile)
+        list($elementMap, $tagMap, $fileMap)
             = $this->getMapsForImport();
 
         $rows = $csvFile->getRows();
@@ -116,8 +116,7 @@ class CsvImport_Import extends Omeka_Record
 
             try {
                 $item = $this->addItemFromRow($row, $itemMetadata, 
-                    $colNumToElementInfosMap, $colNumMapsToTag, 
-                    $colNumMapsToFile);
+                    $elementMap, $tagMap, $fileMap);
             } catch (Exception $e) {
                 $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
                 $this->error_details = $e->getMessage();
@@ -139,7 +138,7 @@ class CsvImport_Import extends Omeka_Record
     // adds an item based on the row data
     // returns inserted Item
     private function addItemFromRow($row, $itemMetadata, 
-        $colNumToElementInfosMap, $colNumMapsToTag, $colNumMapsToFile) 
+        $elementMap, $tagMap, $fileMap) 
     {
         $itemElementTexts = array();
 
@@ -152,10 +151,10 @@ class CsvImport_Import extends Omeka_Record
             $columnName = $row[$colIndex]['name'];
             $columnValue = $row[$colIndex]['value'];
 
-            if (isset($colNumToElementInfosMap[$colIndex])
-                && $colNumToElementInfosMap[$colIndex] !== null
+            if (isset($elementMap[$colIndex])
+                && $elementMap[$colIndex] !== null
             ) {
-                $elementInfos = $colNumToElementInfosMap[$colIndex];
+                $elementInfos = $elementMap[$colIndex];
                 foreach($elementInfos as $elementInfo) {
 
                     // get the element name and element set name
@@ -184,7 +183,7 @@ class CsvImport_Import extends Omeka_Record
                 }
             }
 
-            if (isset($colNumMapsToTag[$colIndex])) {
+            if (isset($tagMap[$colIndex])) {
                 $rawTags = explode(',', $columnValue);
                 foreach($rawTags as $rawTag) {
                     $tag = trim($rawTag);
@@ -194,7 +193,7 @@ class CsvImport_Import extends Omeka_Record
                 }
             }
 
-            if (isset($colNumMapsToFile[$colIndex])) {
+            if (isset($fileMap[$colIndex])) {
                 $urlForFile = trim($columnValue);
                 if (!in_array($urlForFile, $urlsForFiles) && ($urlForFile != "")) {
                     $urlsForFiles[] = $urlForFile;
@@ -374,26 +373,26 @@ class CsvImport_Import extends Omeka_Record
             'tags' => array(),
         );
         foreach($this->getColumnMaps() as $columnMap) {
-            $columnIndex = $columnMap->getColumnIndex();
+            $index = $columnMap->getColumnIndex();
 
             // check to see if the column maps to a tag
-            if (isset($maps['tags'][$columnIndex]) 
-                && empty($maps['tags'][$columnIndex])
+            if (isset($maps['tags'][$index]) 
+                && empty($maps['tags'][$index])
             ) {
-                $maps['tags'][$columnIndex] = false;  
+                $maps['tags'][$index] = false;  
             }
             if ($columnMap->mapsToTag()) {
-                $maps['tags'][$columnIndex] = true;                    
+                $maps['tags'][$index] = true;                    
             }
 
             // check to see if the column maps to a file
-            if (isset($maps['files'][$columnIndex])
+            if (isset($maps['files'][$index])
                 && empty($mapsToFile)
             ) {
-                $maps['files'][$columnIndex] = false;  
+                $maps['files'][$index] = false;  
             }
             if ($columnMap->mapsToFile()) {
-                $maps['files'][$columnIndex] = true;
+                $maps['files'][$index] = true;
             }
 
             // build element infos from the column map
@@ -408,19 +407,19 @@ class CsvImport_Import extends Omeka_Record
 
                 // make sure that an array of element infos exists for the 
                 // column index
-                if (isset($maps['elements'][$columnIndex])
-                    && !is_array($maps['elements'][$columnIndex])
+                if (isset($maps['elements'][$index])
+                    && !is_array($maps['elements'][$index])
                 ) {
-                    $maps['elements'][$columnIndex] = array();
+                    $maps['elements'][$index] = array();
                 }
 
                 // add the element info if it does not already exist for the 
                 // column index 
-                if (isset($maps['elements'][$columnIndex])
+                if (isset($maps['elements'][$index])
                     && !in_array($elementInfo, 
-                    $maps['elements'][$columnIndex])
+                    $maps['elements'][$index])
                 ) {
-                    $maps['elements'][$columnIndex][] = $elementInfo; 
+                    $maps['elements'][$index][] = $elementInfo; 
                 }
             }                                          
         }
