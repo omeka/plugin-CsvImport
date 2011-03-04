@@ -147,8 +147,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         ProcessDispatcher::startProcess('CsvImport_ImportProcess', $user, $args);
 
         $this->session->unsetAll();
-        $this->flashSuccess("Successfully started the import. Reload this page '
-            . 'for status updates.");
+        $this->flashSuccess('Successfully started the import. Reload this page '
+            . 'for status updates.');
         $this->_helper->redirector->goto('status');
     }
     
@@ -169,8 +169,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             ProcessDispatcher::startProcess('CsvImport_UndoImportProcess', 
                 $user, $args);
         }
-        $this->flashSuccess("Successfully started to undo the import. Reload '
-            . 'this page for status updates.");
+        $this->flashSuccess('Successfully started to undo the import. Reload '
+            . 'this page for status updates.');
         $this->_helper->redirector->goto('status');
     }
     
