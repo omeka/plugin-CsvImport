@@ -47,20 +47,6 @@ class CsvImport_Import extends Omeka_Record
      */
     protected $_columnMaps; 
 
-    /**
-     * Gets an array of all of the CsvImport_Import objects from the database
-     * 
-     * @return array
-     */
-    public static function getImports()
-    {
-        $db = get_db();
-        $it = $db->getTable('CsvImport_Import');
-        $s = $it->getSelect()->where('1')->order('added DESC');
-        $imports = $it->fetchObjects($s, array());
-        return $imports;
-    }
-
     public function initialize($csvFileName, $itemTypeId, $collectionId, 
         $isPublic, $isFeatured, $stopImportIfFileDownloadError, $columnMaps) 
     {
@@ -107,109 +93,107 @@ class CsvImport_Import extends Omeka_Record
         $csvFile = $this->getCsvFile();
         $columnMaps = $this->getColumnMaps();
 
-        if ($csvFile->isValid()) {    	    
-
-            // define item metadata	    
-            $itemMetadata = array(
-                'public'         => $this->is_public, 
-                'featured'       => $this->is_featured, 
-                'item_type_id'   => $this->item_type_id,
-                'collection_id'  => $this->collection_id
-            );
-
-            // create a map from the column index number to an array of element 
-            // infos, where each element info contains the element set name, 
-            // element name, and whether the element text is html or not 
-            $colNumToElementInfosMap = array();
-
-            $colNumMapsToTag = array();
-
-            foreach($columnMaps as $columnMap) {
-                $columnIndex = $columnMap->getColumnIndex();
-
-                // check to see if the column maps to a tag
-                $mapsToTag = $colNumMapsToTag[$columnIndex];
-                if (empty($mapsToTag)) {
-                    $colNumMapsToTag[$columnIndex] = false;  
-                }
-                if ($columnMap->mapsToTag()) {
-                    $colNumMapsToTag[$columnIndex] = true;                    
-                }
-
-                // check to see if the column maps to a file
-                $mapsToFile = $colNumMapsToFile[$columnIndex];
-                if (empty($mapsToFile)) {
-                    $colNumMapsToFile[$columnIndex] = false;  
-                }
-                if ($columnMap->mapsToFile()) {
-                    $colNumMapsToFile[$columnIndex] = true;
-                }
-
-                // build element infos from the column map
-                $elementIds = $columnMap->getElementIds();
-                foreach($elementIds as $elementId) {
-                    $et = $db->getTable('Element');
-                    $element = $et->find($elementId);
-                    $es = $db->getTable('ElementSet');
-                    $elementSet = $es->find($element['element_set_id']);
-                    $elementInfo = array('element_name' => $element->name, 
-                        'element_set_name' => $elementSet->name, 
-                        'element_text_is_html' => $columnMap->getDataIsHtml());
-
-                    // make sure that an array of element infos exists for the 
-                    // column index
-                    if (!is_array($colNumToElementInfosMap[$columnIndex])) {
-                        $colNumToElementInfosMap[$columnIndex] = array();
-                    }
-
-                    // add the element info if it does not already exist for the 
-                    // column index 
-                    if (!in_array($elementInfo, 
-                        $colNumToElementInfosMap[$columnIndex])
-                    ) {
-                        $colNumToElementInfosMap[$columnIndex][] = $elementInfo; 
-                    }
-                }                                          
-            }
-
-            // add item from each row
-            $rows = $csvFile->getRows();
-            $i = 0;
-            foreach($rows as $row) {
-                $i++;
-
-                // ignore the first row because it is the header
-                if ($i == 1) {
-                    continue;
-                }
-
-                //insert the item 
-                try {
-                    $item = $this->addItemFromRow($row, $itemMetadata, 
-                        $colNumToElementInfosMap, $colNumMapsToTag, 
-                        $colNumMapsToFile);
-                } catch (Exception $e) {
-                    $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
-                    $this->error_details = $e->getMessage();
-                }
-                release_object($item);
-
-                // stop import on error
-                if ($this->hasErrorStatus()) {
-                    $this->save();
-                    return false;
-                }
-            }
-
-            $this->status = self::STATUS_COMPLETED_IMPORT;
+        if (!$csvFile->isValid()) {
+            $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
             $this->save();
-            return true;
+            return false;
+        }            
 
+        // define item metadata	    
+        $itemMetadata = array(
+            'public'         => $this->is_public, 
+            'featured'       => $this->is_featured, 
+            'item_type_id'   => $this->item_type_id,
+            'collection_id'  => $this->collection_id
+        );
+
+        // create a map from the column index number to an array of element 
+        // infos, where each element info contains the element set name, 
+        // element name, and whether the element text is html or not 
+        $colNumToElementInfosMap = array();
+
+        $colNumMapsToTag = array();
+
+        foreach($columnMaps as $columnMap) {
+            $columnIndex = $columnMap->getColumnIndex();
+
+            // check to see if the column maps to a tag
+            $mapsToTag = $colNumMapsToTag[$columnIndex];
+            if (empty($mapsToTag)) {
+                $colNumMapsToTag[$columnIndex] = false;  
+            }
+            if ($columnMap->mapsToTag()) {
+                $colNumMapsToTag[$columnIndex] = true;                    
+            }
+
+            // check to see if the column maps to a file
+            $mapsToFile = $colNumMapsToFile[$columnIndex];
+            if (empty($mapsToFile)) {
+                $colNumMapsToFile[$columnIndex] = false;  
+            }
+            if ($columnMap->mapsToFile()) {
+                $colNumMapsToFile[$columnIndex] = true;
+            }
+
+            // build element infos from the column map
+            $elementIds = $columnMap->getElementIds();
+            foreach($elementIds as $elementId) {
+                $et = $db->getTable('Element');
+                $element = $et->find($elementId);
+                $es = $db->getTable('ElementSet');
+                $elementSet = $es->find($element['element_set_id']);
+                $elementInfo = array('element_name' => $element->name, 
+                    'element_set_name' => $elementSet->name, 
+                    'element_text_is_html' => $columnMap->getDataIsHtml());
+
+                // make sure that an array of element infos exists for the 
+                // column index
+                if (!is_array($colNumToElementInfosMap[$columnIndex])) {
+                    $colNumToElementInfosMap[$columnIndex] = array();
+                }
+
+                // add the element info if it does not already exist for the 
+                // column index 
+                if (!in_array($elementInfo, 
+                    $colNumToElementInfosMap[$columnIndex])
+                ) {
+                    $colNumToElementInfosMap[$columnIndex][] = $elementInfo; 
+                }
+            }                                          
         }
 
-        $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
+        // add item from each row
+        $rows = $csvFile->getRows();
+        $i = 0;
+        foreach($rows as $row) {
+            $i++;
+
+            // ignore the first row because it is the header
+            if ($i == 1) {
+                continue;
+            }
+
+            //insert the item 
+            try {
+                $item = $this->addItemFromRow($row, $itemMetadata, 
+                    $colNumToElementInfosMap, $colNumMapsToTag, 
+                    $colNumMapsToFile);
+            } catch (Exception $e) {
+                $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
+                $this->error_details = $e->getMessage();
+            }
+            release_object($item);
+
+            // stop import on error
+            if ($this->hasErrorStatus()) {
+                $this->save();
+                return false;
+            }
+        }
+
+        $this->status = self::STATUS_COMPLETED_IMPORT;
         $this->save();
-        return false;
+        return true;
     }
 
 

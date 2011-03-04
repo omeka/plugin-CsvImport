@@ -195,7 +195,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function statusAction() 
     {
-        $this->view->csvImports =  CsvImport_Import::getImports();
+        $this->view->csvImports = $this->getTable('CsvImport_Import')
+                                       ->findAll();
     }
     
     private function _hasValidPHPCliPath()
