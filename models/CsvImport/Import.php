@@ -48,7 +48,7 @@ class CsvImport_Import extends Omeka_Record
     protected $_columnMaps; 
 
     public function initialize($csvFileName, $itemTypeId, $collectionId, 
-        $isPublic, $isFeatured, $stopImportIfFileDownloadError, $columnMaps) 
+        $isPublic, $isFeatured, $stopOnError, $columnMaps) 
     {
         $this->setArray(array('csv_file_name' => $csvFileName, 
             'item_type_id' => $itemTypeId, 
@@ -58,7 +58,7 @@ class CsvImport_Import extends Omeka_Record
             'status' => '',
             'error_details' => '',
             'stop_on_file_error' => 
-                $stopImportIfFileDownloadError,
+                $stopOnError,
             '_columnMaps' => $columnMaps)
         );
 
