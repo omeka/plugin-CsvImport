@@ -118,22 +118,6 @@ function csv_import_admin_header($request)
 }
 
 /**
- * Get the default value for an element.  If the user has already submitted the 
- * value, then use that as the default, else return null.
- *
- * @param string Element input name
- * @param string Default value of the element  @return string
- */
-function csv_import_get_default_value($htmlInputElementName, $defaultValue = null) 
-{
-    // set the default file if the form is already submitted
-    if (isset($_POST[$htmlInputElementName])) {
-        $defaultValue = $_POST[$htmlInputElementName];
-    }
-    return $defaultValue;
-}
-
-/**
  * @return array
  */
 function csv_import_get_elements_by_element_set_name($itemTypeId)
