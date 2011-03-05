@@ -79,11 +79,14 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if (!$this->_sessionIsValid()) {
             return $this->_helper->redirector->goto('index');
         }
-        
+
         $file = new CsvImport_File($this->session->filename);
-                
-        $this->view->file = $file;
-        $this->view->itemTypeId = $this->session->itemTypeId;
+        require_once CSV_IMPORT_DIRECTORY . '/forms/Mapping.php';
+        $form = new CsvImport_Form_Mapping(array(
+            'file' => $file,
+            'itemTypeId' => $this->session->itemTypeId,
+        ));
+        $this->view->form = $form;
         $this->view->fileImport = null;        
                 
         if (!$this->getRequest()->isPost()) {

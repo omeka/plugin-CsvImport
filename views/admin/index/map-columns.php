@@ -16,15 +16,11 @@
 <div id="primary">
     <h2>Step 2: Map Columns To Elements, Tags, or Files</h2>
     <?php echo flash(); ?>
+
+    <?php
+    echo $this->form;
+    ?>
     
-    <form id="csvimport" method="post" action="">
-        <?php echo csv_import_get_column_mappings($file, $itemTypeId); ?>
-        <fieldset>
-        <?php echo submit(array(
-            'name' => 'csv_import_submit', 'class' => 'submit submit-medium'), 
-            'Import CSV File'); ?>
-        </fieldset>
-    </form>
 </div>
 <script type="text/javascript">
 //<![CDATA[

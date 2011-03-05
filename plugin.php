@@ -14,16 +14,6 @@ define('CSV_IMPORT_CSV_FILES_DIRECTORY', CSV_IMPORT_DIRECTORY . '/csv_files');
 define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY 
     . '/background_scripts');
 
-define('CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX', 'column_map_tag_');
-define('CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX', 'column_map_file_');
-define('CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX', 'column_map_html_');
-
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX', 
-    'column_map_elements_list_');
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX', 
-    CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'dropdown_');
-define('CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX', 
-    CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX . 'hidden_input_'); 
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
@@ -141,113 +131,6 @@ function csv_import_get_default_value($htmlInputElementName, $defaultValue = nul
         $defaultValue = $_POST[$htmlInputElementName];
     }
     return $defaultValue;
-}
-
-/**
-* Get the html code for mapping columns in the csv file to elements
-*  
-* @return string
-*/
-function csv_import_get_column_mappings($csvImportFile, $csvImportItemTypeId) 
-{   
-    $ht = '';    
-    $colNames = $csvImportFile->getColumnNames();
-    $colExamples = $csvImportFile->getColumnExamples();
-    
-    $itemElementIdsToNames = array();
-    $ht .= '<table id="csv-import-column-mappings-table" class="simple" '
-         . 'cellspacing="0" cellpadding="0">';
-	$ht .= '<thead>';
-	$ht .= '<tr>';
-	$ht .= '<th>Column</th>';
-	$ht .= '<th>Example from CSV File</th>';
-	$ht .= '<th>Map To Element</th>';
-	$ht .= '<th>Use HTML?</th>';
-	$ht .= '<th>Tags?</th>';
-	$ht .= '<th>File?</th>';
-	$ht .= '</tr>';
-	$ht .= '</thead>';
-	$ht .= '<tbody>';
-	
-    for($i = 0; $i < count($colNames); $i++) {
-        $ht .= '<tr>';
-        $ht .= '<td><strong>'.$colNames[$i].'</strong></td>';
-        $ht .= '<td>&quot;' . $colExamples[$i] . '&quot;</td>';         
-        $ht .= '<td>' . csv_import_get_elements_for_column_mapping($i, 
-            $csvImportItemTypeId) . '</td>';
-        $ht .= '<td>' 
-            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
-            . $i) . '</td>';
-        $ht .= '<td>' 
-            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX 
-            . $i) . '</td>';
-        $ht .= '<td>' 
-            . __v()->formCheckbox(CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX 
-            . $i) . '</td>';
-        $ht .= '</tr>';
-    }
-	$ht .= '</tbody>';
-	$ht .= '</table>';
-	
-    return $ht;
-}
-
-/**
- * Gets a div that allows users to add and remove elements for an column mapping
- * 
- * @return string
- */
-function csv_import_get_elements_for_column_mapping($columnIndex, $itemTypeId)
-{
-    $elementsDropDownName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_DROPDOWN_PREFIX 
-        . $columnIndex;
-    $elementsHiddenInputName 
-        = CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX . $columnIndex;
-    $elementsListName = CSV_IMPORT_COLUMN_MAP_ELEMENTS_LIST_PREFIX 
-        . $columnIndex;
-    
-    $ht = '';
-    $ht .= '<div>';
-    $ht .= csv_import_get_item_elements_drop_down($elementsDropDownName, 
-        $itemTypeId, $elementsListName, $elementsHiddenInputName);
-    $ht .= '<input type="hidden" value="' 
-        . csv_import_get_default_value($elementsHiddenInputName) . '" name="' 
-        . $elementsHiddenInputName . '" id="' . $elementsHiddenInputName .'" 
-        />';
-    $ht .= '<span id="' . $elementsListName . '"></span>';
-    $ht .= '</div>';
-    return $ht;
-}
-
-/**
-* Get the drop down html code that includes item elements from all of the item 
-* element sets, except for the "Item Type Metadata" element set, only get the 
-* elements for the item type
-*  
-* @return string
-*/
-function csv_import_get_item_elements_drop_down($elementsDropDownName, 
-    $itemTypeId, $elementsListName, $elementsHiddenInputName)
-{    
-    $ht = '';
-    
-    // get an associative array of elements where the key is the element set 
-    // name and the value is the array of elements associated with the element 
-    // set order the element sets by: Dublin Core, item type, and then all other element 
-    // sets
-    $elementsByElementSetName = 
-        csv_import_get_elements_by_element_set_name($itemTypeId);
-    //$onChange .= "csvImportAddElementToColumnMap('" . $elementsListName . "', 
-    //'" . $elementsDropDownName ."', '" . $elementsHiddenInputName 
-    //. "');this.selectedIndex=0;";
-    
-    // get the select dropdown box
-    $ht .= select( array('name' => $elementsDropDownName, 'id' => 
-        $elementsDropDownName, 'class'=>'csv-import-element-select'), 
-        $elementsByElementSetName, 
-        csv_import_get_default_value($elementsDropDownName), null);
-    
-    return $ht;
 }
 
 /**
