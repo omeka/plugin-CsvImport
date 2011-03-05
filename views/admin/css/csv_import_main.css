@@ -16,3 +16,7 @@
     background-repeat: no-repeat;
     padding-left: 20px;
 }
+
+table#column-mappings div.inputs {
+    width: auto;
+}

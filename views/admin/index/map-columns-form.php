@@ -3,7 +3,7 @@
     $colNames = $file->getColumnNames();
     $colExamples = $file->getColumnExamples();
 ?>
-    <table id="csv-import-column-mappings-table" class="simple" cellspacing="0" cellpadding="0">;
+    <table id="column-mappings" class="simple" cellspacing="0" cellpadding="0">;
 	<thead>
 	<tr>
         <th>Column</th>
