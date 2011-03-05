@@ -255,12 +255,9 @@ function csv_import_get_item_elements_drop_down($elementsDropDownName,
  */
 function csv_import_get_elements_by_element_set_name($itemTypeId)
 {
-    // @todo Fix ElementTable::findPairsForSelectForm() to use passed 
-    // parameters.  Also add a search filter to return elements for a specific 
-    // item type.
-    $elements = get_db()->getTable('Element')->findPairsForSelectForm();
-    unset($elements[ELEMENT_SET_ITEM_TYPE]);
-    return $elements;
+    $params = $itemTypeId ? array('item_type_id' => $itemTypeId)
+                          : array('exclude_item_type' => true);
+    return get_db()->getTable('Element')->findPairsForSelectForm($params);
 }
 
 function csv_import_config_form()
