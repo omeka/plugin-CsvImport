@@ -74,8 +74,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function mapColumnsAction()
     {
-        $hasError = false;
-        
         if (!$this->_sessionIsValid()) {
             return $this->_helper->redirector->goto('index');
         }
@@ -87,7 +85,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             'itemTypeId' => $this->session->itemTypeId,
         ));
         $this->view->form = $form;
-        $this->view->fileImport = null;        
                 
         if (!$this->getRequest()->isPost()) {
             return;
@@ -99,16 +96,14 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             
             if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $colIndex] == 
                 '1') {
-                $columnMap = new CsvImport_ColumnMap($colIndex, 
+                $columnMaps[] = new CsvImport_ColumnMap($colIndex, 
                     CsvImport_ColumnMap::TARGET_TYPE_TAG);
-                $columnMaps[] = $columnMap;
             }
             
             if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $colIndex] 
                 == '1') {
-                $columnMap = new CsvImport_ColumnMap($colIndex, 
+                $columnMaps[] = new CsvImport_ColumnMap($colIndex, 
                     CsvImport_ColumnMap::TARGET_TYPE_FILE);
-                $columnMaps[] = $columnMap;
             }
                             
             $rawElementIds = explode(',', 
