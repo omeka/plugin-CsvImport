@@ -289,8 +289,7 @@ class CsvImport_Import extends Omeka_Record
 
         while(count($importedItems) > 0) {
             foreach($importedItems as $importedItem) {
-                $itemId = $importedItem->getItemId();
-                $item = $it->find($itemId);
+                $item = $it->find($importedItem->getItemId());
                 if ($item) {
                     $item->delete();
                 }
