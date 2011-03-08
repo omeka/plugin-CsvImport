@@ -9,39 +9,39 @@ Omeka.CsvImport = {};
  * to be removed.
  */
 Omeka.CsvImport.enableElementMapping = function () {
-    jQuery('.csv-import-element-select').change(function () {
-        var select = jQuery(this);
-        var elementId = select.val();
-        if (elementId === '') {
-            return;
-        }
-        var elementName = select.find(':selected').text();
+    //jQuery('.csv-import-element-select').change(function () {
+        //var select = jQuery(this);
+        //var elementId = select.val();
+        //if (elementId === '') {
+            //return;
+        //}
+        //var elementName = select.find(':selected').text();
 
-        var hiddenInput = select.siblings('input[type="hidden"]');
-        var mappingsString = hiddenInput.val();
-        var mappings = [];
-        if(mappingsString) {
-            mappings = hiddenInput.val().split(',');
-        }
-        if (jQuery.inArray(elementId, mappings) === -1) {
-            mappings.push(elementId);
-            hiddenInput.val(mappings.join(','));
+        //var hiddenInput = select.siblings('input[type="hidden"]');
+        //var mappingsString = hiddenInput.val();
+        //var mappings = [];
+        //if(mappingsString) {
+            //mappings = hiddenInput.val().split(',');
+        //}
+        //if (jQuery.inArray(elementId, mappings) === -1) {
+            //mappings.push(elementId);
+            //hiddenInput.val(mappings.join(','));
 
-            var newMapping = jQuery('<li class="csv-import-element-delete">' + elementName + '</li>');
-            newMapping.click(function () {
-                Omeka.CsvImport.removeElementMapping(elementId, this);
-            });
+            //var newMapping = jQuery('<li class="csv-import-element-delete">' + elementName + '</li>');
+            //newMapping.click(function () {
+                //Omeka.CsvImport.removeElementMapping(elementId, this);
+            //});
 
-            var listSpan = select.siblings('span');
-            var list = listSpan.children('ul');
-            if (!list.length) {
-                list = jQuery('<ul></ul>').appendTo(listSpan);
-            }
+            //var listSpan = select.siblings('span');
+            //var list = listSpan.children('ul');
+            //if (!list.length) {
+                //list = jQuery('<ul></ul>').appendTo(listSpan);
+            //}
 
-            list.append(newMapping);
-        }
-        select.val('');
-    });
+            //list.append(newMapping);
+        //}
+        //select.val('');
+    //});
 };
 /**
  * Remove a mapping and its associated button.
