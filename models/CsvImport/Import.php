@@ -134,103 +134,56 @@ class CsvImport_Import extends Omeka_Record
     private function addItemFromRow($row, $itemMetadata, $maps) 
     {
         $itemElementTexts = array();
-
-        // process each of the columns of the row
         $tags = array();
-        $urlsForFiles = array();
+        $fileUrls = array();
         $colIndex = -1;
         for($colIndex = 0; $colIndex < count($row); $colIndex++) {
-
-            $columnName = $row[$colIndex]['name'];
             $columnValue = $row[$colIndex]['value'];
-
-            if (isset($maps['elements'][$colIndex])
-                && $maps['elements'][$colIndex] !== null
-            ) {
-                $elementInfos = $maps['elements'][$colIndex];
-                foreach($elementInfos as $elementInfo) {
-
-                    // get the element name and element set name
-                    $elementName = $elementInfo['element_name'];
-                    $elementSetName = $elementInfo['element_set_name'];
-                    $elementTextIsHtml = (boolean) 
-                        $elementInfo['element_text_is_html'];
-
-                    // make sure the element set exists
-                    if(!isset($itemElementTexts[$elementSetName])) {
-                        $itemElementTexts[$elementSetName] = array();
-                    }
-
-                    // make sure the element name exists
-                    if(!isset($itemElementTexts[$elementSetName][$elementName])) 
-                    {
-                        $itemElementTexts[$elementSetName][$elementName] 
-                            = array();
-                    }
-
-                    // add the element text from the column value
-                    $itemElementText = array('text' => $columnValue, 'html' => 
-                        $elementTextIsHtml);
-                    array_push($itemElementTexts[$elementSetName][$elementName], 
-                        $itemElementText);
+            
+            if (isset($maps['elements'][$colIndex])) {
+                foreach($maps['elements'][$colIndex] as $elementText) {
+                    $elementText['text'] = $columnValue;
+                    array_push($itemElementTexts, 
+                        $elementText);
                 }
             }
 
             if (isset($maps['tags'][$colIndex])) {
                 $rawTags = explode(',', $columnValue);
-                foreach($rawTags as $rawTag) {
-                    $tag = trim($rawTag);
-                    if (!in_array($tag, $tags)) {
-                        $tags[] = $tag;
-                    }
-                }
+                array_walk($rawTags, 'trim');
+                $tags = array_merge($rawTags, $tags);
             }
 
             if (isset($maps['files'][$colIndex])) {
-                $urlForFile = trim($columnValue);
-                if (!in_array($urlForFile, $urlsForFiles) && ($urlForFile != "")) {
-                    $urlsForFiles[] = $urlForFile;
-                }        
+                $url = trim($columnValue);
+                $fileUrls = array_merge(array($url), $fileUrls);
             }        
         }
 
-        if (count($urlsForFiles) > 0) {
-            $fileMetadata = array('file_transfer_type' => 'Url', 'files' => 
-                $urlsForFiles);
-        } else {
-            $fileMetadata = array();
-        }
+        $item = insert_item(array_merge(array('tags' => $tags), $itemMetadata),
+            $itemElementTexts);
 
-        if (count($tags) > 0) {
-            $itemMetadata['tags'] = implode(',', $tags);	        
-        }
-
-        $item = insert_item($itemMetadata, $itemElementTexts);
-
-        foreach($urlsForFiles as $urlForFile) {
-            $url = array();
-            $url[] = $urlForFile;
+        foreach($fileUrls as $url) {
             try {
-                $files = insert_files_for_item($item, 
-                    $fileMetadata['file_transfer_type'], $url, 
-                    array('ignore_invalid_files' => 
-                    (!$this->stop_on_file_error)));
+                $file = insert_files_for_item($item, 
+                    'Url', $url, 
+                    array(
+                        'ignore_invalid_files' => !$this->stop_on_file_error
+                    )
+                );
             } catch(Exception $e) {
                 if (!($e instanceof Omeka_File_Ingest_InvalidException) || 
                     $this->stop_on_file_error) {
                     $this->status 
                         = self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD;
-                    $this->error_details = $urlForFile . "\n" 
+                    $this->error_details = $url . "\n" 
                         . $e->getMessage();
-                    release_object($files);
+                    release_object($file);
                     break;
                 }
             }
-            release_object($files);
+            release_object($file);
         }
-
-        // reset the tags metadata back to null for the next row
-        $itemMetadata['tags'] = null;
 
         // Makes it easy to unimport the item later.
         $this->recordImportedItemId($item->id);
@@ -260,11 +213,6 @@ class CsvImport_Import extends Omeka_Record
         }
 
         return $this->_columnMaps;
-    }
-
-    public function getItemTypeId() 
-    {
-        return $this->itemTypeId;
     }
 
     public function undoImport() 
@@ -368,7 +316,9 @@ class CsvImport_Import extends Omeka_Record
             $index = $columnMap->getColumnIndex();
 
             $maps['tags'][$index] = $columnMap->mapsToTag();                    
-            $maps['files'][$index] = $columnMap->mapsToFile();
+            if ($columnMap->mapsToFile()) {
+                $maps['files'][$index] = true;
+            }
             $maps['elements'][$index] = $columnMap->getElementMetadata();
         }
         return $maps;
