@@ -101,8 +101,7 @@ class CsvImport_Import extends Omeka_Record
             'collection_id'  => $this->collection_id
         );
 
-        list($elementMap, $tagMap, $fileMap)
-            = $this->getMapsForImport();
+        $maps = $this->getMapsForImport();
 
         $rows = $csvFile->getRows();
         $i = 0;
@@ -115,8 +114,7 @@ class CsvImport_Import extends Omeka_Record
             }
 
             try {
-                $item = $this->addItemFromRow($row, $itemMetadata, 
-                    $elementMap, $tagMap, $fileMap);
+                $item = $this->addItemFromRow($row, $itemMetadata, $maps);
             } catch (Exception $e) {
                 $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
                 $this->error_details = $e->getMessage();
@@ -137,8 +135,7 @@ class CsvImport_Import extends Omeka_Record
 
     // adds an item based on the row data
     // returns inserted Item
-    private function addItemFromRow($row, $itemMetadata, 
-        $elementMap, $tagMap, $fileMap) 
+    private function addItemFromRow($row, $itemMetadata, $maps) 
     {
         $itemElementTexts = array();
 
@@ -151,10 +148,10 @@ class CsvImport_Import extends Omeka_Record
             $columnName = $row[$colIndex]['name'];
             $columnValue = $row[$colIndex]['value'];
 
-            if (isset($elementMap[$colIndex])
-                && $elementMap[$colIndex] !== null
+            if (isset($maps['elements'][$colIndex])
+                && $maps['elements'][$colIndex] !== null
             ) {
-                $elementInfos = $elementMap[$colIndex];
+                $elementInfos = $maps['elements'][$colIndex];
                 foreach($elementInfos as $elementInfo) {
 
                     // get the element name and element set name
@@ -183,7 +180,7 @@ class CsvImport_Import extends Omeka_Record
                 }
             }
 
-            if (isset($tagMap[$colIndex])) {
+            if (isset($maps['tags'][$colIndex])) {
                 $rawTags = explode(',', $columnValue);
                 foreach($rawTags as $rawTag) {
                     $tag = trim($rawTag);
@@ -193,7 +190,7 @@ class CsvImport_Import extends Omeka_Record
                 }
             }
 
-            if (isset($fileMap[$colIndex])) {
+            if (isset($maps['files'][$colIndex])) {
                 $urlForFile = trim($columnValue);
                 if (!in_array($urlForFile, $urlsForFiles) && ($urlForFile != "")) {
                     $urlsForFiles[] = $urlForFile;
@@ -422,6 +419,6 @@ class CsvImport_Import extends Omeka_Record
                 }
             }                                          
         }
-        return array($maps['elements'], $maps['tags'], $maps['files']);
+        return $maps;
     }
 }
