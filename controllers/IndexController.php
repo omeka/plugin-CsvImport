@@ -88,35 +88,15 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if (!$this->getRequest()->isPost()) {
             return;
         }
+        if (!$form->isValid($this->getRequest()->getPost())) {
+            return;
+        }
+
         $columnMaps = array();
         $colCount = $file->getColumnCount();
         for($i = 0; $i < $colCount; $i++) {
-            
-            if ($_POST[CsvImport_Form_Mapping::TAG_CHECKBOX_PREFIX . $i] == 
-                '1') {
-                $columnMaps[] = new CsvImport_ColumnMap($i, 
-                    CsvImport_ColumnMap::TARGET_TYPE_TAG);
-            }
-            
-            if ($_POST[CsvImport_Form_Mapping::FILE_CHECKBOX_PREFIX . $i] 
-                == '1') {
-                $columnMaps[] = new CsvImport_ColumnMap($i, 
-                    CsvImport_ColumnMap::TARGET_TYPE_FILE);
-            }
-                            
-            $rawElementIds = explode(',', 
-                $_POST[CsvImport_Form_Mapping::ELEMENTS_HIDDEN_PREFIX . $i]);
-            foreach($rawElementIds as $rawElementId) {
-                $elementId = trim($rawElementId);
-                if ($elementId) {
-                    $columnMap = new CsvImport_ColumnMap($i, 
-                        CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
-                    $columnMap->addElementId($elementId);
-                    $columnMap->setDataIsHtml( 
-                        (boolean)$_POST[CsvImport_Form_Mapping::HTML_CHECKBOX_PREFIX 
-                        . $i]);
-                    $columnMaps[] = $columnMap;                        
-                }
+            if ($map = $form->getColumnMap($i)) {
+                $columnMaps[] = $map;
             }
         }           
         

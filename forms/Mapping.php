@@ -78,4 +78,44 @@ class CsvImport_Form_Mapping extends Omeka_Form
     {
         $this->_itemTypeId = $itemTypeId;
     }
+
+    private function isTagMapped($index)
+    {
+        return $this->getElement(self::TAG_CHECKBOX_PREFIX . $index)->isChecked();
+    }
+
+    private function isFileMapped($index)
+    {
+        return $this->getElement(self::FILE_CHECKBOX_PREFIX . $index)->isChecked();
+    }
+
+    private function getMappedElementId($index)
+    {
+        return $this->getValue(self::ELEMENTS_DROPDOWN_PREFIX . $index);
+    }
+
+    /**
+     * @internal It's unclear whether the original behavior allowed a row to 
+     * represent a tag, a file, and an HTML element text at the same time.  If 
+     * so, that behavior is weird and buggy and it's going away until deemed 
+     * otherwise.
+     */
+    public function getColumnMap($index)
+    {
+        $columnMap = null;
+        if ($this->isTagMapped($index)) {
+            $columnMap = new CsvImport_ColumnMap($index, 
+                CsvImport_ColumnMap::TARGET_TYPE_TAG);
+        } else if ($this->isFileMapped($index)) {
+            $columnMap = new CsvImport_ColumnMap($index, 
+                CsvImport_ColumnMap::TARGET_TYPE_FILE);
+        } else if ($elementId = $this->getMappedElementId($index)) {
+            $columnMap = new CsvImport_ColumnMap($index, 
+                CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
+            $columnMap->addElementId($elementId);
+            $columnMap->setDataIsHtml( 
+                (boolean)$_POST[self::HTML_CHECKBOX_PREFIX . $index]);
+        }
+        return $columnMap;
+    }
 }
