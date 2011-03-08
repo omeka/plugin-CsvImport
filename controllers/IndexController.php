@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @version $Id$
  * @copyright Center for History and New Media, 2008-2011
@@ -89,26 +88,24 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if (!$this->getRequest()->isPost()) {
             return;
         }
-            
         $columnMaps = array();
         $colCount = $file->getColumnCount();
         for($i = 0; $i < $colCount; $i++) {
             
-            if ($_POST[CSV_IMPORT_COLUMN_MAP_TAG_CHECKBOX_PREFIX . $i] == 
+            if ($_POST[CsvImport_Form_Mapping::TAG_CHECKBOX_PREFIX . $i] == 
                 '1') {
                 $columnMaps[] = new CsvImport_ColumnMap($i, 
                     CsvImport_ColumnMap::TARGET_TYPE_TAG);
             }
             
-            if ($_POST[CSV_IMPORT_COLUMN_MAP_FILE_CHECKBOX_PREFIX . $i] 
+            if ($_POST[CsvImport_Form_Mapping::FILE_CHECKBOX_PREFIX . $i] 
                 == '1') {
                 $columnMaps[] = new CsvImport_ColumnMap($i, 
                     CsvImport_ColumnMap::TARGET_TYPE_FILE);
             }
                             
             $rawElementIds = explode(',', 
-                $_POST[CSV_IMPORT_COLUMN_MAP_ELEMENTS_HIDDEN_INPUT_PREFIX 
-                . $i]);
+                $_POST[CsvImport_Form_Mapping::ELEMENTS_HIDDEN_PREFIX . $i]);
             foreach($rawElementIds as $rawElementId) {
                 $elementId = trim($rawElementId);
                 if ($elementId) {
@@ -116,7 +113,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                         CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
                     $columnMap->addElementId($elementId);
                     $columnMap->setDataIsHtml( 
-                        (boolean)$_POST[CSV_IMPORT_COLUMN_MAP_HTML_CHECKBOX_PREFIX 
+                        (boolean)$_POST[CsvImport_Form_Mapping::HTML_CHECKBOX_PREFIX 
                         . $i]);
                     $columnMaps[] = $columnMap;                        
                 }
