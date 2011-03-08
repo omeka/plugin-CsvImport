@@ -125,4 +125,15 @@ class CsvImport_ColumnMap
              $this->_elementIds[] = $elementId;
          } 
  	}
+
+    public function getElementMetadata()
+    {
+        $metadata = array();
+        foreach($this->getElementIds() as $key => $elementId) {
+            $metadata[$key] = array();
+            $metadata[$key]['element_id'] = $elementId;
+            $metadata[$key]['html'] = $this->getDataIsHtml();
+        }                                          
+        return $metadata;
+    }
 }

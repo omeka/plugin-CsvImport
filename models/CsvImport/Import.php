@@ -367,53 +367,9 @@ class CsvImport_Import extends Omeka_Record
         foreach($this->getColumnMaps() as $columnMap) {
             $index = $columnMap->getColumnIndex();
 
-            // check to see if the column maps to a tag
-            if (isset($maps['tags'][$index]) 
-                && empty($maps['tags'][$index])
-            ) {
-                $maps['tags'][$index] = false;  
-            }
-            if ($columnMap->mapsToTag()) {
-                $maps['tags'][$index] = true;                    
-            }
-
-            // check to see if the column maps to a file
-            if (isset($maps['files'][$index])
-                && empty($mapsToFile)
-            ) {
-                $maps['files'][$index] = false;  
-            }
-            if ($columnMap->mapsToFile()) {
-                $maps['files'][$index] = true;
-            }
-
-            // build element infos from the column map
-            $elementIds = $columnMap->getElementIds();
-            foreach($elementIds as $elementId) {
-                $element = $this->getTable('Element')->find($elementId);
-                $elementSet = $this->getTable('ElementSet')
-                                   ->find($element['element_set_id']);
-                $elementInfo = array('element_name' => $element->name, 
-                    'element_set_name' => $elementSet->name, 
-                    'element_text_is_html' => $columnMap->getDataIsHtml());
-
-                // make sure that an array of element infos exists for the 
-                // column index
-                if (isset($maps['elements'][$index])
-                    && !is_array($maps['elements'][$index])
-                ) {
-                    $maps['elements'][$index] = array();
-                }
-
-                // add the element info if it does not already exist for the 
-                // column index 
-                if (isset($maps['elements'][$index])
-                    && !in_array($elementInfo, 
-                    $maps['elements'][$index])
-                ) {
-                    $maps['elements'][$index][] = $elementInfo; 
-                }
-            }                                          
+            $maps['tags'][$index] = $columnMap->mapsToTag();                    
+            $maps['files'][$index] = $columnMap->mapsToFile();
+            $maps['elements'][$index] = $columnMap->getElementMetadata();
         }
         return $maps;
     }
