@@ -38,7 +38,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $this->addElement('select',
                 self::ELEMENTS_DROPDOWN_PREFIX . $index,
                 array(
-                    'class' => 'csv-import-element-select',
+                    'class' => 'map-element',
                     'multiOptions' => $elementsByElementSetName,
                 )
             );

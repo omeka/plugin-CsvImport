@@ -11,10 +11,10 @@
     padding-top:10px;    
 }
 
-.csv-import-element-delete {
-    background-image: url('../../../../../admin/themes/default/images/delete.gif');
+#csvimport span.add-element {
+    background-image: url('../../../../../admin/themes/default/images/add.png');
     background-repeat: no-repeat;
-    padding-left: 20px;
+    width: 20px;
 }
 
 table#column-mappings div.inputs {
