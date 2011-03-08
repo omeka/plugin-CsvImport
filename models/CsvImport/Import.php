@@ -133,35 +133,11 @@ class CsvImport_Import extends Omeka_Record
     // returns inserted Item
     private function addItemFromRow($row, $itemMetadata, $maps) 
     {
-        $itemElementTexts = array();
-        $tags = array();
-        $fileUrls = array();
-        $colIndex = -1;
-        for($colIndex = 0; $colIndex < count($row); $colIndex++) {
-            $columnValue = $row[$colIndex]['value'];
-            
-            if (isset($maps['elements'][$colIndex])) {
-                foreach($maps['elements'][$colIndex] as $elementText) {
-                    $elementText['text'] = $columnValue;
-                    array_push($itemElementTexts, 
-                        $elementText);
-                }
-            }
-
-            if (isset($maps['tags'][$colIndex])) {
-                $rawTags = explode(',', $columnValue);
-                array_walk($rawTags, 'trim');
-                $tags = array_merge($rawTags, $tags);
-            }
-
-            if (isset($maps['files'][$colIndex])) {
-                $url = trim($columnValue);
-                $fileUrls = array_merge(array($url), $fileUrls);
-            }        
-        }
-
+        $fileUrls = $this->_getFileUrls($row, $maps['files']);
+        $elementTexts = $this->_getElementTexts($row, $maps['elements']);
+        $tags = $this->_getTags($row, $maps['tags']);
         $item = insert_item(array_merge(array('tags' => $tags), $itemMetadata),
-            $itemElementTexts);
+            $elementTexts);
 
         foreach($fileUrls as $url) {
             try {
@@ -322,5 +298,41 @@ class CsvImport_Import extends Omeka_Record
             $maps['elements'][$index] = $columnMap->getElementMetadata();
         }
         return $maps;
+    }
+    
+    private function _getFileUrls($row, $maps)
+    {
+        $urls = array();
+        foreach ($maps as $index => $info) {
+            $url = trim($row[$index]['value']);
+            if ($url) {
+                $urls[] = $url;
+            }
+        }
+        return $urls;
+    }
+
+    private function _getTags($row, $maps)
+    {
+        $tags = array();
+        foreach ($maps as $index => $info) {
+            $rawTags = explode(',', $row[$index]['value']);
+            array_walk($rawTags, 'trim');
+            $tags = array_merge($rawTags, $tags);
+        }
+        return $tags;
+    }
+
+    private function _getElementTexts($row, $maps)
+    {
+        $elementTexts = array();
+        foreach ($maps as $index => $set) 
+        {
+            foreach ($set as $text) {
+                $text['text'] = $row[$index]['value'];
+                $elementTexts[] = $text;
+            }
+        }
+        return $elementTexts;
     }
 }
