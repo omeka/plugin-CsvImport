@@ -84,13 +84,13 @@ class CsvImport_Import extends Omeka_Record
     { 
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
         $this->item_count = $this->getItemCount();
-        $this->save(); 
+        $this->forceSave(); 
 
         $csvFile = $this->getCsvFile();
 
         if (!$csvFile->isValid()) {
             $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
-            $this->save();
+            $this->forceSave();
             return false;
         }            
 
@@ -118,13 +118,13 @@ class CsvImport_Import extends Omeka_Record
             release_object($item);
 
             if ($this->hasErrorStatus()) {
-                $this->save();
+                $this->forceSave();
                 return false;
             }
         }
 
         $this->status = self::STATUS_COMPLETED_IMPORT;
-        $this->save();
+        $this->forceSave();
         return true;
     }
 
@@ -242,7 +242,7 @@ class CsvImport_Import extends Omeka_Record
         $csvImportedItem = new CsvImport_ImportedItem();
         $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' => 
             $itemId));
-        $csvImportedItem->save();
+        $csvImportedItem->forceSave();
     }
 
     public function getCsvFile() 
@@ -270,7 +270,7 @@ class CsvImport_Import extends Omeka_Record
     public function undoImport() 
     {
         $this->status = self::STATUS_IN_PROGRESS_UNDO_IMPORT;
-        $this->save();
+        $this->forceSave();
 
         $itemLimitPerQuery = self::UNDO_IMPORT_LIMIT_PER_QUERY;        
         $iit = $this->getTable('CsvImport_ImportedItem');
@@ -294,7 +294,7 @@ class CsvImport_Import extends Omeka_Record
         } 
 
         $this->status = self::STATUS_COMPLETED_UNDO_IMPORT;
-        $this->save();
+        $this->forceSave();
     }
 
     // returns true if the import has completed
