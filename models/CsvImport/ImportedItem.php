@@ -1,6 +1,7 @@
 <?php
 /**
- * CsvImport_ImportedItem - represents an imported item for a specific csv import event
+ * CsvImport_ImportedItem - represents an imported item for a specific csv 
+ * import event
  * 
  * @version $Id$ 
  * @package CsvImport
@@ -12,14 +13,14 @@ class CsvImport_ImportedItem extends Omeka_Record
 {
     public $import_id;
     public $item_id;
-	
-	public function getItemId()
-	{
-	    return $this->item_id;
-	}
-	
-	public function getImportId() 
-	{
-	    return $this->import_id;
-	}
+
+    public function getItemId()
+    {
+        return $this->item_id;
+    }
+
+    public function getImportId()
+    {
+        return $this->import_id;
+    }
 }

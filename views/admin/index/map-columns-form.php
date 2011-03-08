@@ -4,18 +4,18 @@
     $colExamples = $file->getColumnExamples();
 ?>
     <table id="column-mappings" class="simple" cellspacing="0" cellpadding="0">;
-	<thead>
-	<tr>
+    <thead>
+    <tr>
         <th>Column</th>
         <th>Example from CSV File</th>
         <th>Map To Element</th>
         <th>Use HTML?</th>
         <th>Tags?</th>
         <th>File?</th>
-	</tr>
-	</thead>
-	<tbody>
-	
+    </tr>
+    </thead>
+    <tbody>
+
 <?php 
     
 for($i = 0; $i < count($colNames); $i++): ?>
@@ -41,8 +41,8 @@ for($i = 0; $i < count($colNames); $i++): ?>
         </td>
         </tr>
 <?php endfor; ?>
-	</tbody>
-	</table>
+    </tbody>
+    </table>
     <fieldset>
     <?php echo $this->form->submit; ?>
     </fieldset>

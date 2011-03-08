@@ -76,7 +76,7 @@ class CsvImport_File
      * Get the file name for the file
      * 
      * @return string
-     */	
+     */
     public function getFileName() 
     {
         return $this->_fileName;
@@ -86,7 +86,7 @@ class CsvImport_File
      * Get the file path for the file
      * 
      * @return string
-     */	
+     */
     public function getFilePath() 
     {
         return CSV_IMPORT_CSV_FILES_DIRECTORY .  '/' . $this->_fileName;
@@ -195,7 +195,7 @@ class CsvImport_File
      * Gets the number of lines in the file
      * 
      * @return integer
-     **/	
+     */
     public function getLineCount() 
     {
         if ($this->_lineCount === null) {
