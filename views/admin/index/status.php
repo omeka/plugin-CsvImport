@@ -48,22 +48,28 @@
                     CsvImport_Import::STATUS_COMPLETED_IMPORT ||
                     $csvImport->status == 
                     CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD
-                ) {
-                    echo '<td><a href="' 
-                        . html_escape(uri('csv-import/index/undo-import/id/' 
-                        . $csvImport->id)) . '" class="csv-undo-import">Undo '
-                        . 'Import</a></td>';
-                } else if ($csvImport->status == 
+                ): ?>
+                    <td><?php echo delete_button($this->url(
+                        array('action' => 'undo-import',
+                              'id' => $csvImport->id),
+                        'default'),
+                        'undo_import',
+                        'Undo Import',
+                        array('class' => 'csv-undo-import delete-button')); ?>
+                <?php elseif ($csvImport->status == 
                     CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
                     $csvImport->status == 
-                    CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
-                    echo '<td><a href="' 
-                        . html_escape(uri('csv-import/index/clear-history/id/' 
-                        . $csvImport->id)) . '">Clear History</a></td>';
-                } else {
-                    echo '<td></td>';
-                }
-                ?>
+                    CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE): ?>
+                    <td><?php echo delete_button($this->url(
+                        array('action' => 'clear-history',
+                              'id' => $csvImport->id),
+                        'default'),
+                        'clear_history',
+                        'Clear History'); ?>
+                    </td>
+                <?php else: ?>
+                    <td></td>
+                <?php endif; ?>
             </tr>
             <?php endforeach; ?>
         </tbody>
