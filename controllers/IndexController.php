@@ -92,14 +92,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
 
-        $columnMaps = array();
-        $colCount = $file->getColumnCount();
-        for($i = 0; $i < $colCount; $i++) {
-            if ($map = $form->getColumnMap($i)) {
-                $columnMaps[] = $map;
-            }
-        }           
-        
+        $columnMaps = $form->getMappings();
         if (count($columnMaps) == 0) {
             return $this->flashError('Please map at least one column to an '
                 . 'element, file, or tag.');

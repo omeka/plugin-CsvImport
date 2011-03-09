@@ -17,11 +17,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
 {
     private $_file;
     private $_itemTypeId;
-    
-    const TAG_CHECKBOX_PREFIX = 'map_tag_';
-    const FILE_CHECKBOX_PREFIX = 'map_file_';
-    const HTML_CHECKBOX_PREFIX = 'map_html_';
-    const ELEMENTS_DROPDOWN_PREFIX = 'map_elements_dropdown_';
 
     public function init()
     {
@@ -33,19 +28,19 @@ class CsvImport_Form_Mapping extends Omeka_Form
             csv_import_get_elements_by_element_set_name($this->itemTypeId);
         array_unshift($elementsByElementSetName, 'Select Below');
         foreach ($this->_file->getColumnNames() as $index => $colName) {
-            $this->addElement('select',
-                self::ELEMENTS_DROPDOWN_PREFIX . $index,
+            $rowSubForm = new Zend_Form_SubForm();
+            $rowSubForm->addElement('select',
+                'element',
                 array(
                     'class' => 'map-element',
                     'multiOptions' => $elementsByElementSetName,
                 )
             );
-            $this->addElement('checkbox',
-                self::HTML_CHECKBOX_PREFIX . $index);
-            $this->addElement('checkbox',
-                self::TAG_CHECKBOX_PREFIX . $index);
-            $this->addElement('checkbox',
-                self::FILE_CHECKBOX_PREFIX . $index);
+            $rowSubForm->addElement('checkbox', 'html');
+            $rowSubForm->addElement('checkbox', 'tags');
+            $rowSubForm->addElement('checkbox', 'file');
+            $this->_setSubFormDecorators($rowSubForm);
+            $this->addSubForm($rowSubForm, "row$index");
         }
 
         $this->addElement('submit', 'submit',
@@ -75,19 +70,53 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $this->_itemTypeId = $itemTypeId;
     }
 
+    public function getMappings()
+    {
+        $columnMaps = array();
+        $colCount = $this->_file->getColumnCount();
+        for($i = 0; $i < $colCount; $i++) {
+            if ($map = $this->getColumnMap($i)) {
+                $columnMaps[] = $map;
+            }
+        }           
+        return $columnMaps;
+    }
+
     private function isTagMapped($index)
     {
-        return $this->getElement(self::TAG_CHECKBOX_PREFIX . $index)->isChecked();
+        return $this->getSubForm("row$index")->tags->isChecked();
     }
 
     private function isFileMapped($index)
     {
-        return $this->getElement(self::FILE_CHECKBOX_PREFIX . $index)->isChecked();
+        return $this->getSubForm("row$index")->file->isChecked();
     }
 
     private function getMappedElementId($index)
     {
-        return $this->getValue(self::ELEMENTS_DROPDOWN_PREFIX . $index);
+        return $this->_getRowValue($index, 'element');
+    }
+
+    private function _getRowValue($row, $name)
+    {
+        return $this->getSubForm("row$row")->$name->getValue();
+    }
+
+    private function _setSubFormDecorators($subForm)
+    {
+        // Get rid of the fieldset tag that wraps subforms by default.
+        $subForm->setDecorators(array(
+            'FormElements',
+        ));
+
+        // Each subform is a row in the table.
+        foreach ($subForm->getElements() as $el) {
+            $el->setDecorators(array(
+                array('decorator' => 'ViewHelper'),
+                array('decorator' => 'HtmlTag',
+                      'options' => array('tag' => 'td')),
+            ));
+        }
     }
 
     /**
@@ -96,7 +125,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
      * so, that behavior is weird and buggy and it's going away until deemed 
      * otherwise.
      */
-    public function getColumnMap($index)
+    private function getColumnMap($index)
     {
         $columnMap = null;
         if ($this->isTagMapped($index)) {
@@ -109,8 +138,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $columnMap = new CsvImport_ColumnMap($index, 
                 CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
             $columnMap->addElementId($elementId);
-            $columnMap->setDataIsHtml( 
-                (boolean)$_POST[self::HTML_CHECKBOX_PREFIX . $index]);
+            $columnMap->setDataIsHtml($this->_getRowValue($index, 'html'));
         }
         return $columnMap;
     }

@@ -3,7 +3,7 @@
     $colNames = $file->getColumnNames();
     $colExamples = $file->getColumnExamples();
 ?>
-    <table id="column-mappings" class="simple" cellspacing="0" cellpadding="0">;
+    <table id="column-mappings" class="simple" cellspacing="0" cellpadding="0">
     <thead>
     <tr>
         <th>Column</th>
@@ -22,20 +22,7 @@ for($i = 0; $i < count($colNames); $i++): ?>
         <tr>
         <td><strong><?php echo $colNames[$i]; ?></strong></td>
         <td>&quot;<?php echo $colExamples[$i]; ?>&quot;</td>
-        <td>
-        <div><?php echo $this->form->getElement(
-            CsvImport_Form_Mapping::ELEMENTS_DROPDOWN_PREFIX . $i); ?>
-        </div>
-        </td>
-        <td><?php echo $this->form->getElement(
-            CsvImport_Form_Mapping::HTML_CHECKBOX_PREFIX . $i); ?>
-        </td>
-        <td><?php echo $this->form->getElement(
-            CsvImport_Form_Mapping::TAG_CHECKBOX_PREFIX . $i); ?>
-        </td>
-        <td><?php echo $this->form->getElement(
-            CsvImport_Form_Mapping::FILE_CHECKBOX_PREFIX . $i); ?>
-        </td>
+        <?php echo $this->form->getSubForm("row$i"); ?>
         </tr>
 <?php endfor; ?>
     </tbody>
