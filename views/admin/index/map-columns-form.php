@@ -24,10 +24,7 @@ for($i = 0; $i < count($colNames); $i++): ?>
         <td>&quot;<?php echo $colExamples[$i]; ?>&quot;</td>
         <td>
         <div><?php echo $this->form->getElement(
-            CsvImport_Form_Mapping::ELEMENTS_DROPDOWN_PREFIX . $i);
-        echo $this->form->getElement(
-            CsvImport_Form_Mapping::ELEMENTS_HIDDEN_PREFIX . $i); ?>
-        <span id="<?php echo CsvImport_Form_Mapping::ELEMENTS_LIST_PREFIX . $i; ?>"></span>
+            CsvImport_Form_Mapping::ELEMENTS_DROPDOWN_PREFIX . $i); ?>
         </div>
         </td>
         <td><?php echo $this->form->getElement(

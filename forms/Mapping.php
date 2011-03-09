@@ -21,9 +21,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
     const TAG_CHECKBOX_PREFIX = 'map_tag_';
     const FILE_CHECKBOX_PREFIX = 'map_file_';
     const HTML_CHECKBOX_PREFIX = 'map_html_';
-    const ELEMENTS_LIST_PREFIX = 'map_elements_list_';
     const ELEMENTS_DROPDOWN_PREFIX = 'map_elements_dropdown_';
-    const ELEMENTS_HIDDEN_PREFIX = 'map_elements_hidden_';
 
     public function init()
     {
@@ -42,8 +40,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
                     'multiOptions' => $elementsByElementSetName,
                 )
             );
-            $this->addElement('hidden', 
-                self::ELEMENTS_HIDDEN_PREFIX . $index);
             $this->addElement('checkbox',
                 self::HTML_CHECKBOX_PREFIX . $index);
             $this->addElement('checkbox',
