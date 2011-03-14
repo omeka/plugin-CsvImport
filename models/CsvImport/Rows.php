@@ -23,8 +23,6 @@ class CsvImport_Rows implements Iterator
     {
         $this->_csvFile = $csvFile;
         $this->_handle = null;
-    
-        $this->rewind();
     }
     
     /**
