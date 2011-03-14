@@ -33,19 +33,10 @@ class CsvImport_Rows implements Iterator
     function rewind()
     {
         $this->_currentRowNumber = 0;
-        $this->_currentRow = null;
         $this->_colCount = $this->_csvFile->getColumnCount();
         $this->_colNames = $this->_csvFile->getColumnNames();
         $this->_hasMoreRows = $this->_csvFile->isValid();
-
-        if ($this->_handle !== null) {
-            fclose($this->_handle);
-            $this->_handle = null;
-        }
-        
-        if ($this->_hasMoreRows) {
-            $this->next();
-        }
+        $this->_currentRow = $this->_getNextRow();
     }
 
     /**
@@ -65,7 +56,7 @@ class CsvImport_Rows implements Iterator
      */
     function key()
     {
-        return $_currentRowNumber;
+        return $this->_currentRowNumber;
     }
 
     /**
@@ -75,32 +66,18 @@ class CsvImport_Rows implements Iterator
      */
     function next()
     {
-        if ($this->_currentRowNumber == 0) {
-            ini_set('auto_detect_line_endings', true);
-            $this->_handle = fopen($this->_csvFile->getFilePath(), 'r');
+        if (!$this->_getFileHandle()) {
+            $this->_hasMoreRows = false;
+            return;
         }
+        $this->_currentRow = $this->_getNextRow();
+        $this->_currentRowNumber++;
         
-        // loop through rows until you get a line or until there are no more lines
-        if ($this->_handle) {
-            while (($row = fgetcsv($this->_handle)) !== FALSE) {
-                $currentRow = array();
-                if (count($row) == $this->_colCount) {
-                    for($i = 0; $i < $this->_colCount; $i++) 
-                    {
-                        $currentRow[$i]['name'] = $this->_colNames[$i];
-                        $currentRow[$i]['value'] = $row[$i];
-                    }
-                    $this->_currentRow = $currentRow;
-                    $this->_currentRowNumber++;
-                    return;
-                }
-            }
+        if (!$this->_currentRow) {
             fclose($this->_handle);
+            $this->_hasMoreRows = false;
+            $this->_handle = null;
         }
-                                
-        $this->_handle = null;
-        $this->_hasMoreRows = false;
-        
     }
 
     /**
@@ -116,6 +93,32 @@ class CsvImport_Rows implements Iterator
     function getCount() 
     {
         return $this->_csvFile->getRowCount();
+    }
+
+    private function _getFileHandle()
+    {
+        if (!$this->_handle && $this->_currentRowNumber === 0) {
+            ini_set('auto_detect_line_endings', true);
+            $this->_handle = fopen($this->_csvFile->getFilePath(), 'r');
+        }
+        return $this->_handle;
+    }
+
+    private function _getNextRow()
+    {
+        $currentRow = array();
+        $handle = $this->_getFileHandle();
+        while (($row = fgetcsv($handle)) !== FALSE) {
+            if (count($row) == $this->_colCount) {
+                for($i = 0; $i < $this->_colCount; $i++) 
+                {
+                    $currentRow[$i]['name'] = $this->_colNames[$i];
+                    $currentRow[$i]['value'] = $row[$i];
+                }
+                break;
+            }
+        }
+        return $currentRow;
     }
 
 }

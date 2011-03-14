@@ -101,10 +101,11 @@ class CsvImport_Import extends Omeka_Record
         $maps = $this->getMapsForImport();
 
         $rows = $csvFile->getRows();
-        // ignore the first row because it is the header
-        $i = 1;
-        foreach($rows as $row) {
-            $i++;
+        foreach($rows as $index => $row) {
+            // Skip the header row.
+            if ($index == 0) {
+                continue;
+            }
 
             try {
                 $item = $this->addItemFromRow($row, $itemMetadata, $maps);
