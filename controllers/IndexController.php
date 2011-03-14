@@ -28,6 +28,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         ) {
             $this->_helper->redirector->goto('error');    
         }
+
+        $this->view->navigation($this->_getNavigation());
     }
 
     public function indexAction() 
@@ -158,6 +160,22 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     {
         $this->view->csvImports = $this->getTable('CsvImport_Import')
                                        ->findAll();
+    }
+
+    private function _getNavigation()
+    {
+        return new Zend_Navigation(array(
+            array(
+                'label' => 'Import Items',
+                'action' => 'index',
+                'module' => 'csv-import',
+            ),
+            array(
+                'label' => 'Status',
+                'action' => 'status',
+                'module' => 'csv-import',
+            ),
+        ));
     }
     
     private function _hasValidPHPCliPath()

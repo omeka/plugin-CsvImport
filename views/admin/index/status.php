@@ -3,14 +3,7 @@
         'content_class' => 'horizontal-nav'));
 ?>
 <h1>CSV Import</h1>
-<ul id="section-nav" class="navigation">
-    <li class="">
-        <a href="<?php echo html_escape(uri('csv-import')); ?>">Import Items</a>
-    </li>
-    <li class="current">
-        <a href="<?php echo html_escape(uri('csv-import/index/status')); ?>">Status</a>
-    </li>
-</ul>
+<?php echo $this->navigation()->menu()->setUlClass('section-nav'); ?>
 
 <div id="primary">
     <h2>Status</h2>
