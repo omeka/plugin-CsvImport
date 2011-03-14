@@ -192,37 +192,6 @@ class CsvImport_File
     }
 
     /**
-     * Gets the number of lines in the file
-     * 
-     * @return integer
-     */
-    public function getLineCount() 
-    {
-        if ($this->_lineCount === null) {
-            $this->_lineCount = $this->_computeLineCount();            
-        }
-        return $this->_lineCount;
-    }
-
-    /**
-     * Computes the number of lines in the file
-     * 
-     * @return integer
-     **/
-    private function _computeLineCount()
-    {
-        ini_set('auto_detect_line_endings', true);
-        $lineCount = 0;
-        if ($handle = fopen($this->getFilePath(), 'r')) {
-            while ($chunk = fread($handle, 1024000)) {
-                $lineCount += substr_count($chunk, "\n");
-            }
-            fclose($handle);
-        }
-        return $lineCount;
-    }
-
-    /**
      * Validates the csv file, making sure it has a valid format.
      * If so, it initializes the column count, row count, column names, and 
      * column examples.
@@ -301,7 +270,6 @@ class CsvImport_File
         echo 'valid first 2 lines:' . $this->isValid(2) . '<br/><br/>';
         echo 'valid:' . $this->isValid() . '<br/><br/>';
         echo 'column count:' . $this->getColumnCount() . '<br/><br/>';
-        echo 'line count: ' . $this->getLineCount() . '<br/><br/>';
         echo 'row count: ' . $this->getRowCount() . '<br/><br/>';
         print_r($this->getColumnNames());
         print_r($this->getColumnExamples());
