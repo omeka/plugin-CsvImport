@@ -9,20 +9,21 @@
 class CsvImport_Rows implements Iterator
 {
     protected $_csvFile;
-    protected $_handle; // handle to file
+    protected $_handle;
 
     protected $_currentRow;
     protected $_currentRowNumber;
-    protected $_hasMoreRows;
+    protected $_valid = true;
+    private $_colNames = array();
+    private $_colCount = 0;
 
     /**
-     * @param string $csvFile the CSVImport_File object
+     * @param CsvImport_File $csvFile the CSVImport_File object
      * 
      */
-    public function __construct( $csvFile ) 
+    public function __construct($csvFile) 
     {
         $this->_csvFile = $csvFile;
-        $this->_handle = null;
     }
     
     /**
@@ -32,11 +33,16 @@ class CsvImport_Rows implements Iterator
      */
     function rewind()
     {
+        if ($this->_handle) {
+            fclose($this->_handle);
+            $this->_handle = null;
+        }
         $this->_currentRowNumber = 0;
-        $this->_colCount = $this->_csvFile->getColumnCount();
-        $this->_colNames = $this->_csvFile->getColumnNames();
-        $this->_hasMoreRows = $this->_csvFile->isValid();
-        $this->_currentRow = $this->_getNextRow();
+        $this->_valid = true;
+        // First row should always be the header.
+        $this->_colNames = $this->_getNextRow();
+        $this->_colCount = count($this->_colNames);
+        $this->_currentRow = $this->_formatRow($this->_colNames);
     }
 
     /**
@@ -66,38 +72,61 @@ class CsvImport_Rows implements Iterator
      */
     function next()
     {
-        if (!$this->_getFileHandle()) {
-            $this->_hasMoreRows = false;
-            return;
+        if ($nextRow = $this->_getNextRow()) {
+            $this->_currentRow = $this->_formatRow($nextRow);
+        } else {
+            $this->_currentRow = array();
         }
-        $this->_currentRow = $this->_getNextRow();
         $this->_currentRowNumber++;
         
         if (!$this->_currentRow) {
             fclose($this->_handle);
-            $this->_hasMoreRows = false;
+            $this->_valid = false;
             $this->_handle = null;
         }
     }
 
-    /**
-     * Check if there is a current element after calls to rewind() or next().
-     * Used to check if we've iterated to the end of the collection
-     * @return boolean FALSE if there's nothing more to iterate over
-     */
     function valid()
     {
-        return $this->_hasMoreRows;
+        if (!file_exists($this->_csvFile->getFilePath())) {
+            return false;
+        }
+
+        if (!$this->_getFileHandle()) {
+            return false;
+        }
+        return $this->_valid;
     }
 
-    function getCount() 
+    public function getColumnNames()
     {
-        return $this->_csvFile->getRowCount();
+        return $this->_colNames;
+    }
+
+    private function _formatRow($row)
+    {
+        $formattedRow = array();
+        if (!isset($this->_colNames)) {
+            throw new LogicException("Row cannot be formatted until the column "
+                . "names have been set.");
+        }
+        if (count($row) != $this->_colCount) {
+            $printable = var_export($row, true);
+            throw new CsvImport_MissingColumnException("Row containing "
+                . "$printable does not have the required {$this->_colCount} "
+                . "rows.");
+        }
+        for($i = 0; $i < $this->_colCount; $i++) 
+        {
+            $formattedRow[$i]['name'] = $this->_colNames[$i];
+            $formattedRow[$i]['value'] = $row[$i];
+        }
+        return $formattedRow;
     }
 
     private function _getFileHandle()
     {
-        if (!$this->_handle && $this->_currentRowNumber === 0) {
+        if (!$this->_handle) {
             ini_set('auto_detect_line_endings', true);
             $this->_handle = fopen($this->_csvFile->getFilePath(), 'r');
         }
@@ -109,16 +138,8 @@ class CsvImport_Rows implements Iterator
         $currentRow = array();
         $handle = $this->_getFileHandle();
         while (($row = fgetcsv($handle)) !== FALSE) {
-            if (count($row) == $this->_colCount) {
-                for($i = 0; $i < $this->_colCount; $i++) 
-                {
-                    $currentRow[$i]['name'] = $this->_colNames[$i];
-                    $currentRow[$i]['value'] = $row[$i];
-                }
-                break;
-            }
+            return $row;
         }
-        return $currentRow;
     }
 
 }

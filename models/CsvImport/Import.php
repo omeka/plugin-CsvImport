@@ -100,7 +100,7 @@ class CsvImport_Import extends Omeka_Record
 
         $maps = $this->getMapsForImport();
 
-        $rows = $csvFile->getRows();
+        $rows = $csvFile->getRowIterator();
         foreach($rows as $index => $row) {
             // Skip the header row.
             if ($index == 0) {

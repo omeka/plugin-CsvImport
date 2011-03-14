@@ -25,6 +25,8 @@ class CsvImport_File
     protected $_columnNames = array();
     protected $_columnExamples = array();
 
+    private $_rowIterator;
+
     /**
      * Gets an array of CsvImport_File objects from the plugin directory
      * 
@@ -151,20 +153,18 @@ class CsvImport_File
     }
 
     /**
-     * Get an array of rows for the csv file
+     * Get row iterator.
      * 
      * @return array   if valid csv file, returns an iterator of rows, where 
      * each row is an associative array keyed with the column names, else 
      * returns an empty array
      */
-    public function getRows()
+    public function getRowIterator()
     {
-        // make sure that the csv file is valid, else return an empty array
-        if (!$this->isValid()) {
-            return array();
+        if (!$this->_rowIterator) {
+            $this->_rowIterator = new CsvImport_Rows($this);
         }
-
-        return new CsvImport_Rows($this);
+        return $this->_rowIterator;
     }
 
     /**
@@ -214,51 +214,21 @@ class CsvImport_File
         $colCount = 0;
         $rowCount = 0;
 
-        if (!file_exists($this->getFilePath())) {
+        $iter = $this->getRowIterator();
+        if (!$iter->valid()) {
             return false;
         }
-
-        ini_set('auto_detect_line_endings', true);
-        if ($handle = fopen($this->getFilePath(), 'r')) {
-            // process each row of data
-            while (($row = fgetcsv($handle)) !== FALSE) {                
-                // make sure the line is not empty and has the appropriate 
-                // number of columns
-                if (($colCount > 0 && count($row) == $colCount) 
-                 || ($colCount == 0 && trim($row[0]) != '') 
-                 || ($colCount == 0 && count($row) > 1) 
-                ) {  
-                    $rowCount++;
-                    if ($rowCount == 1) {
-                        // initialize the column count and column names
-                        $colCount = count($row);
-                        $this->_columnCount = $colCount;
-                        $this->_columnNames = $row;
-                    } else {
-                        // get examples for each column
-                        if ($this->_columnExamples === null && $rowCount 
-                            > 1) {
-                            $this->_columnExamples = $row;
-                        }
-                    }
-                } else {
-                    if (!(count($row) == 1 && trim($row[0]) == '') &&
-                        ($colCount > 0 && count($row) != $colCount)
-                    ) {
-                            // the line does not have the appropriate number 
-                            // of columns
-                            return false;
-                        }
-                }
-                if ($maxRowsToValidate !== null && $rowCount >= 
-                    ((int)$maxRowsToValidate)) {
-                    break;
-                }
+        foreach ($iter as $index => $row) {
+            if ($index == 0) {
+                $this->_columnNames = array_values($row);
+            } else if ($index == 1) {
+                $this->_columnExamples = array_values($row);
             }
-            fclose($handle);
-        } else {
-            // the file could not be opened
-            return false;
+            $rowCount++;
+            if ($maxRowsToValidate !== null 
+                && $rowCount >= (int)$maxRowsToValidate) {
+                break;
+            }
         }
 
         // make sure the file has a header column and at least one data column

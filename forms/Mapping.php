@@ -86,10 +86,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
 
     public function getMappings()
     {
-        // Validate the file to populate column count.
-        $this->_file->isValid(2);
         $columnMaps = array();
-        $colCount = $this->_file->getColumnCount();
+        $colCount = count($this->_columnNames);
         for($i = 0; $i < $colCount; $i++) {
             if ($map = $this->getColumnMap($i)) {
                 $columnMaps[] = $map;
