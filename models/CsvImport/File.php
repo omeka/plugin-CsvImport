@@ -20,10 +20,10 @@ class CsvImport_File
     protected $_lineCount;
     protected $_isValid;
 
-    protected $_rowCount;
-    protected $_columnCount;
-    protected $_columnNames;
-    protected $_columnExamples;
+    protected $_rowCount = 0;
+    protected $_columnCount = 0;
+    protected $_columnNames = array();
+    protected $_columnExamples = array();
 
     /**
      * Gets an array of CsvImport_File objects from the plugin directory
@@ -62,10 +62,10 @@ class CsvImport_File
      * Warning: before using the class, you should test whether the csv file is 
      * valid or not
      */
-    public function __construct($fileName) 
+    public function __construct($fileName, $isValid = null) 
     {
         $this->_fileName = $fileName;
-        $this->_isValid = null;
+        $this->_isValid = $isValid;
         $this->_lineCount = null;
         $this->_columnNames = null;
         $this->_columnExamples = null;
@@ -99,11 +99,11 @@ class CsvImport_File
      */
     public function getColumnNames() 
     {
-        if ($this->isValid(2)) {
-            return $this->_columnNames;    
-        } else {
-            return array();
+        if (!$this->_columnNames) {
+            throw new LogicException("CSV file must be validated before "
+                . "retrieving the list of columns.");
         }
+        return $this->_columnNames;    
     }
 
     /**
@@ -113,11 +113,11 @@ class CsvImport_File
      */
     public function getColumnExamples() 
     {
-        if ($this->isValid(2)) {
-            return $this->_columnExamples;    
-        } else {
-            return array();
+        if (!$this->_columnExamples) {
+            throw new LogicException("CSV file must be validated before "
+                . "retrieving list of column examples.");
         }
+        return $this->_columnExamples;    
     }
 
     /**
@@ -129,11 +129,11 @@ class CsvImport_File
      */
     public function getColumnCount() 
     {
-        if ($this->isValid(2)) {
-            return $this->_columnCount;
-        } else {
-            return 0;   
+        if (!$this->_columnExamples) {
+            throw new LogicException("CSV file must be validated before "
+                . "retrieving column count.");
         }
+        return $this->_columnCount;
     }
 
     /**
@@ -143,11 +143,11 @@ class CsvImport_File
      */
     public function getRowCount() 
     {
-        if ($this->isValid()) {
-            return $this->_rowCount;
-        } else {
-            return 0;
+        if (!$this->_columnExamples) {
+            throw new LogicException("CSV file must be validated before "
+                . "retrieving row count.");
         }
+        return $this->_rowCount;
     }
 
     /**
@@ -180,15 +180,20 @@ class CsvImport_File
      **/
     public function isValid($maxRowsToValidate = null) 
     {
-        // make sure the csv file has not already been validated
-        if ($maxRowsToValidate === null) {     
-            if ($this->_isValid === null) {
-                $this->_isValid = $this->_validate();
-            }
-            return $this->_isValid;
-        } else {
-            return $this->_validate($maxRowsToValidate);
+        // The same file instance should not be validated twice.  Validating large 
+        // CSV files is an expensive operation and throwing an exception 
+        // will hopefully discourage sloppy coding.
+        if ($this->_isValid !== null 
+            && $maxRowsToValidate !== $this->_maxRows
+        ) {
+            throw new LogicException("Cannot validate twice using same "
+                . "CsvImport_File instance.");
         }
+
+        if ($this->_isValid === null) {
+            $this->_isValid = $this->_validate($maxRowsToValidate);
+        }
+        return $this->_isValid;
     }
 
     /**
@@ -205,6 +210,7 @@ class CsvImport_File
      **/
     private function _validate($maxRowsToValidate = null)
     {
+        $this->_maxRows = $maxRowsToValidate;
         $colCount = 0;
         $rowCount = 0;
 

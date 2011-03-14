@@ -17,6 +17,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
 {
     private $_file;
     private $_itemTypeId;
+    private $_columnNames = array();
+    private $_columnExamples = array();
 
     public function init()
     {
@@ -27,7 +29,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $elementsByElementSetName = 
             csv_import_get_elements_by_element_set_name($this->itemTypeId);
         array_unshift($elementsByElementSetName, 'Select Below');
-        foreach ($this->_file->getColumnNames() as $index => $colName) {
+        foreach ($this->_columnNames as $index => $colName) {
             $rowSubForm = new Zend_Form_SubForm();
             $rowSubForm->addElement('select',
                 'element',
@@ -56,8 +58,20 @@ class CsvImport_Form_Mapping extends Omeka_Form
                 'file' => $this->_file,
                 'itemTypeId' => $this->_itemTypeId,
                 'form' => $this,
+                'columnExamples' => $this->_columnExamples,
+                'columnNames' => $this->_columnNames,
             )),
         ));
+    }
+
+    public function setColumnNames($columnNames)
+    {
+        $this->_columnNames = $columnNames;
+    }
+
+    public function setColumnExamples($columnExamples)
+    {
+        $this->_columnExamples = $columnExamples;
     }
 
     public function setFile(CsvImport_File $file)
@@ -72,6 +86,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
 
     public function getMappings()
     {
+        // Validate the file to populate column count.
+        $this->_file->isValid(2);
         $columnMaps = array();
         $colCount = $this->_file->getColumnCount();
         for($i = 0; $i < $colCount; $i++) {

@@ -48,8 +48,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
         $file = new CsvImport_File($form->getValue('file_name'));
         
-        $maxRowsToValidate = 2;
-        if (!$file->isValid($maxRowsToValidate)) {                    
+        if (!$file->isValid(2)) {                    
             return $this->flashError('Your file is incorrectly formatted. '
                 . 'Please select a valid CSV file.');
         }
@@ -63,6 +62,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->collectionId = $form->getValue('collection_id');
         $this->session->stopOnError = 
             $form->getValue('stop_on_file_error');
+        // Cache columns to avoid revalidation.
+        $this->session->columnNames = $file->getColumnNames();
+        $this->session->columnExamples = $file->getColumnExamples();
         $this->_helper->redirector->goto('map-columns');   
     }
     
@@ -84,6 +86,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $form = new CsvImport_Form_Mapping(array(
             'file' => $file,
             'itemTypeId' => $this->session->itemTypeId,
+            'columnNames' => $this->session->columnNames,
+            'columnExamples' => $this->session->columnExamples,
         ));
         $this->view->form = $form;
                 

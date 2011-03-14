@@ -28,7 +28,7 @@ class CsvImport_Import extends Omeka_Record
     public $collection_id;
     public $added; 
 
-    public $item_count; 
+    public $item_count = 0; 
     public $is_public;
     public $is_featured;
     public $status;
@@ -61,8 +61,6 @@ class CsvImport_Import extends Omeka_Record
                 $stopOnError,
             '_columnMaps' => $columnMaps)
         );
-
-        $this->item_count = $this->getItemCount();                            
     }
 
     protected function beforeSave()
@@ -83,16 +81,15 @@ class CsvImport_Import extends Omeka_Record
     public function doImport() 
     { 
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
-        $this->item_count = $this->getItemCount();
-        $this->forceSave(); 
-
         $csvFile = $this->getCsvFile();
 
         if (!$csvFile->isValid()) {
             $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
             $this->forceSave();
             return false;
-        }            
+        } 
+        $this->item_count = $this->getItemCount();
+        $this->forceSave(); 
 
         $itemMetadata = array(
             'public'         => $this->is_public, 
@@ -269,7 +266,7 @@ class CsvImport_Import extends Omeka_Record
     public function getProgress()
     {
         $importedItemCount = $this->getImportedItemCount();
-        $itemCount = $this->getItemCount();
+        $itemCount = $this->item_count;
         if ($itemCount != -1) {
             $progress = $importedItemCount . ' / ' . $itemCount;
         } else {

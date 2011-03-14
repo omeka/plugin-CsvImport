@@ -1,7 +1,7 @@
 <form id="csvimport" method="post" action="">
 <?php
-    $colNames = $file->getColumnNames();
-    $colExamples = $file->getColumnExamples();
+    $colNames = $this->columnNames;
+    $colExamples = $this->columnExamples;
 ?>
     <table id="column-mappings" class="simple" cellspacing="0" cellpadding="0">
     <thead>
