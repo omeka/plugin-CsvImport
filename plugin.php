@@ -2,6 +2,22 @@
 /**
  * CsvImport plugin
  *
+ * Configuring the plugin:  Currently the only the configuration setting is the 
+ * maximum memory limit for imports.  This can be set via the main config.ini 
+ * like so:
+ *
+ * <code>
+ * plugins.CsvImport.memoryLimit = "128M"
+ * </code>
+ * 
+ * Set a high memory limit to avoid memory allocation issues with imports.  
+ * Examples include 128M, 1G, and -1.  This will set PHP's memory_limit setting 
+ * directly, see PHP's documentation for more info on formatting this number.  
+ * Be advised that many web hosts set a maximum memory limit, so this setting 
+ * may be ignored if it exceeds the maximum allowable limit. Check with your web 
+ * host for more information.
+ *
+ * 
  * @copyright  Center for History and New Media, 2008-2011
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt
  * @version    $Id:$
@@ -17,8 +33,6 @@ define('CSV_IMPORT_BACKGROUND_SCRIPTS_DIRECTORY', CSV_IMPORT_DIRECTORY
 
 add_plugin_hook('install', 'csv_import_install');
 add_plugin_hook('uninstall', 'csv_import_uninstall');
-add_plugin_hook('config_form', 'csv_import_config_form');
-add_plugin_hook('config', 'csv_import_config');
 add_plugin_hook('admin_theme_header', 'csv_import_admin_header');
 add_plugin_hook('define_acl', 'csv_import_define_acl');
 
@@ -125,31 +139,6 @@ function csv_import_get_elements_by_element_set_name($itemTypeId)
     $params = $itemTypeId ? array('item_type_id' => $itemTypeId)
                           : array('exclude_item_type' => true);
     return get_db()->getTable('Element')->findPairsForSelectForm($params);
-}
-
-function csv_import_config_form()
-{  
-    if (!$memoryLimit = get_option('csv_import_memory_limit')) {
-        $memoryLimit = ini_get('memory_limit');
-    }
-?>
-    <div class="field">
-        <label for="csv_import_memory_limit">Memory Limit</label>
-        <?php echo __v()->formText('csv_import_memory_limit', $memoryLimit, null);?>
-        <p class="explanation">Set a high memory limit to avoid memory 
-allocation issues during harvesting. Examples include 128M, 1G, and -1. The 
-available options are K (for Kilobytes), M (for Megabytes) and G (for 
-Gigabytes). Anything else assumes bytes. Set to -1 for an infinite limit. Be 
-advised that many web hosts set a maximum memory limit, so this setting may be 
-ignored if it exceeds the maximum allowable limit. Check with your web host for 
-more information.</p>
-    </div>
-<?php
-}
-
-function csv_import_config()
-{
-    set_option('csv_import_memory_limit', $_POST['csv_import_memory_limit']);
 }
 
 function csv_error_handler($errno , $errstr, $errfile, $errline, array $errcontext)

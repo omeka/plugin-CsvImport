@@ -6,16 +6,21 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
 {
     private $_importId;
     private $_method = 'doImport';
+    private $_memoryLimit;
 
     public function perform()
     {
-        // Set the memory limit.
-        // This should be injected rather than assumed via global.
-        //$memoryLimit = get_option('csv_import_memory_limit');
-        //ini_set('memory_limit', $memoryLimit);
+        if ($this->_memoryLimit) {
+            ini_set('memory_limit', $this->_memoryLimit);
+        }
         if ($import = $this->_getImport()) {
             call_user_func(array($import, $this->_method));
         }    
+    }
+
+    public function setMemoryLimit($limit)
+    {
+        $this->_memoryLimit = $limit;
     }
 
     public function setImportId($id)
