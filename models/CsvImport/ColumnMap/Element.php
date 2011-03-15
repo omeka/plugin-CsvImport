@@ -12,10 +12,16 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
 
     public function map($row, $result)
     {
+        if ($this->_isHtml) {
+            $filter = new Omeka_Filter_HtmlPurifier();
+            $text = $filter->filter($row[$this->_columnName]);
+        } else {
+            $text = $row[$this->_columnName];
+        }
         $result[] = array(
             'element_id' => $this->_elementId,
             'html' => $this->_isHtml,
-            'text' => $row[$this->_columnName],
+            'text' => $text,
         );
         return $result;
     }
