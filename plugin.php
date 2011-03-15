@@ -154,6 +154,10 @@ function csv_import_config()
 
 function csv_error_handler($errno , $errstr, $errfile, $errline, array $errcontext)
 {
+    if ( 0 == error_reporting () ) {
+        // Error reporting is currently turned off or suppressed with @
+        return;
+    }    
     die("$errstr ($errfile:$errline)");
 }
 set_error_handler('csv_error_handler');
