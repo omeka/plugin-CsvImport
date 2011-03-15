@@ -87,12 +87,11 @@ class CsvImport_Form_Mapping extends Omeka_Form
     public function getMappings()
     {
         $columnMaps = array();
-        $colCount = count($this->_columnNames);
-        for($i = 0; $i < $colCount; $i++) {
-            if ($map = $this->getColumnMap($i)) {
+        foreach ($this->_columnNames as $key => $colName) {
+            if ($map = $this->getColumnMap($key, $colName)) {
                 $columnMaps[] = $map;
             }
-        }           
+        }
         return $columnMaps;
     }
 
@@ -139,17 +138,17 @@ class CsvImport_Form_Mapping extends Omeka_Form
      * so, that behavior is weird and buggy and it's going away until deemed 
      * otherwise.
      */
-    private function getColumnMap($index)
+    private function getColumnMap($index, $columnName)
     {
         $columnMap = null;
         if ($this->isTagMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap($index, 
+            $columnMap = new CsvImport_ColumnMap($columnName, 
                 CsvImport_ColumnMap::TARGET_TYPE_TAG);
         } else if ($this->isFileMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap($index, 
+            $columnMap = new CsvImport_ColumnMap($columnName, 
                 CsvImport_ColumnMap::TARGET_TYPE_FILE);
         } else if ($elementId = $this->getMappedElementId($index)) {
-            $columnMap = new CsvImport_ColumnMap($index, 
+            $columnMap = new CsvImport_ColumnMap($columnName, 
                 CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
             $columnMap->addElementId($elementId);
             $columnMap->setDataIsHtml($this->_getRowValue($index, 'html'));

@@ -118,8 +118,7 @@ class CsvImport_Rows implements Iterator
         }
         for($i = 0; $i < $this->_colCount; $i++) 
         {
-            $formattedRow[$i]['name'] = $this->_colNames[$i];
-            $formattedRow[$i]['value'] = $row[$i];
+            $formattedRow[$this->_colNames[$i]] = $row[$i];
         }
         return $formattedRow;
     }

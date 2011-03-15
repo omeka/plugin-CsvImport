@@ -278,22 +278,19 @@ class CsvImport_Import extends Omeka_Record
 
     public function getMapsForImport()
     {
-        // create a map from the column index number to an array of element 
-        // infos, where each element info contains the element set name, 
-        // element name, and whether the element text is html or not 
         $maps = array(
             'elements' => array(),
             'files' => array(),
             'tags' => array(),
         );
         foreach($this->getColumnMaps() as $columnMap) {
-            $index = $columnMap->getColumnIndex();
+            $name = $columnMap->getColumnName();
 
-            $maps['tags'][$index] = $columnMap->mapsToTag();                    
+            $maps['tags'][$name] = $columnMap->mapsToTag();                    
             if ($columnMap->mapsToFile()) {
-                $maps['files'][$index] = true;
+                $maps['files'][$name] = true;
             }
-            $maps['elements'][$index] = $columnMap->getElementMetadata();
+            $maps['elements'][$name] = $columnMap->getElementMetadata();
         }
         return $maps;
     }
@@ -301,10 +298,12 @@ class CsvImport_Import extends Omeka_Record
     private function _getFileUrls($row, $maps)
     {
         $urls = array();
-        foreach ($maps as $index => $info) {
-            $url = trim($row[$index]['value']);
-            if ($url) {
-                $urls[] = $url;
+        foreach ($maps as $index => $isMapped) {
+            if ($isMapped) {
+                $url = trim($row[$index]);
+                if ($url) {
+                    $urls[] = $url;
+                }
             }
         }
         return $urls;
@@ -313,10 +312,12 @@ class CsvImport_Import extends Omeka_Record
     private function _getTags($row, $maps)
     {
         $tags = array();
-        foreach ($maps as $index => $info) {
-            $rawTags = explode(',', $row[$index]['value']);
-            array_walk($rawTags, 'trim');
-            $tags = array_merge($rawTags, $tags);
+        foreach ($maps as $index => $isMapped) {
+            if ($isMapped) {
+                $rawTags = explode(',', $row[$index]);
+                array_walk($rawTags, 'trim');
+                $tags = array_merge($rawTags, $tags);
+            }
         }
         return $tags;
     }
@@ -327,7 +328,7 @@ class CsvImport_Import extends Omeka_Record
         foreach ($maps as $index => $set) 
         {
             foreach ($set as $text) {
-                $text['text'] = $row[$index]['value'];
+                $text['text'] = $row[$index];
                 $elementTexts[] = $text;
             }
         }

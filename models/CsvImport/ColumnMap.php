@@ -20,7 +20,7 @@ class CsvImport_ColumnMap
     const TARGET_TYPE_TAG = 'Tag';
     const TARGET_TYPE_FILE = 'File';
 
-    protected $_columnIndex;
+    protected $_columnName;
     protected $_targetType;
     protected $_elementIds;
 
@@ -32,23 +32,21 @@ class CsvImport_ColumnMap
      * @param array $elementIds  the element ids to which a column maps
      * @param boolean $dataIsHtml whether the column data is HTML
      */
-    public function __construct($columnIndex, $targetType, $elementIds=array(), 
+    public function __construct($columnName, $targetType, $elementIds=array(), 
         $dataIsHtml=false) 
     {
-        $this->_columnIndex = $columnIndex;
+        $this->_columnName = $columnName;
         $this->_targetType = $targetType;
         $this->_elementIds = $elementIds;
         $this->_dataIsHtml = $dataIsHtml;
     }
 
     /**
-     * Get the column index of the mapping
-     * 
-     * @return integer
+     * @return string
      */
-    public function getColumnIndex()
+    public function getColumnName()
     {
-        return $this->_columnIndex;
+        return $this->_columnName;
     }
 
     /**
