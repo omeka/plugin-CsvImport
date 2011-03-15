@@ -142,16 +142,13 @@ class CsvImport_Form_Mapping extends Omeka_Form
     {
         $columnMap = null;
         if ($this->isTagMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap($columnName, 
-                CsvImport_ColumnMap::TARGET_TYPE_TAG);
+            $columnMap = new CsvImport_ColumnMap_Tag($columnName);
         } else if ($this->isFileMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap($columnName, 
-                CsvImport_ColumnMap::TARGET_TYPE_FILE);
+            $columnMap = new CsvImport_ColumnMap_File($columnName);
         } else if ($elementId = $this->getMappedElementId($index)) {
-            $columnMap = new CsvImport_ColumnMap($columnName, 
-                CsvImport_ColumnMap::TARGET_TYPE_ELEMENT);
-            $columnMap->addElementId($elementId);
-            $columnMap->setDataIsHtml($this->_getRowValue($index, 'html'));
+            $columnMap = new CsvImport_ColumnMap_Element($columnName);
+            $columnMap->setOptions(array('elementId' => $elementId,
+                                         'isHtml' => $this->_getRowValue($index, 'html')));
         }
         return $columnMap;
     }

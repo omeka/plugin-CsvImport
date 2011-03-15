@@ -98,8 +98,7 @@ class CsvImport_Import extends Omeka_Record
             'collection_id'  => $this->collection_id
         );
 
-        $maps = $this->getMapsForImport();
-
+        $maps = $this->getColumnMaps();
         $rows = $csvFile->getRowIterator();
         foreach($rows as $index => $row) {
             // Skip the header row.
@@ -131,9 +130,10 @@ class CsvImport_Import extends Omeka_Record
     // returns inserted Item
     private function addItemFromRow($row, $itemMetadata, $maps) 
     {
-        $fileUrls = $this->_getFileUrls($row, $maps['files']);
-        $elementTexts = $this->_getElementTexts($row, $maps['elements']);
-        $tags = $this->_getTags($row, $maps['tags']);
+        $result = $maps->map($row);
+        $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
+        $elementTexts = $result[CsvImport_ColumnMap::TARGET_TYPE_ELEMENT];
+        $tags = $result[CsvImport_ColumnMap::TARGET_TYPE_TAG];
         $item = insert_item(array_merge(array('tags' => $tags), $itemMetadata),
             $elementTexts);
 
@@ -183,7 +183,8 @@ class CsvImport_Import extends Omeka_Record
     public function getColumnMaps() 
     {
         if(empty($this->_columnMaps)) {
-            $this->_columnMaps = unserialize($this->serialized_column_maps);
+            $this->_columnMaps = new CsvImport_ColumnMap_Set(
+                unserialize($this->serialized_column_maps));
         }
 
         return $this->_columnMaps;
@@ -274,64 +275,5 @@ class CsvImport_Import extends Omeka_Record
             $progress = 'NA';
         }
         return $progress;
-    }
-
-    public function getMapsForImport()
-    {
-        $maps = array(
-            'elements' => array(),
-            'files' => array(),
-            'tags' => array(),
-        );
-        foreach($this->getColumnMaps() as $columnMap) {
-            $name = $columnMap->getColumnName();
-
-            $maps['tags'][$name] = $columnMap->mapsToTag();                    
-            if ($columnMap->mapsToFile()) {
-                $maps['files'][$name] = true;
-            }
-            $maps['elements'][$name] = $columnMap->getElementMetadata();
-        }
-        return $maps;
-    }
-    
-    private function _getFileUrls($row, $maps)
-    {
-        $urls = array();
-        foreach ($maps as $index => $isMapped) {
-            if ($isMapped) {
-                $url = trim($row[$index]);
-                if ($url) {
-                    $urls[] = $url;
-                }
-            }
-        }
-        return $urls;
-    }
-
-    private function _getTags($row, $maps)
-    {
-        $tags = array();
-        foreach ($maps as $index => $isMapped) {
-            if ($isMapped) {
-                $rawTags = explode(',', $row[$index]);
-                array_walk($rawTags, 'trim');
-                $tags = array_merge($rawTags, $tags);
-            }
-        }
-        return $tags;
-    }
-
-    private function _getElementTexts($row, $maps)
-    {
-        $elementTexts = array();
-        foreach ($maps as $index => $set) 
-        {
-            foreach ($set as $text) {
-                $text['text'] = $row[$index];
-                $elementTexts[] = $text;
-            }
-        }
-        return $elementTexts;
     }
 }

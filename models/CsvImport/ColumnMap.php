@@ -14,7 +14,7 @@
  * @package CsvImport
  * @author CHNM
  */
-class CsvImport_ColumnMap 
+abstract class CsvImport_ColumnMap 
 {
     const TARGET_TYPE_ELEMENT = 'Element';
     const TARGET_TYPE_TAG = 'Tag';
@@ -22,121 +22,23 @@ class CsvImport_ColumnMap
 
     protected $_columnName;
     protected $_targetType;
-    protected $_elementIds;
 
     /**
-     * @param string $columnIndex	the id of the column, starting at 0 from 
-     * left to right in the csv file
-     * @param string $targetType	the type of target that the column maps to, 
-     * including: 'Element', 'Tag', or 'File'
-     * @param array $elementIds  the element ids to which a column maps
-     * @param boolean $dataIsHtml whether the column data is HTML
+     * @param string $columnName
      */
-    public function __construct($columnName, $targetType, $elementIds=array(), 
-        $dataIsHtml=false) 
+    public function __construct($columnName) 
     {
         $this->_columnName = $columnName;
-        $this->_targetType = $targetType;
-        $this->_elementIds = $elementIds;
-        $this->_dataIsHtml = $dataIsHtml;
+    }
+
+    public function getType()
+    {
+        return $this->_targetType;
     }
 
     /**
-     * @return string
+     * Use the column mapping to convert a CSV row into a value that can be 
+     * parsed by insert_item() or insert_files_for_item().
      */
-    public function getColumnName()
-    {
-        return $this->_columnName;
-    }
-
-    /**
-     * Returns whether the column maps to one or more tags.
-     * Assumes that the column cell has comma seperated tags.
-     * 
-     * @return boolean
-     */
-    public function mapsToTag()
-    {
-        return $this->_targetType == self::TARGET_TYPE_TAG;
-    }
-
-    /**
-     * Returns whether the column maps to one or more elements.
-     * Assumes that the column cell has text which be used as element text for 
-     * one or more elements.
-     * 
-     * @return boolean
-     */
-    public function mapsToElement()
-    {
-        return $this->_targetType == self::TARGET_TYPE_ELEMENT;
-    }
-
-    /**
-     * Returns whether the column maps to a file
-     * Assumes that the column cell has a Url to a file to download and attach 
-     * to the item.
-     * 
-     * @return boolean
-     */
-    public function mapsToFile()
-    {
-        return $this->_targetType == self::TARGET_TYPE_FILE;
-    }
-
-    /**
-     * Returns whether the column data is HTML. 
-     * 
-     * @return boolean
-     */
-    public function getDataIsHtml()
-    {
-        return $this->_dataIsHtml;
-    }
-
-    /**
-     * Sets whether the column data is HTML. 
-     * 
-     * @param boolean Whether the column data contains HTML
-     * @return void
-     */
-    public function setDataIsHtml($dataIsHtml)
-    {
-        $this->_dataIsHtml = $dataIsHtml;
-    }
-
-    /**
-     * Get the element ids to which the column maps.
-     * Only useful if the column maps to an element.
-     * 
-     * @return array
-     */
-    public function getElementIds()
-    {
-        return $this->_elementIds;
-    }
-
-    /**
-     * Adds an element id to the column mapping.
-     * Only useful if the column maps to an element.
-     * 
-     * @return void
-     */
-    public function addElementId($elementId)
-    {
-        if (!in_array($elementId, $this->_elementIds)) {
-            $this->_elementIds[] = $elementId;
-        } 
-    }
-
-    public function getElementMetadata()
-    {
-        $metadata = array();
-        foreach($this->getElementIds() as $key => $elementId) {
-            $metadata[$key] = array();
-            $metadata[$key]['element_id'] = $elementId;
-            $metadata[$key]['html'] = $this->getDataIsHtml();
-        }                                          
-        return $metadata;
-    }
+    abstract public function map($row, $result);
 }
