@@ -32,7 +32,6 @@ class CsvImport_Import extends Omeka_Record
     public $is_public;
     public $is_featured;
     public $status;
-    public $error_details;
     public $serialized_column_maps;
 
     public $stop_on_file_error;
@@ -56,7 +55,6 @@ class CsvImport_Import extends Omeka_Record
             'is_public' => $isPublic, 
             'is_featured' => $isFeatured,
             'status' => '',
-            'error_details' => '',
             'stop_on_file_error' => 
                 $stopOnError,
             '_columnMaps' => $columnMaps)
@@ -108,9 +106,12 @@ class CsvImport_Import extends Omeka_Record
 
             try {
                 $item = $this->addItemFromRow($row, $itemMetadata, $maps);
+                if (!$item) {
+                    return false;
+                }
             } catch (Exception $e) {
                 $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
-                $this->error_details = $e->getMessage();
+                throw $e;
             }
             release_object($item);
 
@@ -145,17 +146,18 @@ class CsvImport_Import extends Omeka_Record
                         'ignore_invalid_files' => !$this->stop_on_file_error
                     )
                 );
-            } catch(Exception $e) {
-                if (!($e instanceof Omeka_File_Ingest_InvalidException) || 
-                    $this->stop_on_file_error) {
-                    $this->status 
-                        = self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD;
-                    $this->error_details = $url . "\n" 
-                        . $e->getMessage();
-                    release_object($file);
-                    break;
+            } catch (Omeka_File_Ingest_InvalidException $e) { 
+                if ($this->stop_on_file_error) {
+                    $this->status = (string)$e;
+                    $this->forceSave();
+                    return false;
+                } else {
+                    $logger = Omeka_Context::getInstance()->logger;
+                    if ($logger) {
+                        $logger->err($e);
+                    }
                 }
-            }
+            }            
             release_object($file);
         }
 
@@ -238,11 +240,6 @@ class CsvImport_Import extends Omeka_Record
         return (($this->status == self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) ||
             ($this->status == self::STATUS_IMPORT_ERROR_INVALID_ITEM) || 
             ($this->status == self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD));
-    }
-
-    public function getErrorDetails()
-    {
-        return $this->error_details;
     }
 
     // returns the number of items currently imported.  if a user undoes an 

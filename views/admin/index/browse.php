@@ -25,18 +25,7 @@
                 <td><?php echo html_escape($csvImport->added); ?></td>
                 <td><?php echo html_escape($csvImport->csv_file_name); ?></td>
                 <td><?php echo $csvImport->getProgress(); ?></td>
-                <td>
-                <?php 
-                    echo $csvImport->status;
-                    $errorDetails = $csvImport->error_details;
-                    if ($csvImport->hasErrorStatus() 
-                        && !empty($errorDetails)
-                    ) {
-                       echo '<br/>' . str_replace("\n", '<br/><br/>', 
-                           html_escape($csvImport->error_details));
-                    }
-                ?>
-                </td>
+                <td><?php echo html_escape($csvImport->status); ?></td>
                 <?php
                 if ($csvImport->status == 
                     CsvImport_Import::STATUS_COMPLETED_IMPORT ||
