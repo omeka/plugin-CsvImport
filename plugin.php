@@ -104,10 +104,16 @@ function csv_import_define_acl($acl)
 {
     // only allow super users and admins to import csv files
     $acl->loadResourceList(array(
-        'CsvImport_Index' => array('index', 
-        'map-columns', 'undo-import', 
-        'clear-history', 'status')
+        'CsvImport_Index' => array(
+            'index', 
+            'map-columns', 
+            'undo-import', 
+            'clear-history', 
+            'browse'
+        )
     ));
+    // Hack to disable CRUD actions.
+    $acl->deny(null, 'CsvImport_Index', array('show', 'add', 'edit', 'delete'));
 }
 
 /**

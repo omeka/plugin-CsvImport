@@ -8,6 +8,7 @@
 <div id="primary">
     <h2>Status</h2>
     <?php echo flash(); ?>
+    <div class="pagination"><?php echo pagination_links(); ?></div>
     <table class="simple" cellspacing="0" cellpadding="0">
         <thead>
             <tr>
@@ -19,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach($csvImports as $csvImport): ?>
+            <?php foreach($csvimport_imports as $csvImport): ?>
             <tr>
                 <td><?php echo html_escape($csvImport->added); ?></td>
                 <td><?php echo html_escape($csvImport->csv_file_name); ?></td>

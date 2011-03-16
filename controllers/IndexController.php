@@ -15,10 +15,12 @@
  */
 class CsvImport_IndexController extends Omeka_Controller_Action
 {
+    protected $_browseRecordsPerPage = 10;
 
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
+        $this->_helper->db->setDefaultModelName('CsvImport_Import');
     }
 
     public function preDispatch()
@@ -122,7 +124,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->unsetAll();
         $this->flashSuccess('Successfully started the import. Reload this page '
             . 'for status updates.');
-        $this->_helper->redirector->goto('status');
+        $this->_helper->redirector->goto('browse');
     }
     
     public function undoImportAction()
@@ -161,12 +163,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->_helper->redirector->goto('status');
     }
     
-    public function statusAction() 
-    {
-        $this->view->csvImports = $this->getTable('CsvImport_Import')
-                                       ->findAll();
-    }
-
     private function _getMemoryLimit()
     {
         $config = $this->getInvokeArg('bootstrap')->config;
@@ -185,7 +181,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             ),
             array(
                 'label' => 'Status',
-                'action' => 'status',
+                'action' => 'browse',
                 'module' => 'csv-import',
             ),
         ));
