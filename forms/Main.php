@@ -25,7 +25,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $values = array(0 => 'Select A File');
         $csvFilelist = array();
         foreach ($csvFiles as $csvFile) {
-            $csvFilelist[$csvFile->getFileName()] = $csvFile->getFileName();
+            $csvFilelist[basename($csvFile->getFilePath())] = basename($csvFile->getFilePath());
         }
         $values = array_merge($values, $csvFilelist);
         $this->addElement('select', 'file_name', array(

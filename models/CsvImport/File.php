@@ -16,82 +16,64 @@
 class CsvImport_File 
 {
 
-    protected $_fileName;
-    protected $_lineCount;
-    protected $_isValid;
+    private $_filePath;
+    private $_lineCount = 0;
+    private $_isValid;
 
-    protected $_rowCount = 0;
-    protected $_columnCount = 0;
-    protected $_columnNames = array();
-    protected $_columnExamples = array();
+    private $_rowCount = 0;
+    private $_columnCount = 0;
+    private $_columnNames = array();
+    private $_columnExamples = array();
 
     private $_rowIterator;
 
     /**
      * Gets an array of CsvImport_File objects from the plugin directory
      * 
+     * @internal Remove this.
      * @return array
      */
-    public static function getFiles($requireValid = false) 
+    public static function getFiles() 
     {
-        $fileNames = array();
+        $filenames = array();
         $paths = new DirectoryIterator(CSV_IMPORT_CSV_FILES_DIRECTORY);
         foreach ($paths as $file) {
             if (!$file->isDot() && !$file->isDir()) {
                 if (strrchr($file, '.') == '.csv') {
-                    $fileNames[] = $file->getFilename();                    
+                    $filenames[] = $file->getFilename();                    
                 }
             }
         }
 
         // sort the files by filenames
-        natsort($fileNames); 
+        natsort($filenames); 
 
         // create CsvImport_File objects for each filename
         $csvFiles = array();
-        foreach ($fileNames as $fileName) {
-            $csvFile = new CsvImport_File($fileName);
-            if (!$requireValid || $csvFile->isValid()) {
-                $csvFiles[] = $csvFile;
-            }
+        foreach ($filenames as $filename) {
+            $csvFile = new CsvImport_File(CSV_IMPORT_CSV_FILES_DIRECTORY . '/' 
+                . $filename);
+            $csvFiles[] = $csvFile;
         }
         return $csvFiles;
     }
 
     /**
-     * @param string $fileName The path of the CSV file
-     * 
-     * Warning: before using the class, you should test whether the csv file is 
-     * valid or not
+     * @param string $filePath Absolute path to the file.
      */
-    public function __construct($fileName, $isValid = null) 
+    public function __construct($filePath) 
     {
-        $this->_fileName = $fileName;
-        $this->_isValid = $isValid;
-        $this->_lineCount = null;
-        $this->_columnNames = null;
-        $this->_columnExamples = null;
-    }
-
-
-    /**
-     * Get the file name for the file
-     * 
-     * @return string
-     */
-    public function getFileName() 
-    {
-        return $this->_fileName;
+        $this->_filePath = $filePath;
     }
 
     /**
-     * Get the file path for the file
+     * Absolute path to the file.
      * 
      * @return string
      */
     public function getFilePath() 
     {
-        return CSV_IMPORT_CSV_FILES_DIRECTORY .  '/' . $this->_fileName;
+        return $this->_filePath;
     }
 
     /**
