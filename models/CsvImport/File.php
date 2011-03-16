@@ -162,7 +162,7 @@ class CsvImport_File
     public function getRowIterator()
     {
         if (!$this->_rowIterator) {
-            $this->_rowIterator = new CsvImport_Rows($this);
+            $this->_rowIterator = new CsvImport_Rows($this->getFilePath());
         }
         return $this->_rowIterator;
     }

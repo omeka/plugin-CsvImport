@@ -8,22 +8,21 @@
  **/
 class CsvImport_Rows implements Iterator
 {
-    protected $_csvFile;
-    protected $_handle;
+    private $_filePath;
+    private $_handle;
 
-    protected $_currentRow;
-    protected $_currentRowNumber;
-    protected $_valid = true;
+    private $_currentRow;
+    private $_currentRowNumber;
+    private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
 
     /**
-     * @param CsvImport_File $csvFile the CSVImport_File object
-     * 
+     * @param string $filePath
      */
-    public function __construct($csvFile) 
+    public function __construct($filePath) 
     {
-        $this->_csvFile = $csvFile;
+        $this->_filePath = $filePath;
     }
     
     /**
@@ -88,7 +87,7 @@ class CsvImport_Rows implements Iterator
 
     function valid()
     {
-        if (!file_exists($this->_csvFile->getFilePath())) {
+        if (!file_exists($this->_filePath)) {
             return false;
         }
 
@@ -100,6 +99,9 @@ class CsvImport_Rows implements Iterator
 
     public function getColumnNames()
     {
+        if (!$this->_colNames) {
+            $this->rewind();
+        }
         return $this->_colNames;
     }
 
@@ -127,7 +129,7 @@ class CsvImport_Rows implements Iterator
     {
         if (!$this->_handle) {
             ini_set('auto_detect_line_endings', true);
-            $this->_handle = fopen($this->_csvFile->getFilePath(), 'r');
+            $this->_handle = fopen($this->_filePath, 'r');
         }
         return $this->_handle;
     }
