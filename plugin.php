@@ -2,14 +2,27 @@
 /**
  * CsvImport plugin
  *
- * Configuring the plugin:  Currently the only the configuration setting is the 
- * maximum memory limit for imports.  This can be set via the main config.ini 
+ * Configuring the plugin:  Set the proper settings in config.ini 
  * like so:
  *
  * <code>
  * plugins.CsvImport.memoryLimit = "128M"
+ * plugins.CsvImport.requiredExtension = "txt"
+ * plugins.CsvImport.requiredMimeType = "text/csv"
+ * plugins.CsvImport.maxFileSize = "10M"
+ * plugins.CsvImport.fileDestination = "/tmp"
  * </code>
  * 
+ * All of the above settings are optional.  If not given, CsvImport uses the 
+ * following default values:
+ *
+ * memoryLimit = current script limit
+ * requiredExtension = "txt" or "csv"
+ * requiredMimeType = "text/csv"
+ * maxFileSize = current system upload limit
+ * fileDestination = current system temporary dir (via sys_get_temp_dir())
+ *
+ *
  * Set a high memory limit to avoid memory allocation issues with imports.  
  * Examples include 128M, 1G, and -1.  This will set PHP's memory_limit setting 
  * directly, see PHP's documentation for more info on formatting this number.  

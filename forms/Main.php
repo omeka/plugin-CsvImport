@@ -15,24 +15,18 @@
  */
 class CsvImport_Form_Main extends Omeka_Form
 {
+    private $_fileDestinationDir;
+    private $_maxFileSize;
+    private $_requiredMimeTypes = array('text/csv');
+    private $_requiredExtensions = array('txt', 'csv');
+
     public function init()
     {
         parent::init();
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post'); 
 
-        $fileValidators = array(
-            new Omeka_Validate_File_Extension(array('txt', 'csv')),
-            new Omeka_Validate_File_MimeType(array('text/csv')),
-            new Zend_Validate_File_Size(array(
-                'max' => $this->_getMaxUploadSize())),
-        );
-        $this->addElement('file', 'csv_file', array(
-            'label' => 'Upload Your CSV File',
-            'required' => true,
-            'validators' => $fileValidators,
-        ));
-
+        $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         array_unshift($values, 'Select Item Type');
         $this->addElement('select', 'item_type_id', array(
@@ -61,8 +55,78 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
     }
 
-    private function _getMaxUploadSize()
+    private function _addFileElement()
     {
-        return 1024 * 1024;
+        $fileValidators = array(
+            new Zend_Validate_File_Size(array(
+                'max' => (string)$this->_maxFileSize)),
+            new Zend_Validate_File_Count(1),
+        );
+        if ($this->_requiredExtensions) {
+            $fileValidators[] = 
+                new Omeka_Validate_File_Extension($this->_requiredExtensions);
+        }
+        if ($this->_requiredMimeTypes) {
+            $fileValidators[] = 
+                new Omeka_Validate_File_MimeType($this->_requiredMimeTypes);
+        }
+        // Random filename in the temporary directory.
+        // Prevents race condition.
+        $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir 
+                    . '/' . md5(mt_rand() + microtime(true)));
+        $this->addElement('file', 'csv_file', array(
+            'label' => 'Upload Your CSV File',
+            'required' => true,
+            'validators' => $fileValidators,
+            'destination' => $this->_fileDestinationDir,
+        ));
+        $this->csv_file->addFilter($filter);
+    }
+
+    public function setFileDestination($dest)
+    {
+        $this->_fileDestinationDir = $dest;
+    }
+
+    public function setRequiredMimeType($mimeType)
+    {
+        if (empty($mimeType)) {
+            $this->_requiredMimeTypes = array();
+        } else {
+            $mimeTypes = explode(',', $mimeType);
+            $this->_requiredMimeTypes = $mimeTypes;
+        }
+    }
+
+    public function setRequiredExtension($ext)
+    {
+        if (empty($ext)) {
+            $this->_requiredExtensions = array();
+        } else {
+            $exts = explode(',', $ext);
+            $this->_requiredExtensions = $exts;
+        }
+    }
+
+    public function setMaxFileSize($size)
+    {
+        if (!preg_match('/(\d+)([BKMGT]?)/', $size, $matches)) {
+            return;
+        }
+        $sizeType = Zend_Measure_Binary::BYTE;
+        // Why reimplement this?  Seems pointless, but no PHP API.
+        $sizeTypes = array(
+            'B' => Zend_Measure_Binary::BYTE,
+            'K' => Zend_Measure_Binary::KILOBYTE,
+            'M' => Zend_Measure_Binary::MEGABYTE,
+            'G' => Zend_Measure_Binary::GIGABYTE,
+            'T' => Zend_Measure_Binary::TERABYTE,
+        );
+        if (array_key_exists($matches[2], $sizeTypes)) {
+            $sizeType = $sizeTypes[$matches[2]];
+        }
+
+        $measure = new Zend_Measure_Binary($matches[1], $sizeType);
+        $this->_maxFileSize = $measure;
     }
 }

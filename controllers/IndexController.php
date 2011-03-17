@@ -36,8 +36,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
     public function indexAction() 
     {
-        require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
-        $form = new CsvImport_Form_Main();
+        $form = $this->_getMainForm();
         $this->view->form = $form;
 
         if (!$this->getRequest()->isPost()) {
@@ -47,16 +46,19 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if (!$form->isValid($this->getRequest()->getPost())) {
             return;
         }
+        if (!$form->csv_file->receive()) {
+            return $this->flashError("Error uploading file.  Please try again.");
+        }
 
-        $file = new CsvImport_File(CSV_IMPORT_CSV_FILES_DIRECTORY
-           . '/' . $form->getValue('file_name'));
+        $filePath = $form->csv_file->getFileName();
+        $file = new CsvImport_File($filePath);
         
         if (!$file->isValid(2)) {                    
             return $this->flashError('Your file is incorrectly formatted. '
                 . 'Please select a valid CSV file.');
         }
 
-        $this->session->filename = $form->getValue('file_name');                    
+        $this->session->filePath = $filePath;
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = 
             $form->getValue('items_are_public');
@@ -84,7 +86,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return $this->_helper->redirector->goto('index');
         }
 
-        $file = new CsvImport_File($this->session->filename);
+        $file = new CsvImport_File($this->session->filePath);
         require_once CSV_IMPORT_DIRECTORY . '/forms/Mapping.php';
         $form = new CsvImport_Form_Mapping(array(
             'file' => $file,
@@ -164,6 +166,21 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->_helper->redirector->goto('status');
     }
     
+    private function _getMainForm()
+    {
+        require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
+        $config = $this->getInvokeArg('bootstrap')->config->plugins;
+        if ($config && isset($config->CsvImport)) {
+            $csvConfig = $config->CsvImport->toArray();
+        }
+        if (!array_key_exists('fileDestination', $csvConfig)) {
+            $csvConfig['fileDestination'] = 
+                Zend_Registry::get('storage')->getTempDir();
+        }
+        $form = new CsvImport_Form_Main($csvConfig);
+        return $form;
+    }
+
     private function _getMemoryLimit()
     {
         $config = $this->getInvokeArg('bootstrap')->config;
