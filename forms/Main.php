@@ -49,6 +49,31 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => 'Stop Import If A File For An Item Cannot Be Downloaded?',
             'checked' => true,
         ));
+        $this->addElement('text', 'column_delimiter', array(
+            'label' => 'Column Delimiter',
+            'value' => ',',
+            'required' => true,
+            'size' => '1',
+            'validators' => array(
+                array('validator' => 'NotEmpty', 
+                      'breakChainOnFailure' => true, 
+                      'options' => array('messages' => array(
+                            Zend_Validate_NotEmpty::IS_EMPTY => 
+                                "Column delimiter must be one character long.",
+                      )),
+                ),
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 1,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_SHORT => 
+                            "Column delimiter must be one character long.",
+                        Zend_Validate_StringLength::TOO_LONG => 
+                            "Column delimiter must be one character long.",
+                    ),
+                )),
+            ),
+        ));
         $this->addElement('submit', 'submit', array(
             'label' => 'Next',
             'class' => 'submit submit-medium',

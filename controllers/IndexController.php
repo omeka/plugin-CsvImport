@@ -51,7 +51,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
 
         $filePath = $form->csv_file->getFileName();
-        $file = new CsvImport_File($filePath);
+        $delimiter = $form->getValue('column_delimiter');
+        $file = new CsvImport_File($filePath, $delimiter);
         
         if (!$file->isValid(2)) {                    
             return $this->flashError('Your file is incorrectly formatted. '
@@ -59,6 +60,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
 
         $this->session->filePath = $filePath;
+        $this->session->columnDelimiter = $delimiter;
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = 
             $form->getValue('items_are_public');

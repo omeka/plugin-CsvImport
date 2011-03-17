@@ -24,6 +24,7 @@ class CsvImport_File
     private $_columnCount = 0;
     private $_columnNames = array();
     private $_columnExamples = array();
+    private $_delimiter;
 
     private $_rowIterator;
 
@@ -60,10 +61,14 @@ class CsvImport_File
 
     /**
      * @param string $filePath Absolute path to the file.
+     * @param string|null $delimiter Optional Column delimiter for the CSV file.
      */
-    public function __construct($filePath) 
+    public function __construct($filePath, $delimiter = null) 
     {
         $this->_filePath = $filePath;
+        if ($delimiter) {
+            $this->_delimiter = $delimiter;
+        }
     }
 
     /**
@@ -144,7 +149,8 @@ class CsvImport_File
     public function getRowIterator()
     {
         if (!$this->_rowIterator) {
-            $this->_rowIterator = new CsvImport_Rows($this->getFilePath());
+            $this->_rowIterator = new CsvImport_Rows(
+                $this->getFilePath(), $this->_delimiter);
         }
         return $this->_rowIterator;
     }
