@@ -62,4 +62,20 @@ class CsvImport_RowsTest extends PHPUnit_Framework_TestCase
         $iterator->rewind();
         $this->assertEquals($this->_validHeader, $iterator->current());
     }
+
+    public function testInvalidDelimiter()
+    {
+        $iterator = new CsvImport_Rows($this->validFilePath, '?');
+        $iterator->rewind();
+        $this->assertEquals(1, count($iterator->current()),
+            "Header should only have one row because it's being read with the "
+            . "wrong type of delimiter.");
+    }
+
+    public function testValidDelimiter()
+    {
+        $iterator = new CsvImport_Rows($this->validFilePath, ',');
+        $iterator->rewind();
+        $this->assertEquals(5, count($iterator->current()));
+    }
 }

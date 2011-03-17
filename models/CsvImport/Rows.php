@@ -13,6 +13,7 @@ class CsvImport_Rows implements Iterator
 
     private $_currentRow;
     private $_currentRowNumber;
+    private $_delimiter = ',';
     private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
@@ -20,9 +21,12 @@ class CsvImport_Rows implements Iterator
     /**
      * @param string $filePath
      */
-    public function __construct($filePath) 
+    public function __construct($filePath, $delimiter = null) 
     {
         $this->_filePath = $filePath;
+        if ($delimiter) {
+            $this->_delimiter = $delimiter;
+        }
     }
     
     /**
@@ -138,7 +142,7 @@ class CsvImport_Rows implements Iterator
     {
         $currentRow = array();
         $handle = $this->_getFileHandle();
-        while (($row = fgetcsv($handle)) !== FALSE) {
+        while (($row = fgetcsv($handle, 0, $this->_delimiter)) !== FALSE) {
             return $row;
         }
     }
