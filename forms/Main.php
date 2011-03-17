@@ -20,28 +20,19 @@ class CsvImport_Form_Main extends Omeka_Form
         parent::init();
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post'); 
-        $csvFiles = CsvImport_File::getFiles();
 
-        $values = array(0 => 'Select A File');
-        $csvFilelist = array();
-        foreach ($csvFiles as $csvFile) {
-            $csvFilelist[basename($csvFile->getFilePath())] = basename($csvFile->getFilePath());
-        }
-        $values = array_merge($values, $csvFilelist);
-        $this->addElement('select', 'file_name', array(
-            'label' => 'CSV File',
-            'multiOptions' => $values,
+        $fileValidators = array(
+            new Omeka_Validate_File_Extension(array('txt', 'csv')),
+            new Omeka_Validate_File_MimeType(array('text/csv')),
+            new Zend_Validate_File_Size(array(
+                'max' => $this->_getMaxUploadSize())),
+        );
+        $this->addElement('file', 'csv_file', array(
+            'label' => 'Upload Your CSV File',
             'required' => true,
-            'validators' => array(
-                array('InArray', true, array($csvFilelist, 
-                    'messages' => array(
-                        Zend_Validate_InArray::NOT_IN_ARRAY => "The given "
-                            . "choice is not a valid CSV file.  Please choose"
-                            . " a file from the list."  
-                    )
-                )),
-            ),
+            'validators' => $fileValidators,
         ));
+
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         array_unshift($values, 'Select Item Type');
         $this->addElement('select', 'item_type_id', array(
@@ -68,5 +59,10 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => 'Next',
             'class' => 'submit submit-medium',
         ));
+    }
+
+    private function _getMaxUploadSize()
+    {
+        return 1024 * 1024;
     }
 }
