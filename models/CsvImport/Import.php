@@ -28,6 +28,7 @@ class CsvImport_Import extends Omeka_Record
     public $collection_id;
     public $added; 
 
+    public $delimiter;
     public $item_count = 0; 
     public $is_public;
     public $is_featured;
@@ -63,7 +64,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function setColumnDelimiter($delimiter)
     {
-        
+        $this->delimiter = $delimiter;
     }
 
     public function setFilePath($path)
@@ -207,7 +208,8 @@ class CsvImport_Import extends Omeka_Record
     public function getCsvFile() 
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->csv_file_name);
+            $this->_csvFile = new CsvImport_File($this->csv_file_name,
+                $this->delimiter);
         }
         return $this->_csvFile;
     }
