@@ -30,6 +30,10 @@
  * Be advised that many web hosts set a maximum memory limit, so this setting 
  * may be ignored if it exceeds the maximum allowable limit. Check with your web 
  * host for more information.
+ * 
+ * Note that 'maxFileSize' will not affect post_max_size or upload_max_filesize 
+ * as is set in php.ini.  Having a maxFileSize that exceeds either
+ * will still result in errors that prevent the file upload.
  *
  * 
  * @copyright  Center for History and New Media, 2008-2011
