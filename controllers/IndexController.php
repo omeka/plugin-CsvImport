@@ -110,14 +110,14 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         
         $csvImport = new CsvImport_Import();
-        $csvImport->initialize($this->session->filePath, 
-                               $this->session->itemTypeId, 
-                               $this->session->collectionId, 
-                               $this->session->itemsArePublic, 
-                               $this->session->itemsAreFeatured, 
-                               $this->session->stopOnError, 
-                               $columnMaps);
-        $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_IMPORT;
+        foreach ($this->session->getIterator() as $key => $value) {
+            $setMethod = 'set' . ucwords($key);
+            if (method_exists($csvImport, $setMethod)) {
+                $csvImport->$setMethod($value);
+            }
+        }
+        $csvImport->setColumnMaps($columnMaps);
+        $csvImport->setStatus(CsvImport_Import::STATUS_IN_PROGRESS_IMPORT);
         $csvImport->save();
         
         Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',

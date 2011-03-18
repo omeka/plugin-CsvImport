@@ -44,21 +44,51 @@ class CsvImport_Import extends Omeka_Record
      *
      * @var array 
      */
-    protected $_columnMaps; 
+    private $_columnMaps; 
 
-    public function initialize($csvFileName, $itemTypeId, $collectionId, 
-        $isPublic, $isFeatured, $stopOnError, $columnMaps) 
+    public function setItemsArePublic($flag)
     {
-        $this->setArray(array('csv_file_name' => $csvFileName, 
-            'item_type_id' => $itemTypeId, 
-            'collection_id' => $collectionId, 
-            'is_public' => $isPublic, 
-            'is_featured' => $isFeatured,
-            'status' => '',
-            'stop_on_file_error' => 
-                $stopOnError,
-            '_columnMaps' => $columnMaps)
-        );
+        $this->is_public = (boolean)$flag;
+    }
+
+    public function setItemsAreFeatured($flag)
+    {
+        $this->is_featured = (boolean)$flag;
+    }
+
+    public function setCollectionId($id)
+    {
+        $this->collection_id = (int)$id;
+    }
+
+    public function setColumnDelimiter($delimiter)
+    {
+        
+    }
+
+    public function setFilePath($path)
+    {
+        $this->csv_file_name = $path;
+    }
+
+    public function setItemTypeId($id)
+    {
+        $this->item_type_id = (int)$id;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = (string)$status;
+    }
+
+    public function setStopOnError($flag)
+    {
+        $this->stop_on_file_error = (boolean)$flag;
+    }
+
+    public function setColumnMaps($maps)
+    {
+        $this->_columnMaps = $maps;
     }
 
     protected function beforeSave()
