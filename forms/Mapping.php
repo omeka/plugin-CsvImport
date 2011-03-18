@@ -15,7 +15,6 @@
  */
 class CsvImport_Form_Mapping extends Omeka_Form
 {
-    private $_file;
     private $_itemTypeId;
     private $_columnNames = array();
     private $_columnExamples = array();
@@ -55,7 +54,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $this->setDecorators(array(
             array('ViewScript', array(
                 'viewScript' => 'index/map-columns-form.php',
-                'file' => $this->_file,
                 'itemTypeId' => $this->_itemTypeId,
                 'form' => $this,
                 'columnExamples' => $this->_columnExamples,
@@ -72,11 +70,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
     public function setColumnExamples($columnExamples)
     {
         $this->_columnExamples = $columnExamples;
-    }
-
-    public function setFile(CsvImport_File $file)
-    {
-        $this->_file = $file;
     }
 
     public function setItemTypeId($itemTypeId)

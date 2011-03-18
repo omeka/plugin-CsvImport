@@ -88,10 +88,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return $this->_helper->redirector->goto('index');
         }
 
-        $file = new CsvImport_File($this->session->filePath);
         require_once CSV_IMPORT_DIRECTORY . '/forms/Mapping.php';
         $form = new CsvImport_Form_Mapping(array(
-            'file' => $file,
             'itemTypeId' => $this->session->itemTypeId,
             'columnNames' => $this->session->columnNames,
             'columnExamples' => $this->session->columnExamples,
@@ -112,7 +110,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         
         $csvImport = new CsvImport_Import();
-        $csvImport->initialize($file->getFilePath(), 
+        $csvImport->initialize($this->session->filePath, 
                                $this->session->itemTypeId, 
                                $this->session->collectionId, 
                                $this->session->itemsArePublic, 
