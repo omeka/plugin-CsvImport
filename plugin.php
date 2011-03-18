@@ -6,6 +6,7 @@
  * like so:
  *
  * <code>
+ * plugins.CsvImport.columnDelimiter = ","
  * plugins.CsvImport.memoryLimit = "128M"
  * plugins.CsvImport.requiredExtension = "txt"
  * plugins.CsvImport.requiredMimeType = "text/csv"

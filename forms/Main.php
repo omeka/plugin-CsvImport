@@ -15,6 +15,7 @@
  */
 class CsvImport_Form_Main extends Omeka_Form
 {
+    private $_columnDelimiter = ',';
     private $_fileDestinationDir;
     private $_maxFileSize;
     private $_requiredMimeTypes = array('text/csv');
@@ -51,7 +52,7 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
         $this->addElement('text', 'column_delimiter', array(
             'label' => 'Column Delimiter',
-            'value' => ',',
+            'value' => $this->_columnDelimiter,
             'required' => true,
             'size' => '1',
             'validators' => array(
@@ -106,6 +107,11 @@ class CsvImport_Form_Main extends Omeka_Form
             'destination' => $this->_fileDestinationDir,
         ));
         $this->csv_file->addFilter($filter);
+    }
+
+    public function setColumnDelimiter($delimiter)
+    {
+        $this->_columnDelimiter = $delimiter;
     }
 
     public function setFileDestination($dest)
