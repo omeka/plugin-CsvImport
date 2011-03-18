@@ -149,7 +149,7 @@ class CsvImport_File
     public function getRowIterator()
     {
         if (!$this->_rowIterator) {
-            $this->_rowIterator = new CsvImport_Rows(
+            $this->_rowIterator = new CsvImport_RowIterator(
                 $this->getFilePath(), $this->_delimiter);
         }
         return $this->_rowIterator;

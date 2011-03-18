@@ -1,12 +1,12 @@
 <?php
 /**
- * CsvImport_Rows class
+ * CsvImport_RowIterator class
  *
  * @copyright  Center for History and New Media, 2008-2011
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt
  * @version    $Id:$
  **/
-class CsvImport_Rows implements Iterator
+class CsvImport_RowIterator implements Iterator
 {
     private $_filePath;
     private $_handle;

@@ -6,7 +6,7 @@
  * @package CsvImport
  */
 
-require_once 'models/CsvImport/Rows.php';
+require_once 'models/CsvImport/RowIterator.php';
 
 /**
  * 
@@ -14,7 +14,7 @@ require_once 'models/CsvImport/Rows.php';
  * @package CsvImport
  * @copyright Center for History and New Media, 2011
  */
-class CsvImport_RowsTest extends PHPUnit_Framework_TestCase
+class CsvImport_RowIteratorTest extends PHPUnit_Framework_TestCase
 {
     private $_validHeader = array(
         'title' => 'title',
@@ -33,39 +33,39 @@ class CsvImport_RowsTest extends PHPUnit_Framework_TestCase
 
     public function testInvalidFile()
     {
-        $iterator = new CsvImport_Rows('/foo/bar.csv');
+        $iterator = new CsvImport_RowIterator('/foo/bar.csv');
         $this->assertFalse($iterator->valid());
     }
 
     public function testValidFile()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath);
+        $iterator = new CsvImport_RowIterator($this->validFilePath);
         $this->assertTrue($iterator->valid());
     }
 
     public function testGetColumnNames()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath);
+        $iterator = new CsvImport_RowIterator($this->validFilePath);
         $this->assertEquals(array_keys($this->_validHeader), 
             $iterator->getColumnNames());
     }
 
     public function testEmptyCurrentRow()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath);
+        $iterator = new CsvImport_RowIterator($this->validFilePath);
         $this->assertNull($iterator->current());
     }
 
     public function testRewind()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath);
+        $iterator = new CsvImport_RowIterator($this->validFilePath);
         $iterator->rewind();
         $this->assertEquals($this->_validHeader, $iterator->current());
     }
 
     public function testInvalidDelimiter()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath, '?');
+        $iterator = new CsvImport_RowIterator($this->validFilePath, '?');
         $iterator->rewind();
         $this->assertEquals(1, count($iterator->current()),
             "Header should only have one row because it's being read with the "
@@ -74,7 +74,7 @@ class CsvImport_RowsTest extends PHPUnit_Framework_TestCase
 
     public function testValidDelimiter()
     {
-        $iterator = new CsvImport_Rows($this->validFilePath, ',');
+        $iterator = new CsvImport_RowIterator($this->validFilePath, ',');
         $iterator->rewind();
         $this->assertEquals(5, count($iterator->current()));
     }
