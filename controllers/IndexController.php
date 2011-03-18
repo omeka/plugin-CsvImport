@@ -118,7 +118,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::STATUS_IN_PROGRESS_IMPORT);
-        $csvImport->save();
+        $csvImport->forceSave();
         
         Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
             array('importId' => $csvImport->id,
@@ -138,7 +138,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         if ($csvImport) {
             
             $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
-            $csvImport->save();
+            $csvImport->forceSave();
 
             Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
                 array('importId' => $csvImport->id, 'method' => 'undoImport'));
