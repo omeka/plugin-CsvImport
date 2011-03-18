@@ -177,8 +177,7 @@ class CsvImport_Import extends Omeka_Record
     public function getCsvFile() 
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File(CSV_IMPORT_CSV_FILES_DIRECTORY 
-                . '/' . $this->csv_file_name);
+            $this->_csvFile = new CsvImport_File($this->csv_file_name);
         }
         return $this->_csvFile;
     }
