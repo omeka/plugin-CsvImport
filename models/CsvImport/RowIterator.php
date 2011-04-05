@@ -17,6 +17,8 @@ class CsvImport_RowIterator implements Iterator
     private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
+    private $_skipInvalidRows = false;
+    private $_skippedRowCount = 0;
 
     /**
      * @param string $filePath
@@ -75,12 +77,25 @@ class CsvImport_RowIterator implements Iterator
      */
     function next()
     {
+        try {
+            $this->_moveNext();
+        } catch (CsvImport_MissingColumnException $e) {
+            if ($this->_skipInvalidRows) {
+                $this->_skippedRowCount++;
+                $this->next();
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    private function _moveNext()
+    {
         if ($nextRow = $this->_getNextRow()) {
             $this->_currentRow = $this->_formatRow($nextRow);
         } else {
             $this->_currentRow = array();
         }
-        $this->_currentRowNumber++;
         
         if (!$this->_currentRow) {
             fclose($this->_handle);
@@ -107,6 +122,16 @@ class CsvImport_RowIterator implements Iterator
             $this->rewind();
         }
         return $this->_colNames;
+    }
+
+    public function getSkippedCount()
+    {
+        return $this->_skippedRowCount;
+    }
+
+    public function skipInvalidRows($flag)
+    {
+        $this->_skipInvalidRows = (boolean)$flag;
     }
 
     private function _formatRow($row)
@@ -143,6 +168,7 @@ class CsvImport_RowIterator implements Iterator
         $currentRow = array();
         $handle = $this->_getFileHandle();
         while (($row = fgetcsv($handle, 0, $this->_delimiter)) !== FALSE) {
+            $this->_currentRowNumber++;
             return $row;
         }
     }

@@ -27,9 +27,9 @@ class CsvImport_Import extends Omeka_Record
     public $added; 
 
     public $delimiter;
-    public $item_count = 0; 
     public $is_public;
     public $is_featured;
+    public $skipped_row_count = 0;
     public $status;
     public $serialized_column_maps;
 
@@ -92,9 +92,6 @@ class CsvImport_Import extends Omeka_Record
 
     protected function beforeSave()
     {
-        if (!$this->item_count) {
-            $this->item_count = 0;
-        }
         $this->serialized_column_maps = serialize($this->getColumnMaps());
     }
 
@@ -121,6 +118,7 @@ class CsvImport_Import extends Omeka_Record
 
         $maps = $this->getColumnMaps();
         $rows = $csvFile->getRowIterator();
+        $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
         $batchAt = 500;
@@ -129,25 +127,27 @@ class CsvImport_Import extends Omeka_Record
             if ($index == 0) {
                 continue;
             }
-
+            $this->skipped_row_count = $rows->getSkippedCount();
+            // Save the number of skipped rows at regular intervals.
+            if ($index % $batchAt == 0) {
+                $this->forceSave();    
+            }
             try {
                 $item = $this->addItemFromRow($row, $itemMetadata, $maps);
+                if ($this->hasErrorStatus()) {
+                    $this->forceSave();
+                    return false;
+                }
                 if ($index % $batchAt == 0) {
                     $this->_log("Finished batch of $batchAt items at: %time%");
                     $this->_log("Memory usage: %memory%");
                 }
-                if (!$item) {
-                    return false;
+                if ($item) {
+                    release_object($item);
                 }
             } catch (Exception $e) {
                 $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
                 throw $e;
-            }
-            release_object($item);
-
-            if ($this->hasErrorStatus()) {
-                $this->forceSave();
-                return false;
             }
         }
 
@@ -286,12 +286,7 @@ class CsvImport_Import extends Omeka_Record
     public function getProgress()
     {
         $importedItemCount = $this->getImportedItemCount();
-        $itemCount = $this->item_count;
-        if ($itemCount != -1) {
-            $progress = $importedItemCount . ' / ' . $itemCount;
-        } else {
-            $progress = 'NA';
-        }
+        $progress = "Imported: $importedItemCount / Skipped: {$this->skipped_row_count}";
         return $progress;
     }
 
