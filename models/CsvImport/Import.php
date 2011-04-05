@@ -109,14 +109,19 @@ class CsvImport_Import extends Omeka_Record
      */
     public function doImport() 
     { 
+        $this->_log("Started import at: %time%");
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
         $csvFile = $this->getCsvFile();
 
+        $this->_log("CSV file validation started at: %time%");
+        $this->_log("Memory usage: %memory%");
         if (!$csvFile->isValid()) {
             $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
             $this->forceSave();
             return false;
         } 
+        $this->_log("CSV file validation finished at: %time%");
+        $this->_log("Memory usage: %memory%");
         $this->item_count = $this->getItemCount();
         $this->forceSave(); 
 
@@ -129,6 +134,9 @@ class CsvImport_Import extends Omeka_Record
 
         $maps = $this->getColumnMaps();
         $rows = $csvFile->getRowIterator();
+        $this->_log("Item import loop started at: %time%");
+        $this->_log("Memory usage: %memory%");
+        $batchAt = 500;
         foreach($rows as $index => $row) {
             // Skip the header row.
             if ($index == 0) {
@@ -137,6 +145,10 @@ class CsvImport_Import extends Omeka_Record
 
             try {
                 $item = $this->addItemFromRow($row, $itemMetadata, $maps);
+                if ($index % $batchAt == 0) {
+                    $this->_log("Finished batch of $batchAt items at: %time%");
+                    $this->_log("Memory usage: %memory%");
+                }
                 if (!$item) {
                     return false;
                 }
@@ -304,5 +316,18 @@ class CsvImport_Import extends Omeka_Record
             $progress = 'NA';
         }
         return $progress;
+    }
+
+    private function _log($msg, $priority = Zend_Log::DEBUG)
+    {
+        if ($logger = Omeka_Context::getInstance()->getLogger()) {
+            if (strpos($msg, '%time%') !== false) {
+                $msg = str_replace('%time%', Zend_Date::now()->toString(), $msg);
+            }
+            if (strpos($msg, '%memory%') !== false) {
+                $msg = str_replace('%memory%', memory_get_usage(), $msg);
+            }
+            $logger->log($msg, $priority);
+        }
     }
 }
