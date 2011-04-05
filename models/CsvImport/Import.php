@@ -17,8 +17,6 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_COMPLETED_IMPORT = 'Completed Import';
     const STATUS_IN_PROGRESS_UNDO_IMPORT = 'Undo Import In Progress';
     const STATUS_COMPLETED_UNDO_IMPORT = 'Completed Undo Import';
-    const STATUS_IMPORT_ERROR_INVALID_CSV_FILE = 
-        'Import Error: Invalid CSV File';
     const STATUS_IMPORT_ERROR_INVALID_ITEM = 'Import Error: Invalid Item';
     const STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD = 
         'Import Error: Invalid File Download';
@@ -113,15 +111,6 @@ class CsvImport_Import extends Omeka_Record
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
         $csvFile = $this->getCsvFile();
 
-        $this->_log("CSV file validation started at: %time%");
-        $this->_log("Memory usage: %memory%");
-        if (!$csvFile->isValid()) {
-            $this->status = self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE;
-            $this->forceSave();
-            return false;
-        } 
-        $this->_log("CSV file validation finished at: %time%");
-        $this->_log("Memory usage: %memory%");
         $this->item_count = $this->getItemCount();
         $this->forceSave(); 
 
@@ -281,8 +270,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function hasErrorStatus()
     {
-        return (($this->status == self::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) ||
-            ($this->status == self::STATUS_IMPORT_ERROR_INVALID_ITEM) || 
+        return (($this->status == self::STATUS_IMPORT_ERROR_INVALID_ITEM) || 
             ($this->status == self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD));
     }
 

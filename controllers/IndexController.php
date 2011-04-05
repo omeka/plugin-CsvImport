@@ -155,9 +155,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport = $cit->find($importId);
         if ($csvImport) {
             if ($csvImport->status == 
-                CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
-                $csvImport->status == 
-                CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE) {
+                CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT
+            ) {
                 $csvImport->delete();
                 $this->flashSuccess("Successfully cleared the history of the '
                     . 'import.");

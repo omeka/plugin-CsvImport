@@ -40,9 +40,7 @@
                         'Undo Import',
                         array('class' => 'csv-undo-import delete-button')); ?>
                 <?php elseif ($csvImport->status == 
-                    CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT || 
-                    $csvImport->status == 
-                    CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_CSV_FILE): ?>
+                    CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT): ?>
                     <td><?php echo delete_button($this->url(
                         array('action' => 'clear-history',
                               'id' => $csvImport->id),
