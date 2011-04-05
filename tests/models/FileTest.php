@@ -34,22 +34,4 @@ class CsvImport_FileTest extends PHPUnit_Framework_TestCase
         $file = new CsvImport_File($filename);
         $this->assertEquals($filename, $file->getFilePath());
     }
-
-    public function testValidateGoodFile()
-    {
-        $file = new CsvImport_File($this->validFilePath);
-        $this->assertTrue($file->isValid());
-    }
-
-    public function testValidateBadFile()
-    {
-        $file = new CsvImport_File($this->invalidFilePath);
-        $this->assertFalse($file->isValid());
-    }
-
-    public function testValidateSubset()
-    {
-        $file = new CsvImport_File($this->validFilePath);
-        $this->assertTrue($file->isValid(2));
-    }
 }

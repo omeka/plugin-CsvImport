@@ -21,7 +21,7 @@
 for($i = 0; $i < count($colNames); $i++): ?>
         <tr>
         <td><strong><?php echo html_escape($colNames[$i]); ?></strong></td>
-        <td>&quot;<?php echo html_escape($colExamples[$i]); ?>&quot;</td>
+        <td>&quot;<?php echo html_escape($colExamples[$colNames[$i]]); ?>&quot;</td>
         <?php echo $this->form->getSubForm("row$i"); ?>
         </tr>
 <?php endfor; ?>

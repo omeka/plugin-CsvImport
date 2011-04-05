@@ -110,36 +110,6 @@ class CsvImport_File
     }
 
     /**
-     * Get the number of columns in the csv file,
-     * assuming that the header row has the same number of columns as all other 
-     * rows
-     * 
-     * @return int
-     */
-    public function getColumnCount() 
-    {
-        if (!$this->_columnExamples) {
-            throw new LogicException("CSV file must be validated before "
-                . "retrieving column count.");
-        }
-        return $this->_columnCount;
-    }
-
-    /**
-     * Get the number of rows for the csv file, excluding the header row
-     * 
-     * @return int
-     */
-    public function getRowCount() 
-    {
-        if (!$this->_columnExamples) {
-            throw new LogicException("CSV file must be validated before "
-                . "retrieving row count.");
-        }
-        return $this->_rowCount;
-    }
-
-    /**
      * Get row iterator.
      * 
      * @return array   if valid csv file, returns an iterator of rows, where 
@@ -156,86 +126,21 @@ class CsvImport_File
     }
 
     /**
-     * Test whether the csv file has the correct format
-     * 
-     * CSV files should have:
-     *    The first row should contain the column names
-     *    The file should have at least one row of data
-     *
-     * @param int $maxRowsToValidate The maximum number of rows to validate. if 
-     * null, it validates all of the rows
-     * @return boolean
-     **/
-    public function isValid($maxRowsToValidate = null) 
+     * Parse metadata.  Currently retrieves the column names and an "example" 
+     * row, i.e. the first row after the header.
+     */
+    public function parse()
     {
-        // The same file instance should not be validated twice.  Validating large 
-        // CSV files is an expensive operation and throwing an exception 
-        // will hopefully discourage sloppy coding.
-        if ($this->_isValid !== null 
-            && $maxRowsToValidate !== $this->_maxRows
-        ) {
-            throw new LogicException("Cannot validate twice using same "
-                . "CsvImport_File instance.");
+        if ($this->_columnNames || $this->_columnExamples) {
+            throw new RuntimeException("Cannot be parsed twice.");
         }
 
-        if ($this->_isValid === null) {
-            $this->_isValid = $this->_validate($maxRowsToValidate);
-        }
-        return $this->_isValid;
+        $rowIterator = $this->getRowIterator();
+        // Rewind() opens the file handle.
+        $rowIterator->rewind();
+        $this->_columnNames = $rowIterator->getColumnNames();
+        $rowIterator->next();
+        $this->_columnExamples = $rowIterator->current(); 
+        return $this->_columnNames && $this->_columnExamples;
     }
-
-    /**
-     * Validates the csv file, making sure it has a valid format.
-     * If so, it initializes the column count, row count, column names, and 
-     * column examples.
-     * This process can take a very long time for large files.  If don't need 
-     * complete validation, specify the maximum number of rows to validate 
-     * instead.
-     * 
-     * @param int $maxRowsToValidate The maximum number of rows to validate. if 
-     * null, it validates all of the rows
-     * @return boolean
-     **/
-    private function _validate($maxRowsToValidate = null)
-    {
-        $this->_maxRows = $maxRowsToValidate;
-        $colCount = 0;
-        $rowCount = 0;
-
-        $iter = $this->getRowIterator();
-        if (!$iter->valid()) {
-            return false;
-        }
-        foreach ($iter as $index => $row) {
-            if ($index == 0) {
-                $this->_columnNames = array_values($row);
-            } else if ($index == 1) {
-                $this->_columnExamples = array_values($row);
-            }
-            $rowCount++;
-            if ($maxRowsToValidate !== null 
-                && $rowCount >= (int)$maxRowsToValidate) {
-                break;
-            }
-        }
-
-        // make sure the file has a header column and at least one data column
-        if ($rowCount < 2) {
-            return false;
-        }
-
-        // initialize the row count
-        $this->_rowCount = $rowCount;
-        return true;
-    }
-
-    public function testInfo()
-    {
-        echo 'valid first 2 lines:' . $this->isValid(2) . '<br/><br/>';
-        echo 'valid:' . $this->isValid() . '<br/><br/>';
-        echo 'column count:' . $this->getColumnCount() . '<br/><br/>';
-        echo 'row count: ' . $this->getRowCount() . '<br/><br/>';
-        print_r($this->getColumnNames());
-        print_r($this->getColumnExamples());
-    } 
 }

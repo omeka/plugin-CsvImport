@@ -110,8 +110,6 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Started import at: %time%");
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
         $csvFile = $this->getCsvFile();
-
-        $this->item_count = $this->getItemCount();
         $this->forceSave(); 
 
         $itemMetadata = array(
@@ -283,15 +281,6 @@ class CsvImport_Import extends Omeka_Record
         $sql = $iit->getSelectForCount()->where('`import_id` = ?');
         $importedItemCount = $this->getDb()->fetchOne($sql, array($this->id));
         return $importedItemCount;
-    }
-
-    // returns the total number of items to import
-    public function getItemCount() {
-        if ($this->item_count == 0) {
-            // One extra for the header row.
-            $this->item_count = $this->getCsvFile()->getRowCount() - 1;
-        }
-        return $this->item_count;
     }
 
     public function getProgress()
