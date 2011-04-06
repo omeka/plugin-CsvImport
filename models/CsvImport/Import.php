@@ -212,9 +212,14 @@ class CsvImport_Import extends Omeka_Record
 
     public function getColumnMaps() 
     {
-        if(empty($this->_columnMaps)) {
-            $this->_columnMaps = new CsvImport_ColumnMap_Set(
-                unserialize($this->serialized_column_maps));
+        if($this->_columnMaps === null) {
+            $columnMaps = unserialize($this->serialized_column_maps);
+            if (!($columnMaps instanceof CsvImport_ColumnMap_Set)) {
+                throw new UnexpectedValueException("Column maps must be "
+                    . "an instance of CsvImport_ColumnMap_Set. Instead, the "
+                    . "following was given: " . var_export($columnMaps, true));
+            }
+            $this->_columnMaps = $columnMaps;
         }
 
         return $this->_columnMaps;
