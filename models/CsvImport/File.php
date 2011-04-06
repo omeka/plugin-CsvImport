@@ -17,47 +17,11 @@ class CsvImport_File
 {
 
     private $_filePath;
-    private $_lineCount = 0;
-    private $_isValid;
-
-    private $_rowCount = 0;
-    private $_columnCount = 0;
     private $_columnNames = array();
     private $_columnExamples = array();
     private $_delimiter;
 
     private $_rowIterator;
-
-    /**
-     * Gets an array of CsvImport_File objects from the plugin directory
-     * 
-     * @internal Remove this.
-     * @return array
-     */
-    public static function getFiles() 
-    {
-        $filenames = array();
-        $paths = new DirectoryIterator(CSV_IMPORT_CSV_FILES_DIRECTORY);
-        foreach ($paths as $file) {
-            if (!$file->isDot() && !$file->isDir()) {
-                if (strrchr($file, '.') == '.csv') {
-                    $filenames[] = $file->getFilename();                    
-                }
-            }
-        }
-
-        // sort the files by filenames
-        natsort($filenames); 
-
-        // create CsvImport_File objects for each filename
-        $csvFiles = array();
-        foreach ($filenames as $filename) {
-            $csvFile = new CsvImport_File(CSV_IMPORT_CSV_FILES_DIRECTORY . '/' 
-                . $filename);
-            $csvFiles[] = $csvFile;
-        }
-        return $csvFiles;
-    }
 
     /**
      * @param string $filePath Absolute path to the file.
