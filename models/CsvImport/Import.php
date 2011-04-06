@@ -182,10 +182,7 @@ class CsvImport_Import extends Omeka_Record
                     $this->forceSave();
                     return false;
                 } else {
-                    $logger = Omeka_Context::getInstance()->logger;
-                    if ($logger) {
-                        $logger->err($e);
-                    }
+                    $this->_log($e, Zend_Log::ERR);
                 }
             }            
             release_object($file);
@@ -299,7 +296,7 @@ class CsvImport_Import extends Omeka_Record
             if (strpos($msg, '%memory%') !== false) {
                 $msg = str_replace('%memory%', memory_get_usage(), $msg);
             }
-            $logger->log($msg, $priority);
+            $logger->log('[CsvImport] ' . $msg, $priority);
         }
     }
 }
