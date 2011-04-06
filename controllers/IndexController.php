@@ -55,8 +55,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $file = new CsvImport_File($filePath, $delimiter);
         
         if (!$file->parse()) {                    
-            return $this->flashError('Your file is incorrectly formatted. '
-                . 'Please select a valid CSV file.');
+            return $this->flashError('Your file is incorrectly formatted. ' 
+                . $file->getErrorString());
         }
 
         $this->session->filePath = $filePath;

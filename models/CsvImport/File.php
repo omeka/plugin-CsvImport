@@ -22,6 +22,7 @@ class CsvImport_File
     private $_delimiter;
 
     private $_rowIterator;
+    private $_parseErrors = array();
 
     /**
      * @param string $filePath Absolute path to the file.
@@ -100,11 +101,22 @@ class CsvImport_File
         }
 
         $rowIterator = $this->getRowIterator();
-        // Rewind() opens the file handle.
-        $rowIterator->rewind();
-        $this->_columnNames = $rowIterator->getColumnNames();
-        $rowIterator->next();
-        $this->_columnExamples = $rowIterator->current(); 
-        return $this->_columnNames && $this->_columnExamples;
+        try {
+            $this->_columnNames = $rowIterator->getColumnNames();
+            $rowIterator->next();
+            $this->_columnExamples = $rowIterator->current(); 
+        } catch (CsvImport_DuplicateColumnException $e) {
+            $this->_parseErrors[] = $e->getMessage() 
+                . " Please ensure that all column names are unique.";
+            _log("[CsvImport] Error parsing CSV file '{$this->_filePath}': "
+                . $e->getMessage(), Zend_Log::NOTICE);
+            return false;
+        }
+        return true;
+    }
+
+    public function getErrorString()
+    {
+        return join(' ', $this->_parseErrors);
     }
 }
