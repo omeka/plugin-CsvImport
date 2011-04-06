@@ -144,7 +144,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $this->flashSuccess('Successfully started to undo the import. Reload '
             . 'this page for status updates.');
-        $this->_helper->redirector->goto('status');
+        $this->_helper->redirector->goto('browse');
     }
     
     public function clearHistoryAction()
@@ -161,7 +161,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     . 'import.");
             }
         }
-        $this->_helper->redirector->goto('status');
+        $this->_helper->redirector->goto('browse');
     }
     
     private function _getMainForm()
