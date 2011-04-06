@@ -45,8 +45,15 @@ class CsvImport_RowIterator implements Iterator
         $this->_currentRowNumber = 0;
         $this->_valid = true;
         // First row should always be the header.
-        $this->_colNames = $this->_getNextRow();
-        $this->_colCount = count($this->_colNames);
+        $colRow = $this->_getNextRow();
+        $this->_colNames = array_keys(array_flip($colRow));
+        $this->_colCount = count($colRow);
+        $uniqueColCount = count($this->_colNames);
+        if ($uniqueColCount != $this->_colCount) {
+            throw new CsvImport_DuplicateColumnException("Header row "
+                . "contains $uniqueColCount unique column name(s) for "
+                . $this->_colCount . " columns.");
+        }
         $this->_currentRow = $this->_formatRow($this->_colNames);
     }
 
