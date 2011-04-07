@@ -38,6 +38,8 @@ class CsvImport_Import extends Omeka_Record
 
     protected $_csvFile;
 
+    private $_importedCount = 0;
+
     /**
      * An array of columnMaps, where each columnMap maps a column index number 
      * (starting at 0) to an element, tag, and/or file.
@@ -136,11 +138,13 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
         $batchAt = 500;
+        $skippedHeader = false;
         foreach($rows as $index => $row) {
-            // Skip the header row.
-            if ($index == 0) {
+            if (!$skippedHeader) {
+                $skippedHeader = true;
                 continue;
             }
+
             $this->skipped_row_count = $rows->getSkippedCount();
             // Save the number of skipped rows at regular intervals.
             if ($index % $batchAt == 0) {
@@ -164,7 +168,9 @@ class CsvImport_Import extends Omeka_Record
                 throw $e;
             }
         }
-
+        
+        $this->_log("Finished importing $this->_importedCount items (skipped "
+            . "$this->skipped_row_count rows).", Zend_Log::INFO);
         $this->status = self::STATUS_COMPLETED_IMPORT;
         $this->forceSave();
         return true;
@@ -213,6 +219,7 @@ class CsvImport_Import extends Omeka_Record
         $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' => 
             $itemId));
         $csvImportedItem->forceSave();
+        $this->_importedCount++;
     }
 
     public function getCsvFile() 
