@@ -133,17 +133,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function undoImportAction()
     {
-        $cit = $this->getTable('CsvImport_Import');
-        $importId = $this->_getParam("id");
-        $csvImport = $cit->find($importId);
-        if ($csvImport) {
-            
-            $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
-            $csvImport->forceSave();
+        $csvImport = $this->findById();
+        $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO_IMPORT;
+        $csvImport->forceSave();
 
-            Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
-                array('importId' => $csvImport->id, 'method' => 'undoImport'));
-        }
+        Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
+            array('importId' => $csvImport->id, 'method' => 'undoImport'));
         $this->flashSuccess('Successfully started to undo the import. Reload '
             . 'this page for status updates.');
         $this->_helper->redirector->goto('browse');
@@ -151,17 +146,13 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function clearHistoryAction()
     {
-        $cit = $this->getTable('CsvImport_Import');
-        $importId = $this->_getParam("id");
-        $csvImport = $cit->find($importId);
-        if ($csvImport) {
-            if ($csvImport->status == 
-                CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT
-            ) {
-                $csvImport->delete();
-                $this->flashSuccess("Successfully cleared the history of the '
-                    . 'import.");
-            }
+        $csvImport = $this->findById();
+        if ($csvImport->status == 
+            CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT
+        ) {
+            $csvImport->delete();
+            $this->flashSuccess("Successfully cleared the history "
+                . " of the import.");
         }
         $this->_helper->redirector->goto('browse');
     }

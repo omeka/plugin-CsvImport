@@ -46,7 +46,8 @@
                               'id' => $csvImport->id),
                         'default'),
                         'clear_history',
-                        'Clear History'); ?>
+                        'Clear History',
+                        array('class' => 'csv-clear-history delete-button')); ?>
                     </td>
                 <?php else: ?>
                     <td></td>
@@ -59,7 +60,7 @@
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready(function () {
-    Omeka.CsvImport.confirmUndoImport();
+    Omeka.CsvImport.confirm();
 });
 //]]>
 </script>
