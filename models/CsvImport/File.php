@@ -13,15 +13,13 @@
  * @package CsvImport
  * @author CHNM
  **/
-class CsvImport_File 
+class CsvImport_File implements IteratorAggregate
 {
 
     private $_filePath;
     private $_columnNames = array();
     private $_columnExamples = array();
     private $_delimiter;
-
-    private $_rowIterator;
     private $_parseErrors = array();
 
     /**
@@ -75,19 +73,14 @@ class CsvImport_File
     }
 
     /**
-     * Get row iterator.
+     * Get iterator.
      * 
-     * @return array   if valid csv file, returns an iterator of rows, where 
-     * each row is an associative array keyed with the column names, else 
-     * returns an empty array
+     * @return CsvImport_RowIterator
      */
-    public function getRowIterator()
+    public function getIterator()
     {
-        if (!$this->_rowIterator) {
-            $this->_rowIterator = new CsvImport_RowIterator(
-                $this->getFilePath(), $this->_delimiter);
-        }
-        return $this->_rowIterator;
+        return new CsvImport_RowIterator(
+            $this->getFilePath(), $this->_delimiter);
     }
 
     /**
@@ -100,7 +93,7 @@ class CsvImport_File
             throw new RuntimeException("Cannot be parsed twice.");
         }
 
-        $rowIterator = $this->getRowIterator();
+        $rowIterator = $this->getIterator();
         try {
             $this->_columnNames = $rowIterator->getColumnNames();
             $rowIterator->next();

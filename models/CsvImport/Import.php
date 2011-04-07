@@ -117,7 +117,7 @@ class CsvImport_Import extends Omeka_Record
         );
 
         $maps = $this->getColumnMaps();
-        $rows = $csvFile->getRowIterator();
+        $rows = $csvFile->getIterator();
         $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
