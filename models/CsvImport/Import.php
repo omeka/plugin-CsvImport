@@ -87,7 +87,15 @@ class CsvImport_Import extends Omeka_Record
 
     public function setColumnMaps($maps)
     {
-        $this->_columnMaps = $maps;
+        if ($maps instanceof CsvImport_ColumnMap_Set) {
+            $mapSet = $maps;
+        } else if (is_array($maps)) {
+            $mapSet = new CsvImport_ColumnMap_Set($maps);
+        } else {
+            throw new InvalidArgumentException("Maps must be either an "
+                . "array or an instance of CsvImport_ColumnMap_Set.");
+        }
+        $this->_columnMaps = $mapSet;
     }
 
     protected function beforeSave()
