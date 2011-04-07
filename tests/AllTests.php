@@ -7,8 +7,7 @@
  */
 
 define('CSVIMPORT_BASE', realpath(dirname(__FILE__) . '/../')); 
-set_include_path(CSVIMPORT_BASE . PATH_SEPARATOR 
-    . get_include_path());
+set_include_path(get_include_path() . PATH_SEPARATOR . CSVIMPORT_BASE);
 
 /**
  * 
