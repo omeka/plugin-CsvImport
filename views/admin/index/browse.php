@@ -23,7 +23,7 @@
             <?php foreach($csvimport_imports as $csvImport): ?>
             <tr>
                 <td><?php echo html_escape($csvImport->added); ?></td>
-                <td><?php echo html_escape($csvImport->csv_file_name); ?></td>
+                <td><?php echo html_escape($csvImport->original_filename); ?></td>
                 <td><?php echo $csvImport->getProgress(); ?></td>
                 <td><?php echo html_escape($csvImport->status); ?></td>
                 <?php

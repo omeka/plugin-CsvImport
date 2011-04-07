@@ -21,7 +21,8 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD = 
         'Import Error: Invalid File Download';
 
-    public $csv_file_name;
+    public $original_filename;
+    public $file_path;
     public $item_type_id;
     public $collection_id;
     public $added; 
@@ -67,7 +68,12 @@ class CsvImport_Import extends Omeka_Record
 
     public function setFilePath($path)
     {
-        $this->csv_file_name = $path;
+        $this->file_path = $path;
+    }
+    
+    public function setOriginalFilename($filename)
+    {
+        $this->original_filename = $filename;
     }
 
     public function setItemTypeId($id)
@@ -212,7 +218,7 @@ class CsvImport_Import extends Omeka_Record
     public function getCsvFile() 
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->csv_file_name,
+            $this->_csvFile = new CsvImport_File($this->file_path,
                 $this->delimiter);
         }
         return $this->_csvFile;
