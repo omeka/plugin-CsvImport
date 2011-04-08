@@ -25,12 +25,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
     public function preDispatch()
     {
-        if (($this->getRequest()->getActionName() != 'error')
-            && !$this->_hasValidPHPCliPath()
-        ) {
-            $this->_helper->redirector->goto('error');    
-        }
-
         $this->view->navigation($this->_getNavigation());
     }
 
@@ -74,13 +68,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
         $this->_helper->redirector->goto('map-columns');   
-    }
-    
-    public function errorAction()
-    {
-        if ($this->_hasValidPHPCliPath()) {
-            $this->_helper->redirector->goto('index');    
-        }
     }
     
     public function mapColumnsAction()
@@ -196,20 +183,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         ));
     }
     
-    private function _hasValidPHPCliPath()
-    {
-        try {
-            $p = ProcessDispatcher::getPHPCliPath();
-        } catch (Exception $e) {
-            $this->flashError("Your PHP-CLI path setting is invalid.\n"  
-                . "Please change the setting in " . CONFIG_DIR 
-                . "/config.ini\nIf you do not know how to do this, please check "
-                . "with your system or server administrator.");
-            return false;
-        }
-        return true;
-    }
-
     private function _sessionIsValid()
     {
         $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 
