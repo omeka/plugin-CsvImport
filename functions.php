@@ -77,6 +77,7 @@ function csv_import_define_acl($acl)
     ));
     // Hack to disable CRUD actions.
     $acl->deny(null, 'CsvImport_Index', array('show', 'add', 'edit', 'delete'));
+    $acl->deny('admin', 'CsvImport_Index');
 }
 
 /**
