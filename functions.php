@@ -25,7 +25,7 @@ function csv_import_install()
        `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
        `added` timestamp NOT NULL default '0000-00-00 00:00:00',
        PRIMARY KEY  (`id`)
-       ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
    
    // create csv imported items table
    $db->exec("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
@@ -34,7 +34,7 @@ function csv_import_install()
       `import_id` int(10) unsigned NOT NULL,       
       PRIMARY KEY  (`id`),
       KEY (`import_id`)
-      ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");    
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");    
        
 }
 
