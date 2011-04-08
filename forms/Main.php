@@ -81,6 +81,21 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
     }
 
+    public function isValid($post)
+    {
+        // Too much POST data, return with an error.
+        if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
+            $maxSize = $this->getMaxFileSize()->toString();
+            $this->csv_file->addError(
+                "The file you have uploaded exceeds the maximum file size "
+                . "allowed by the server. Please upload a file smaller "
+                . "than $maxSize.");
+            return false;
+        }
+
+        return parent::isValid($post);
+    }
+
     private function _addFileElement()
     {
         $fileValidators = array(
@@ -139,10 +154,41 @@ class CsvImport_Form_Main extends Omeka_Form
         }
     }
 
+    /**
+     * Set the maximum size for an uploaded CSV file.
+     *
+     * If this is not set in the plugin configuration, 
+     * defaults to 'upload_max_filesize' setting in php.
+     * 
+     * If this is set but it exceeds the aforementioned php setting, the size 
+     * will be reduced to that lower setting. 
+     */
     public function setMaxFileSize($size)
     {
+        $phpIniSize = $this->_getSizeMeasure(ini_get('upload_max_filesize'));
+        //$buffer = new Zend_Measure_Binary(20, Zend_Measure_Binary::KILOBYTE);
+        //$phpIniSize->sub($buffer);
+        $pluginIniSize = $this->_getSizeMeasure($size);
+        if ($pluginIniSize) {
+            if ($pluginIniSize->compare($phpIniSize)) {
+                $this->_maxFileSize = $phpIniSize;
+            } else {
+                $this->_maxFileSize = $pluginIniSize;
+            }
+        } else {
+            $this->_maxFileSize = $phpIniSize;
+        }
+    }
+
+    public function getMaxFileSize()
+    {
+        return $this->_maxFileSize;
+    }
+
+    private function _getSizeMeasure($size)
+    {
         if (!preg_match('/(\d+)([BKMGT]?)/', $size, $matches)) {
-            return;
+            return false;
         }
         $sizeType = Zend_Measure_Binary::BYTE;
         // Why reimplement this?  Seems pointless, but no PHP API.
@@ -158,6 +204,6 @@ class CsvImport_Form_Main extends Omeka_Form
         }
 
         $measure = new Zend_Measure_Binary($matches[1], $sizeType);
-        $this->_maxFileSize = $measure;
+        return $measure;
     }
 }
