@@ -17,9 +17,9 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_COMPLETED_IMPORT = 'Completed Import';
     const STATUS_IN_PROGRESS_UNDO_IMPORT = 'Undo Import In Progress';
     const STATUS_COMPLETED_UNDO_IMPORT = 'Completed Undo Import';
-    const STATUS_IMPORT_ERROR_INVALID_ITEM = 'Import Error: Invalid Item';
     const STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD = 
         'Import Error: Invalid File Download';
+    const STATUS_GENERAL_ERROR = 'General error';
 
     public $original_filename;
     public $file_path;
@@ -151,8 +151,9 @@ class CsvImport_Import extends Omeka_Record
                 $this->forceSave();    
             }
             try {
-                $item = $this->addItemFromRow($row, $itemMetadata, $maps);
-                if ($this->hasErrorStatus()) {
+                if ($item = $this->addItemFromRow($row, $itemMetadata, $maps)) {
+                    release_object($item);
+                } else {
                     $this->forceSave();
                     return false;
                 }
@@ -160,11 +161,9 @@ class CsvImport_Import extends Omeka_Record
                     $this->_log("Finished batch of $batchAt items at: %time%");
                     $this->_log("Memory usage: %memory%");
                 }
-                if ($item) {
-                    release_object($item);
-                }
             } catch (Exception $e) {
-                $this->status = self::STATUS_IMPORT_ERROR_INVALID_ITEM;
+                $this->status = self::STATUS_GENERAL_ERROR;
+                $this->_log($e, Zend_Log::ERR);
                 throw $e;
             }
         }
@@ -287,12 +286,6 @@ class CsvImport_Import extends Omeka_Record
     public function getStatus() 
     {
         return $this->status;
-    }
-
-    public function hasErrorStatus()
-    {
-        return (($this->status == self::STATUS_IMPORT_ERROR_INVALID_ITEM) || 
-            ($this->status == self::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD));
     }
 
     // returns the number of items currently imported.  if a user undoes an 
