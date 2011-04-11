@@ -154,7 +154,6 @@ class CsvImport_Import extends Omeka_Record
                     $this->_log("Memory usage: %memory%");
                 }
             } catch (Exception $e) {
-                $this->skipped_item_count = $skippedItems;
                 $this->status = self::STATUS_GENERAL_ERROR;
                 $this->forceSave();
                 $this->_log($e, Zend_Log::ERR);
@@ -268,19 +267,6 @@ class CsvImport_Import extends Omeka_Record
 
         $this->status = self::STATUS_COMPLETED_UNDO_IMPORT;
         $this->forceSave();
-    }
-
-    // returns true if the import has completed
-    // else returns false
-    public function isComplete() 
-    {
-        return (($this->status == self::STATUS_COMPLETED_IMPORT) || 
-            ($this->status == self::STATUS_COMPLETED_UNDO_IMPORT));
-    }
-
-    public function getStatus() 
-    {
-        return $this->status;
     }
 
     // returns the number of items currently imported.  if a user undoes an 
