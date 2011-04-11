@@ -36,7 +36,7 @@ class CsvImport_Import extends Omeka_Record
 
     public $stop_on_file_error;
 
-    protected $_csvFile;
+    private $_csvFile;
 
     private $_importedCount = 0;
 
