@@ -19,6 +19,7 @@ function csv_import_install()
        `file_path` text collate utf8_unicode_ci NOT NULL,
        `status` varchar(255) collate utf8_unicode_ci,
        `skipped_row_count` int(10) unsigned NOT NULL,
+       `skipped_item_count` int(10) unsigned NOT NULL,
        `is_public` tinyint(1) default '0',
        `is_featured` tinyint(1) default '0',
        `stop_on_file_error` tinyint(1) default '0',

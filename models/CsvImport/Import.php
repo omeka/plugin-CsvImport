@@ -31,6 +31,7 @@ class CsvImport_Import extends Omeka_Record
     public $is_public;
     public $is_featured;
     public $skipped_row_count = 0;
+    public $skipped_item_count = 0;
     public $status;
     public $serialized_column_maps;
 
@@ -139,13 +140,14 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Memory usage: %memory%");
         $batchAt = 500;
         $skippedHeader = false;
+        $skippedRows = 0;
         foreach($rows as $index => $row) {
             if (!$skippedHeader) {
                 $skippedHeader = true;
                 continue;
             }
-
             $this->skipped_row_count = $rows->getSkippedCount();
+
             // Save the number of skipped rows at regular intervals.
             if ($index % $batchAt == 0) {
                 $this->forceSave();    
@@ -154,15 +156,16 @@ class CsvImport_Import extends Omeka_Record
                 if ($item = $this->addItemFromRow($row, $itemMetadata, $maps)) {
                     release_object($item);
                 } else {
-                    $this->forceSave();
-                    return false;
+                    $this->skipped_item_count++;
                 }
                 if ($index % $batchAt == 0) {
                     $this->_log("Finished batch of $batchAt items at: %time%");
                     $this->_log("Memory usage: %memory%");
                 }
             } catch (Exception $e) {
+                $this->skipped_item_count = $skippedItems;
                 $this->status = self::STATUS_GENERAL_ERROR;
+                $this->forceSave();
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;
             }
@@ -184,8 +187,17 @@ class CsvImport_Import extends Omeka_Record
         $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
         $elementTexts = $result[CsvImport_ColumnMap::TARGET_TYPE_ELEMENT];
         $tags = $result[CsvImport_ColumnMap::TARGET_TYPE_TAG];
-        $item = insert_item(array_merge(array('tags' => $tags), $itemMetadata),
-            $elementTexts);
+        try {
+            $item = insert_item(array_merge(array('tags' => $tags), 
+                $itemMetadata), $elementTexts);
+        } catch (Omeka_Validator_Exception $e) {
+            if (isset($item)) {
+                $item->delete();
+                release_object($item);
+            }
+            $this->_log($e, Zend_Log::ERR);
+            return false;
+        }
 
         foreach($fileUrls as $url) {
             try {
@@ -302,8 +314,16 @@ class CsvImport_Import extends Omeka_Record
     public function getProgress()
     {
         $importedItemCount = $this->getImportedItemCount();
-        $progress = "Imported: $importedItemCount / Skipped: {$this->skipped_row_count}";
-        return $progress;
+        $info = array(
+            'Imported' => $importedItemCount, 
+            'Skipped Rows' => $this->skipped_row_count,
+            'Skipped Items' => $this->skipped_item_count,
+        );
+        $progress = '';
+        foreach ($info as $key => $value) {
+            $progress[] = $key . ': ' . $value;
+        }
+        return implode(' / ', $progress);
     }
 
     private function _log($msg, $priority = Zend_Log::DEBUG)
