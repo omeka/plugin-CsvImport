@@ -17,8 +17,6 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_COMPLETED_IMPORT = 'Completed Import';
     const STATUS_IN_PROGRESS_UNDO_IMPORT = 'Undo Import In Progress';
     const STATUS_COMPLETED_UNDO_IMPORT = 'Completed Undo Import';
-    const STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD = 
-        'Import Error: Invalid File Download';
     const STATUS_GENERAL_ERROR = 'General error';
 
     public $original_filename;
@@ -34,8 +32,6 @@ class CsvImport_Import extends Omeka_Record
     public $skipped_item_count = 0;
     public $status;
     public $serialized_column_maps;
-
-    public $stop_on_file_error;
 
     private $_csvFile;
 
@@ -87,11 +83,6 @@ class CsvImport_Import extends Omeka_Record
     public function setStatus($status)
     {
         $this->status = (string)$status;
-    }
-
-    public function setStopOnError($flag)
-    {
-        $this->stop_on_file_error = (boolean)$flag;
     }
 
     public function setColumnMaps($maps)
@@ -204,17 +195,12 @@ class CsvImport_Import extends Omeka_Record
                 $file = insert_files_for_item($item, 
                     'Url', $url, 
                     array(
-                        'ignore_invalid_files' => !$this->stop_on_file_error
+                        'ignore_invalid_files' => false,
                     )
                 );
             } catch (Omeka_File_Ingest_InvalidException $e) { 
-                if ($this->stop_on_file_error) {
-                    $this->status = (string)$e;
-                    $this->forceSave();
-                    return false;
-                } else {
-                    $this->_log($e, Zend_Log::ERR);
-                }
+                $this->_log($e, Zend_Log::ERR);
+                return false;
             }            
             release_object($file);
         }

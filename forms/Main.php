@@ -46,10 +46,6 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->addElement('checkbox', 'items_are_featured', array(
             'label' => 'Items Are Featured?',
         ));
-        $this->addElement('checkbox', 'stop_on_file_error', array(
-            'label' => 'Stop Import If A File For An Item Cannot Be Downloaded?',
-            'checked' => true,
-        ));
         $this->addElement('text', 'column_delimiter', array(
             'label' => 'Column Delimiter',
             'value' => $this->_columnDelimiter,

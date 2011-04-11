@@ -28,10 +28,7 @@
                 <td><?php echo html_escape($csvImport->status); ?></td>
                 <?php
                 if ($csvImport->status == 
-                    CsvImport_Import::STATUS_COMPLETED_IMPORT ||
-                    $csvImport->status == 
-                    CsvImport_Import::STATUS_IMPORT_ERROR_INVALID_FILE_DOWNLOAD
-                ): ?>
+                    CsvImport_Import::STATUS_COMPLETED_IMPORT): ?>
                     <td><?php echo delete_button($this->url(
                         array('action' => 'undo-import',
                               'id' => $csvImport->id),
