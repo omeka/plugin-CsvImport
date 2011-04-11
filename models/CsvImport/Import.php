@@ -182,10 +182,6 @@ class CsvImport_Import extends Omeka_Record
             $item = insert_item(array_merge(array('tags' => $tags), 
                 $itemMetadata), $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
-            if (isset($item)) {
-                $item->delete();
-                release_object($item);
-            }
             $this->_log($e, Zend_Log::ERR);
             return false;
         }
@@ -200,6 +196,7 @@ class CsvImport_Import extends Omeka_Record
                 );
             } catch (Omeka_File_Ingest_InvalidException $e) { 
                 $this->_log($e, Zend_Log::ERR);
+                $item->delete();
                 return false;
             }            
             release_object($file);
