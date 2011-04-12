@@ -7,7 +7,9 @@ class CsvImport_IndexControllerTest extends Omeka_Test_AppTestCase
         parent::setUp();
         $pluginHelper = new Omeka_Test_Helper_Plugin();
         $pluginHelper->install('CsvImport');
+        get_plugin_broker()->setCurrentPluginDirName('CsvImport');
         include CSV_IMPORT_DIRECTORY . '/plugin.php';
+        get_plugin_broker()->setCurrentPluginDirName(null);
         csv_import_install();
         $pluginHelper->initialize('CsvImport');
     }
