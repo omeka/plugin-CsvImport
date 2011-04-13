@@ -27,8 +27,9 @@
                 <td><?php echo $csvImport->getProgress(); ?></td>
                 <td><?php echo html_escape($csvImport->status); ?></td>
                 <?php
-                if ($csvImport->status == 
-                    CsvImport_Import::STATUS_COMPLETED_IMPORT): ?>
+                if (in_array($csvImport->status, array( 
+                        CsvImport_Import::STATUS_COMPLETED_IMPORT,
+                        CsvImport_Import::STATUS_STOPPED))): ?>
                     <td><?php echo delete_button($this->url(
                         array('action' => 'undo-import',
                               'id' => $csvImport->id),

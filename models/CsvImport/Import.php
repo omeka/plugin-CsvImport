@@ -18,6 +18,7 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_IN_PROGRESS_UNDO_IMPORT = 'Undo Import In Progress';
     const STATUS_COMPLETED_UNDO_IMPORT = 'Completed Undo Import';
     const STATUS_GENERAL_ERROR = 'General error';
+    const STATUS_STOPPED = 'Stopped';
 
     public $original_filename;
     public $file_path;
@@ -116,6 +117,7 @@ class CsvImport_Import extends Omeka_Record
         $this->status = self::STATUS_IN_PROGRESS_IMPORT;
         $csvFile = $this->getCsvFile();
         $this->forceSave(); 
+        register_shutdown_function(array($this, 'stop'));
 
         $itemMetadata = array(
             'public'         => $this->is_public, 
@@ -168,6 +170,21 @@ class CsvImport_Import extends Omeka_Record
         return true;
     }
 
+    /**
+     * Stop the import.
+     *
+     * Sets status flag to 'stopped';
+     */
+    public function stop()
+    {
+        // Anything besides 'in progress' signifies a finished import.
+        if ($this->status != self::STATUS_IN_PROGRESS_IMPORT) {
+            return;
+        }
+        
+        $this->status = self::STATUS_STOPPED;
+        $this->forceSave();
+    }
 
     // adds an item based on the row data
     // returns inserted Item
