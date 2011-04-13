@@ -13,11 +13,11 @@ class CsvImport_Import extends Omeka_Record
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
 
-    const STATUS_IN_PROGRESS_IMPORT = 'Import In Progress';
-    const STATUS_COMPLETED_IMPORT = 'Completed Import';
-    const STATUS_IN_PROGRESS_UNDO_IMPORT = 'Undo Import In Progress';
-    const STATUS_COMPLETED_UNDO_IMPORT = 'Completed Undo Import';
-    const STATUS_GENERAL_ERROR = 'General error';
+    const STATUS_IN_PROGRESS = 'In Progress';
+    const STATUS_COMPLETED = 'Completed';
+    const STATUS_IN_PROGRESS_UNDO = 'Undo In Progress';
+    const STATUS_COMPLETED_UNDO = 'Completed Undo';
+    const STATUS_GENERAL_ERROR = 'General Error';
     const STATUS_STOPPED = 'Stopped';
 
     public $original_filename;
@@ -114,7 +114,7 @@ class CsvImport_Import extends Omeka_Record
     public function doImport() 
     { 
         $this->_log("Started import at: %time%");
-        $this->status = self::STATUS_IN_PROGRESS_IMPORT;
+        $this->status = self::STATUS_IN_PROGRESS;
         $csvFile = $this->getCsvFile();
         $this->forceSave(); 
         register_shutdown_function(array($this, 'stop'));
@@ -165,7 +165,7 @@ class CsvImport_Import extends Omeka_Record
         
         $this->_log("Finished importing $this->_importedCount items (skipped "
             . "$this->skipped_row_count rows).", Zend_Log::INFO);
-        $this->status = self::STATUS_COMPLETED_IMPORT;
+        $this->status = self::STATUS_COMPLETED;
         $this->forceSave();
         return true;
     }
@@ -178,7 +178,7 @@ class CsvImport_Import extends Omeka_Record
     public function stop()
     {
         // Anything besides 'in progress' signifies a finished import.
-        if ($this->status != self::STATUS_IN_PROGRESS_IMPORT) {
+        if ($this->status != self::STATUS_IN_PROGRESS) {
             return;
         }
         
@@ -258,7 +258,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function undoImport() 
     {
-        $this->status = self::STATUS_IN_PROGRESS_UNDO_IMPORT;
+        $this->status = self::STATUS_IN_PROGRESS_UNDO;
         $this->forceSave();
 
         $itemLimitPerQuery = self::UNDO_IMPORT_LIMIT_PER_QUERY;        
@@ -282,7 +282,7 @@ class CsvImport_Import extends Omeka_Record
             $importedItems = $iit->fetchObjects($sql, array($this->id));        
         } 
 
-        $this->status = self::STATUS_COMPLETED_UNDO_IMPORT;
+        $this->status = self::STATUS_COMPLETED_UNDO;
         $this->forceSave();
     }
 

@@ -28,7 +28,7 @@
                 <td><?php echo html_escape($csvImport->status); ?></td>
                 <?php
                 if (in_array($csvImport->status, array( 
-                        CsvImport_Import::STATUS_COMPLETED_IMPORT,
+                        CsvImport_Import::STATUS_COMPLETED,
                         CsvImport_Import::STATUS_STOPPED))): ?>
                     <td><?php echo delete_button($this->url(
                         array('action' => 'undo-import',
@@ -38,7 +38,7 @@
                         'Undo Import',
                         array('class' => 'csv-undo-import delete-button')); ?>
                 <?php elseif ($csvImport->status == 
-                    CsvImport_Import::STATUS_COMPLETED_UNDO_IMPORT): ?>
+                    CsvImport_Import::STATUS_COMPLETED_UNDO): ?>
                     <td><?php echo delete_button($this->url(
                         array('action' => 'clear-history',
                               'id' => $csvImport->id),
