@@ -268,26 +268,22 @@ class CsvImport_Import extends Omeka_Record
         $this->status = self::STATUS_IN_PROGRESS_UNDO;
         $this->forceSave();
 
-        $itemLimitPerQuery = self::UNDO_IMPORT_LIMIT_PER_QUERY;        
-        $iit = $this->getTable('CsvImport_ImportedItem');
+        $db = $this->getDb();
+        $searchSql = "SELECT item_id FROM $db->CsvImport_ImportedItem"
+                   . " WHERE import_id = " . (int)$this->id
+                   . " LIMIT " . self::UNDO_IMPORT_LIMIT_PER_QUERY;
         $it = $this->getTable('Item');
 
-        $sql = $iit->getSelect()->where('`import_id` 
-            = ?')->limit($itemLimitPerQuery);
-        $importedItems = $iit->fetchObjects($sql, array($this->id));
-
-        while(count($importedItems) > 0) {
-            foreach($importedItems as $importedItem) {
-                $item = $it->find($importedItem->getItemId());
-                if ($item) {
-                    $item->delete();
-                }
-                $importedItem->delete();
+        while ($itemIds = $db->fetchCol($searchSql)) {
+            $inClause = 'IN (' . join(', ', $itemIds) . ')';
+            $items = $it->fetchObjects($it->getSelect()
+                                          ->where("i.id $inClause"));
+            foreach ($items as $item) {
+                $item->delete();
+                release_object($item);
             }
-            $sql = $iit->getSelect()->where('`import_id` 
-                = ?')->limit($itemLimitPerQuery);
-            $importedItems = $iit->fetchObjects($sql, array($this->id));        
-        } 
+            $db->delete($db->CsvImport_ImportedItem, "item_id $inClause");
+        }
 
         $this->status = self::STATUS_COMPLETED_UNDO;
         $this->forceSave();
