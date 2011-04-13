@@ -104,6 +104,13 @@ class CsvImport_Import extends Omeka_Record
         $this->serialized_column_maps = serialize($this->getColumnMaps());
     }
 
+    protected function afterDelete()
+    {
+        if (file_exists($this->file_path)) {
+            unlink($this->file_path);
+        }
+    }
+
     /**
      * Imports the csv file.  This function can only be run once.
      * To import the same csv file, you will have to
