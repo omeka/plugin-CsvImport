@@ -21,6 +21,7 @@ class CsvImport_File implements IteratorAggregate
     private $_columnExamples = array();
     private $_delimiter;
     private $_parseErrors = array();
+    private $_rowIterator;
 
     /**
      * @param string $filePath Absolute path to the file.
@@ -79,8 +80,11 @@ class CsvImport_File implements IteratorAggregate
      */
     public function getIterator()
     {
-        return new CsvImport_RowIterator(
-            $this->getFilePath(), $this->_delimiter);
+        if (!$this->_rowIterator) {
+            $this->_rowIterator = new CsvImport_RowIterator(
+                $this->getFilePath(), $this->_delimiter);
+        }
+        return $this->_rowIterator;
     }
 
     /**
