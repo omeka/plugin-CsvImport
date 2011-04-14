@@ -12,6 +12,7 @@
  * plugins.CsvImport.requiredMimeType = "text/csv"
  * plugins.CsvImport.maxFileSize = "10M"
  * plugins.CsvImport.fileDestination = "/tmp"
+ * plugins.CsvImport.batchSize = "1000"
  * </code>
  * 
  * All of the above settings are optional.  If not given, CsvImport uses the 
@@ -22,6 +23,7 @@
  * requiredMimeType = "text/csv"
  * maxFileSize = current system upload limit
  * fileDestination = current system temporary dir (via sys_get_temp_dir())
+ * batchSize = 0 (no batching)
  *
  *
  * Set a high memory limit to avoid memory allocation issues with imports.  
@@ -34,6 +36,18 @@
  * Note that 'maxFileSize' will not affect post_max_size or upload_max_filesize 
  * as is set in php.ini.  Having a maxFileSize that exceeds either
  * will still result in errors that prevent the file upload.
+ *
+ * batchSize: Setting for advanced users.  If you find that your long-running 
+ * imports are using too much memory or otherwise hogging system resources, 
+ * set this value to split your import into multiple jobs based on the 
+ * number of CSV rows to process per job.
+ *
+ * For example, if you have a CSV with 150000 rows, setting a batchSize 
+ * of 5000 would cause the import to be split up over 30 separate jobs.  
+ * Note that these jobs run sequentially based on the results of prior 
+ * jobs, meaning that the import cannot be parallelized.  The first job 
+ * will import 5000 rows and then spawn the next job, and so on until 
+ * the import is finished.
  *
  * 
  * @copyright  Center for History and New Media, 2008-2011

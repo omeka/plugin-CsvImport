@@ -7,6 +7,7 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
     private $_importId;
     private $_method = 'start';
     private $_memoryLimit;
+    private $_batchSize;
 
     public function perform()
     {
@@ -16,17 +17,25 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
         if (!($import = $this->_getImport())) {
             return;
         }    
-        //$import->setBatchSize(1);
+
+        $import->setBatchSize($this->_batchSize);
         call_user_func(array($import, $this->_method));
+        
         if ($import->isPaused()) {
             $this->_dispatcher->send(__CLASS__, 
                 array(
                     'importId' => $import->id, 
                     'memoryLimit' => $this->_memoryLimit,
-                    'method' => 'resume'
+                    'method' => 'resume',
+                    'batchSize' => $this->_batchSize,
                 )
             );
         }
+    }
+
+    public function setBatchSize($size)
+    {
+        $this->_batchSize = (int)$size;
     }
 
     public function setMemoryLimit($limit)

@@ -110,8 +110,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 
         $csvConfig = $this->_getPluginConfig();
         Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
-            array('importId' => $csvImport->id,
-                  'memoryLimit' => @$csvConfig['memoryLimit']));
+            array(
+                'importId' => $csvImport->id,
+                'memoryLimit' => @$csvConfig['memoryLimit'],
+                'batchSize' => @$csvConfig['batchSize'],
+            )
+        );
 
         $this->session->unsetAll();
         $this->flashSuccess('Successfully started the import. Reload this page '
