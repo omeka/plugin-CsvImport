@@ -123,7 +123,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport->forceSave();
 
         Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
-            array('importId' => $csvImport->id, 'method' => 'undoImport'));
+            array('importId' => $csvImport->id, 'method' => 'undo'));
         $this->flashSuccess('Successfully started to undo the import. Reload '
             . 'this page for status updates.');
         $this->_helper->redirector->goto('browse');

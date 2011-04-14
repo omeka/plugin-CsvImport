@@ -114,11 +114,11 @@ class CsvImport_Import extends Omeka_Record
     /**
      * Imports the csv file.  This function can only be run once.
      * To import the same csv file, you will have to
-     * create another instance of CsvImport_Import and run doImport
+     * create another instance of CsvImport_Import and run start
      * 
      * @return boolean true if the import is successful, else false
      */
-    public function doImport() 
+    public function start() 
     { 
         $this->_log("Started import at: %time%");
         $this->status = self::STATUS_IN_PROGRESS;
@@ -263,7 +263,7 @@ class CsvImport_Import extends Omeka_Record
         return $this->_columnMaps;
     }
 
-    public function undoImport() 
+    public function undo() 
     {
         $this->status = self::STATUS_IN_PROGRESS_UNDO;
         $this->forceSave();

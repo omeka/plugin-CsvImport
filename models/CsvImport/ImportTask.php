@@ -5,7 +5,7 @@
 class CsvImport_ImportTask extends Omeka_JobAbstract
 {
     private $_importId;
-    private $_method = 'doImport';
+    private $_method = 'start';
     private $_memoryLimit;
 
     public function perform()
