@@ -19,6 +19,8 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_COMPLETED_UNDO = 'Completed Undo';
     const STATUS_GENERAL_ERROR = 'General Error';
     const STATUS_STOPPED = 'Stopped';
+    const STATUS_PAUSED = 'Waiting';
+
 
     public $original_filename;
     public $file_path;
@@ -116,6 +118,21 @@ class CsvImport_Import extends Omeka_Record
         }
     }
 
+    public function isError()
+    {
+        return $this->status == self::STATUS_GENERAL_ERROR;
+    }
+
+    public function isPaused()
+    {
+        return $this->status == self::STATUS_PAUSED;
+    }
+
+    public function isFinished()
+    {
+        return $this->status == self::STATUS_COMPLETED;
+    }
+
     /**
      * Imports the csv file.  This function can only be run once.
      * To import the same csv file, you will have to
@@ -128,8 +145,42 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Started import at: %time%");
         $this->status = self::STATUS_IN_PROGRESS;
         $this->forceSave(); 
-        register_shutdown_function(array($this, 'stop'));
+        
+        $this->_importLoop();
+        return !$this->isError();
+    }
 
+    public function finish()
+    {
+        if ($this->isFinished()) {
+            $this->_log("Cannot finish an import that is already finished.");
+            return false;
+        }
+
+        $this->_log("Finished importing $this->_importedCount items (skipped "
+            . "$this->skipped_row_count rows).", Zend_Log::INFO);
+        $this->status = self::STATUS_COMPLETED;
+        $this->forceSave();
+        return true;
+    }
+
+    public function resume()
+    {
+        if (!$this->isPaused()) {
+            $this->_log("Cannot resume an import that has not been paused.");
+            return false;
+        }
+        $this->_log("Resumed import at: %time%");
+        $this->status = self::STATUS_IN_PROGRESS;
+        $this->forceSave();
+
+        $this->_importLoop();
+        return !$this->isError();
+    }
+
+    private function _importLoop()
+    {
+        register_shutdown_function(array($this, 'stop'));
         $itemMetadata = array(
             'public'         => $this->is_public, 
             'featured'       => $this->is_featured, 
@@ -165,6 +216,7 @@ class CsvImport_Import extends Omeka_Record
                 if ($index % $batchAt == 0) {
                     $this->_log("Finished batch of $batchAt items at: %time%");
                     $this->_log("Memory usage: %memory%");
+                    return $this->pause();
                 }
             } catch (Exception $e) {
                 $this->status = self::STATUS_GENERAL_ERROR;
@@ -173,12 +225,7 @@ class CsvImport_Import extends Omeka_Record
                 throw $e;
             }
         }
-        
-        $this->_log("Finished importing $this->_importedCount items (skipped "
-            . "$this->skipped_row_count rows).", Zend_Log::INFO);
-        $this->status = self::STATUS_COMPLETED;
-        $this->forceSave();
-        return true;
+        return $this->finish();
     }
 
     /**
@@ -190,10 +237,21 @@ class CsvImport_Import extends Omeka_Record
     {
         // Anything besides 'in progress' signifies a finished import.
         if ($this->status != self::STATUS_IN_PROGRESS) {
-            return;
+            return false;
         }
         
         $this->status = self::STATUS_STOPPED;
+        $this->forceSave();
+    }
+
+    public function pause()
+    {
+        if ($this->status != self::STATUS_IN_PROGRESS) {
+            $this->_log("Cannot pause an import that is not in progress.");
+            return false;
+        }
+
+        $this->status = self::STATUS_PAUSED;
         $this->forceSave();
     }
 

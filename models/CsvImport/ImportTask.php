@@ -16,6 +16,15 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
         if ($import = $this->_getImport()) {
             call_user_func(array($import, $this->_method));
         }    
+        if ($import->isPaused()) {
+            $this->_dispatcher->send(__CLASS__, 
+                array(
+                    'importId' => $import->id, 
+                    'memoryLimit' => $this->_memoryLimit,
+                    'method' => 'resume'
+                )
+            );
+        }
     }
 
     public function setMemoryLimit($limit)
