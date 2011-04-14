@@ -24,6 +24,7 @@ class CsvImport_Import extends Omeka_Record
 
     public $original_filename;
     public $file_path;
+    public $file_position = 0;
     public $item_type_id;
     public $collection_id;
     public $added; 
@@ -193,11 +194,11 @@ class CsvImport_Import extends Omeka_Record
         $this->status = self::STATUS_IN_PROGRESS;
         $this->forceSave();
 
-        $this->_importLoop();
+        $this->_importLoop($this->file_position);
         return !$this->isError();
     }
 
-    private function _importLoop()
+    private function _importLoop($startAt = null)
     {
         register_shutdown_function(array($this, 'stop'));
         $itemMetadata = array(
@@ -209,11 +210,16 @@ class CsvImport_Import extends Omeka_Record
 
         $maps = $this->getColumnMaps();
         $rows = $this->getIterator();
+        $rows->rewind();
+        if ($startAt) {
+            $rows->seek($startAt);
+        }
         $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
-
-        foreach($rows as $index => $row) {
+        while ($rows->valid()) {
+            $row = $rows->current();
+            $index = $rows->key();
             $this->skipped_row_count += $rows->getSkippedCount();
 
             try {
@@ -234,6 +240,7 @@ class CsvImport_Import extends Omeka_Record
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;
             }
+            $rows->next();
         }
         return $this->finish();
     }
@@ -261,6 +268,7 @@ class CsvImport_Import extends Omeka_Record
             return false;
         }
 
+        $this->file_position = $this->getIterator()->tell();
         $this->status = self::STATUS_PAUSED;
         $this->forceSave();
     }

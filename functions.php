@@ -17,6 +17,7 @@ function csv_import_install()
        `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
        `original_filename` text collate utf8_unicode_ci NOT NULL,
        `file_path` text collate utf8_unicode_ci NOT NULL,
+       `file_position` bigint unsigned NOT NULL,
        `status` varchar(255) collate utf8_unicode_ci,
        `skipped_row_count` int(10) unsigned NOT NULL,
        `skipped_item_count` int(10) unsigned NOT NULL,

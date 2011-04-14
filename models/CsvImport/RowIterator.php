@@ -6,7 +6,7 @@
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt
  * @version    $Id:$
  **/
-class CsvImport_RowIterator implements Iterator
+class CsvImport_RowIterator implements SeekableIterator
 {
     private $_filePath;
     private $_handle;
@@ -94,6 +94,24 @@ class CsvImport_RowIterator implements Iterator
                 throw $e;
             }
         }
+    }
+
+    /**
+     * Seek to a starting position for the file.
+     */
+    public function seek($index)
+    {
+        if (!$this->_colNames) {
+            $this->rewind();
+        }
+        $fh = $this->_getFileHandle();
+        fseek($fh, $index);
+        $this->_moveNext();
+    }
+
+    public function tell()
+    {
+        return ftell($this->_getFileHandle());
     }
 
     private function _moveNext()
