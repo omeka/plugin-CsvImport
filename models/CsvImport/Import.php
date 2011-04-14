@@ -99,6 +99,11 @@ class CsvImport_Import extends Omeka_Record
         $this->_columnMaps = $mapSet;
     }
 
+    public function getIterator()
+    {
+        return $this->getCsvFile()->getIterator();
+    }
+
     protected function beforeSave()
     {
         $this->serialized_column_maps = serialize($this->getColumnMaps());
@@ -122,7 +127,6 @@ class CsvImport_Import extends Omeka_Record
     { 
         $this->_log("Started import at: %time%");
         $this->status = self::STATUS_IN_PROGRESS;
-        $csvFile = $this->getCsvFile();
         $this->forceSave(); 
         register_shutdown_function(array($this, 'stop'));
 
@@ -134,7 +138,7 @@ class CsvImport_Import extends Omeka_Record
         );
 
         $maps = $this->getColumnMaps();
-        $rows = $csvFile->getIterator();
+        $rows = $this->getIterator();
         $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
