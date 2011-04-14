@@ -33,7 +33,8 @@ function csv_import_install()
       `item_id` int(10) unsigned NOT NULL,
       `import_id` int(10) unsigned NOT NULL,       
       PRIMARY KEY  (`id`),
-      KEY (`import_id`)
+      KEY (`import_id`),
+      UNIQUE (`item_id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");    
        
 }
