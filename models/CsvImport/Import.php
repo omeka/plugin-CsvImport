@@ -256,7 +256,14 @@ class CsvImport_Import extends Omeka_Record
         if ($this->status != self::STATUS_IN_PROGRESS) {
             return false;
         }
-        
+
+        $logMsg = "Stopping import due to error";
+        if ($error = error_get_last()) {
+            $logMsg .= ": " . $error['message'];
+        } else {
+            $logMsg .= '.';
+        }
+        $this->_log($logMsg);
         $this->status = self::STATUS_STOPPED;
         $this->forceSave();
     }
