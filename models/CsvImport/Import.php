@@ -157,7 +157,7 @@ class CsvImport_Import extends Omeka_Record
                 $this->forceSave();    
             }
             try {
-                if ($item = $this->addItemFromRow($row, $itemMetadata, $maps)) {
+                if ($item = $this->_addItemFromRow($row, $itemMetadata, $maps)) {
                     release_object($item);
                 } else {
                     $this->skipped_item_count++;
@@ -199,7 +199,7 @@ class CsvImport_Import extends Omeka_Record
 
     // adds an item based on the row data
     // returns inserted Item
-    private function addItemFromRow($row, $itemMetadata, $maps) 
+    private function _addItemFromRow($row, $itemMetadata, $maps) 
     {
         $result = $maps->map($row);
         $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
