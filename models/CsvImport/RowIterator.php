@@ -131,9 +131,18 @@ class CsvImport_RowIterator implements Iterator
         return $this->_colNames;
     }
 
+    /**
+     * Get the number of rows that were skipped since the last time 
+     * the function was called.
+     *
+     * Skipped count is reset to 0 after each call to getSkippedCount(). This 
+     * makes it easier to aggregate the number over multiple job runs. 
+     */
     public function getSkippedCount()
     {
-        return $this->_skippedRowCount;
+        $skipped = $this->_skippedRowCount;
+        $this->_skippedRowCount = 0;
+        return $skipped;
     }
 
     public function skipInvalidRows($flag)
