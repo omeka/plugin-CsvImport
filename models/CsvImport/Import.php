@@ -41,6 +41,11 @@ class CsvImport_Import extends Omeka_Record
     private $_importedCount = 0;
 
     /**
+     * Batch importing is not enabled by default.
+     */
+    private $_batchSize = 0;
+
+    /**
      * An array of columnMaps, where each columnMap maps a column index number 
      * (starting at 0) to an element, tag, and/or file.
      *
@@ -99,6 +104,20 @@ class CsvImport_Import extends Omeka_Record
                 . "array or an instance of CsvImport_ColumnMap_Set.");
         }
         $this->_columnMaps = $mapSet;
+    }
+
+    /**
+     * Set the number of items to create before pausing the import.
+     *
+     * Used primarily for performance reasons, i.e. long-running imports may 
+     * time out or hog system resources in such a way that prevents other 
+     * imports from running.  When used in conjunction with Omeka_Job and 
+     * resume(), this can be used to spawn multiple sequential jobs for a given 
+     * import.
+     */
+    public function setBatchSize($size)
+    {
+        $this->_batchSize = (int)$size;
     }
 
     public function getIterator()
@@ -193,7 +212,6 @@ class CsvImport_Import extends Omeka_Record
         $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
-        $batchAt = 500;
         $skippedHeader = false;
         $skippedRows = 0;
         foreach($rows as $index => $row) {
@@ -203,18 +221,15 @@ class CsvImport_Import extends Omeka_Record
             }
             $this->skipped_row_count = $rows->getSkippedCount();
 
-            // Save the number of skipped rows at regular intervals.
-            if ($index % $batchAt == 0) {
-                $this->forceSave();    
-            }
             try {
                 if ($item = $this->_addItemFromRow($row, $itemMetadata, $maps)) {
                     release_object($item);
                 } else {
                     $this->skipped_item_count++;
                 }
-                if ($index % $batchAt == 0) {
-                    $this->_log("Finished batch of $batchAt items at: %time%");
+                if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
+                    $this->_log("Finished batch of $this->_batchSize "
+                        . "items at: %time%");
                     $this->_log("Memory usage: %memory%");
                     return $this->pause();
                 }
