@@ -17,6 +17,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
 {
     protected $_browseRecordsPerPage = 10;
 
+    private $_pluginConfig = array();
+
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
@@ -105,10 +107,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::STATUS_IN_PROGRESS);
         $csvImport->forceSave();
-        
+
+        $csvConfig = $this->_getPluginConfig();
         Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
             array('importId' => $csvImport->id,
-                  'memoryLimit' => $this->_getMemoryLimit()));
+                  'memoryLimit' => @$csvConfig['memoryLimit']));
 
         $this->session->unsetAll();
         $this->flashSuccess('Successfully started the import. Reload this page '
@@ -145,24 +148,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     private function _getMainForm()
     {
         require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
-        $config = $this->getInvokeArg('bootstrap')->config->plugins;
-        if ($config && isset($config->CsvImport)) {
-            $csvConfig = $config->CsvImport->toArray();
-        }
-        if (!array_key_exists('fileDestination', $csvConfig)) {
-            $csvConfig['fileDestination'] = 
-                Zend_Registry::get('storage')->getTempDir();
-        }
+        $csvConfig = $this->_getPluginConfig();
         $form = new CsvImport_Form_Main($csvConfig);
         return $form;
-    }
-
-    private function _getMemoryLimit()
-    {
-        $config = $this->getInvokeArg('bootstrap')->config;
-        if (isset($config->plugins->CsvImport)) {
-            return (string)$config->plugins->CsvImport->memoryLimit;
-        }
     }
 
     private function _getNavigation()
@@ -179,6 +167,21 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 'module' => 'csv-import',
             ),
         ));
+    }
+
+    private function _getPluginConfig()
+    {
+        if (!$this->_pluginConfig) {
+            $config = $this->getInvokeArg('bootstrap')->config->plugins;
+            if ($config && isset($config->CsvImport)) {
+                $this->_pluginConfig = $config->CsvImport->toArray();
+            }
+            if (!array_key_exists('fileDestination', $this->_pluginConfig)) {
+                $this->_pluginConfig['fileDestination'] = 
+                    Zend_Registry::get('storage')->getTempDir();
+            }
+        }
+        return $this->_pluginConfig;
     }
     
     private function _sessionIsValid()
