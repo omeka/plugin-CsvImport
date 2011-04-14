@@ -54,7 +54,7 @@ class CsvImport_RowIterator implements Iterator
                 . "contains $uniqueColCount unique column name(s) for "
                 . $this->_colCount . " columns.");
         }
-        $this->_currentRow = $this->_formatRow($this->_colNames);
+        $this->_moveNext();
     }
 
     /**

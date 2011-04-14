@@ -212,13 +212,8 @@ class CsvImport_Import extends Omeka_Record
         $rows->skipInvalidRows(true);
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
-        $skippedHeader = false;
         $skippedRows = 0;
         foreach($rows as $index => $row) {
-            if (!$skippedHeader) {
-                $skippedHeader = true;
-                continue;
-            }
             $this->skipped_row_count = $rows->getSkippedCount();
 
             try {

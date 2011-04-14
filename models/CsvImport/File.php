@@ -100,7 +100,6 @@ class CsvImport_File implements IteratorAggregate
         $rowIterator = $this->getIterator();
         try {
             $this->_columnNames = $rowIterator->getColumnNames();
-            $rowIterator->next();
             $this->_columnExamples = $rowIterator->current(); 
         } catch (CsvImport_DuplicateColumnException $e) {
             $this->_parseErrors[] = $e->getMessage() 
