@@ -18,7 +18,7 @@ class CsvImport_Form_Main extends Omeka_Form
     private $_columnDelimiter = ',';
     private $_fileDestinationDir;
     private $_maxFileSize;
-    private $_requiredMimeTypes = array('text/csv');
+    private $_requiredMimeTypes = array('text/csv', 'text/plain');
     private $_requiredExtensions = array('txt', 'csv');
 
     public function init()
