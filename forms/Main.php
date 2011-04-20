@@ -96,7 +96,7 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         $fileValidators = array(
             new Zend_Validate_File_Size(array(
-                'max' => (string)$this->_maxFileSize)),
+                'max' => (string)$this->getMaxFileSize())),
             new Zend_Validate_File_Count(1),
         );
         if ($this->_requiredExtensions) {
@@ -159,13 +159,11 @@ class CsvImport_Form_Main extends Omeka_Form
      * If this is set but it exceeds the aforementioned php setting, the size 
      * will be reduced to that lower setting. 
      */
-    public function setMaxFileSize($size)
+    public function setMaxFileSize($size = null)
     {
         $phpIniSize = $this->_getSizeMeasure(ini_get('upload_max_filesize'));
-        //$buffer = new Zend_Measure_Binary(20, Zend_Measure_Binary::KILOBYTE);
-        //$phpIniSize->sub($buffer);
-        $pluginIniSize = $this->_getSizeMeasure($size);
-        if ($pluginIniSize) {
+	if ($size) {
+	    $pluginIniSize = $this->_getSizeMeasure($size);
             if ($pluginIniSize->compare($phpIniSize)) {
                 $this->_maxFileSize = $phpIniSize;
             } else {
@@ -178,6 +176,9 @@ class CsvImport_Form_Main extends Omeka_Form
 
     public function getMaxFileSize()
     {
+	if (!$this->_maxFileSize) {
+	    $this->setMaxFileSize();
+	}
         return $this->_maxFileSize;
     }
 
