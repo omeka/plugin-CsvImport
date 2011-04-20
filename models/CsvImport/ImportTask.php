@@ -22,6 +22,7 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
         call_user_func(array($import, $this->_method));
         
         if ($import->isPaused()) {
+            $this->_dispatcher->setQueueName('imports');
             $this->_dispatcher->send(__CLASS__, 
                 array(
                     'importId' => $import->id, 

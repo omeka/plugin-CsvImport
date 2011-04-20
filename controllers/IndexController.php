@@ -109,7 +109,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport->forceSave();
 
         $csvConfig = $this->_getPluginConfig();
-        Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
+        $jobDispatcher = Zend_Registry::get('job_dispatcher');
+        $jobDispatcher->setQueueName('imports');
+        $jobDispatcher->send('CsvImport_ImportTask',
             array(
                 'importId' => $csvImport->id,
                 'memoryLimit' => @$csvConfig['memoryLimit'],
@@ -129,7 +131,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO;
         $csvImport->forceSave();
 
-        Zend_Registry::get('job_dispatcher')->send('CsvImport_ImportTask',
+        $jobDispatcher = Zend_Registry::get('job_dispatcher');
+        $jobDispatcher->setQueueName('imports');
+        $jobDispatcher->send('CsvImport_ImportTask',
             array('importId' => $csvImport->id, 'method' => 'undo'));
         $this->flashSuccess('Successfully started to undo the import. Reload '
             . 'this page for status updates.');
