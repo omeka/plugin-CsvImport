@@ -176,7 +176,7 @@ class CsvImport_Import extends Omeka_Record
         $this->status = self::IN_PROGRESS;
         $this->forceSave(); 
         
-        $this->_importLoop();
+        $this->_importLoop($this->file_position);
         return !$this->isError();
     }
 
@@ -228,29 +228,35 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Item import loop started at: %time%");
         $this->_log("Memory usage: %memory%");
         while ($rows->valid()) {
-            $row = $rows->current();
-            $index = $rows->key();
-            $this->skipped_row_count += $rows->getSkippedCount();
-
             try {
+                $row = $rows->current();
+                $index = $rows->key();
+                $this->skipped_row_count += $rows->getSkippedCount();
+
                 if ($item = $this->_addItemFromRow($row, $itemMetadata, $maps)) {
                     release_object($item);
                 } else {
                     $this->skipped_item_count++;
                 }
+                $this->file_position = $this->getIterator()->tell();
                 if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
                     $this->_log("Finished batch of $this->_batchSize "
                         . "items at: %time%");
                     $this->_log("Memory usage: %memory%");
                     return $this->queue();
                 }
+
+                $rows->next();
+            } catch (Omeka_Job_Worker_InterruptException $e) {
+                // Interruptions usually indicate that we should resume from 
+                // the last stopping position.
+                return $this->queue();
             } catch (Exception $e) {
                 $this->status = self::ERROR;
                 $this->forceSave();
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;
             }
-            $rows->next();
         }
         return $this->finish();
     }
@@ -285,7 +291,6 @@ class CsvImport_Import extends Omeka_Record
             return false;
         }
 
-        $this->file_position = $this->getIterator()->tell();
         $this->status = self::QUEUED;
         $this->forceSave();
     }
