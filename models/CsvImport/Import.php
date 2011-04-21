@@ -13,14 +13,14 @@ class CsvImport_Import extends Omeka_Record
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
 
-    const STATUS_QUEUED = 'Queued';
-    const STATUS_IN_PROGRESS = 'In Progress';
-    const STATUS_COMPLETED = 'Completed';
-    const STATUS_IN_PROGRESS_UNDO = 'Undo In Progress';
-    const STATUS_COMPLETED_UNDO = 'Completed Undo';
-    const STATUS_GENERAL_ERROR = 'General Error';
-    const STATUS_STOPPED = 'Stopped';
-    const STATUS_PAUSED = 'Paused';
+    const QUEUED = 'Queued';
+    const IN_PROGRESS = 'In Progress';
+    const COMPLETED = 'Completed';
+    const IN_PROGRESS_UNDO = 'Undo In Progress';
+    const COMPLETED_UNDO = 'Completed Undo';
+    const GENERAL_ERROR = 'General Error';
+    const STOPPED = 'Stopped';
+    const PAUSED = 'Paused';
 
 
     public $original_filename;
@@ -141,17 +141,27 @@ class CsvImport_Import extends Omeka_Record
 
     public function isError()
     {
-        return $this->status == self::STATUS_GENERAL_ERROR;
+        return $this->status == self::GENERAL_ERROR;
+    }
+
+    public function isStopped()
+    {
+        return $this->status == self::STOPPED;
     }
 
     public function isQueued()
     {
-        return $this->status == self::STATUS_QUEUED;
+        return $this->status == self::QUEUED;
     }
 
     public function isFinished()
     {
-        return $this->status == self::STATUS_COMPLETED;
+        return $this->status == self::COMPLETED;
+    }
+
+    public function isUndone()
+    {
+        return $this->status == self::COMPLETED_UNDO;
     }
 
     /**
@@ -164,7 +174,7 @@ class CsvImport_Import extends Omeka_Record
     public function start() 
     { 
         $this->_log("Started import at: %time%");
-        $this->status = self::STATUS_IN_PROGRESS;
+        $this->status = self::IN_PROGRESS;
         $this->forceSave(); 
         
         $this->_importLoop();
@@ -180,7 +190,7 @@ class CsvImport_Import extends Omeka_Record
 
         $this->_log("Finished importing $this->_importedCount items (skipped "
             . "$this->skipped_row_count rows).", Zend_Log::INFO);
-        $this->status = self::STATUS_COMPLETED;
+        $this->status = self::COMPLETED;
         $this->forceSave();
         return true;
     }
@@ -192,7 +202,7 @@ class CsvImport_Import extends Omeka_Record
             return false;
         }
         $this->_log("Resumed import at: %time%");
-        $this->status = self::STATUS_IN_PROGRESS;
+        $this->status = self::IN_PROGRESS;
         $this->forceSave();
 
         $this->_importLoop($this->file_position);
@@ -236,7 +246,7 @@ class CsvImport_Import extends Omeka_Record
                     return $this->queue();
                 }
             } catch (Exception $e) {
-                $this->status = self::STATUS_GENERAL_ERROR;
+                $this->status = self::GENERAL_ERROR;
                 $this->forceSave();
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;
@@ -254,7 +264,7 @@ class CsvImport_Import extends Omeka_Record
     public function stop()
     {
         // Anything besides 'in progress' signifies a finished import.
-        if ($this->status != self::STATUS_IN_PROGRESS) {
+        if ($this->status != self::IN_PROGRESS) {
             return false;
         }
 
@@ -265,19 +275,19 @@ class CsvImport_Import extends Omeka_Record
             $logMsg .= '.';
         }
         $this->_log($logMsg);
-        $this->status = self::STATUS_STOPPED;
+        $this->status = self::STOPPED;
         $this->forceSave();
     }
 
     public function queue()
     {
-        if ($this->status != self::STATUS_IN_PROGRESS) {
+        if ($this->status != self::IN_PROGRESS) {
             $this->_log("Cannot pause an import that is not in progress.");
             return false;
         }
 
         $this->file_position = $this->getIterator()->tell();
-        $this->status = self::STATUS_QUEUED;
+        $this->status = self::QUEUED;
         $this->forceSave();
     }
 
@@ -353,7 +363,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function undo() 
     {
-        $this->status = self::STATUS_IN_PROGRESS_UNDO;
+        $this->status = self::IN_PROGRESS_UNDO;
         $this->forceSave();
 
         $db = $this->getDb();
@@ -373,7 +383,7 @@ class CsvImport_Import extends Omeka_Record
             $db->delete($db->CsvImport_ImportedItem, "item_id $inClause");
         }
 
-        $this->status = self::STATUS_COMPLETED_UNDO;
+        $this->status = self::COMPLETED_UNDO;
         $this->forceSave();
     }
 

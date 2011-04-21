@@ -105,7 +105,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             }
         }
         $csvImport->setColumnMaps($columnMaps);
-        $csvImport->setStatus(CsvImport_Import::STATUS_QUEUED);
+        $csvImport->setStatus(CsvImport_Import::QUEUED);
         $csvImport->forceSave();
 
         $csvConfig = $this->_getPluginConfig();
@@ -128,7 +128,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function undoImportAction()
     {
         $csvImport = $this->findById();
-        $csvImport->status = CsvImport_Import::STATUS_IN_PROGRESS_UNDO;
+        $csvImport->status = CsvImport_Import::IN_PROGRESS_UNDO;
         $csvImport->forceSave();
 
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
@@ -144,7 +144,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     {
         $csvImport = $this->findById();
         if ($csvImport->status == 
-            CsvImport_Import::STATUS_COMPLETED_UNDO
+            CsvImport_Import::COMPLETED_UNDO
         ) {
             $csvImport->delete();
             $this->flashSuccess("Successfully cleared the history "
