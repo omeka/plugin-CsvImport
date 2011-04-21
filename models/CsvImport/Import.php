@@ -19,7 +19,7 @@ class CsvImport_Import extends Omeka_Record
     const STATUS_COMPLETED_UNDO = 'Completed Undo';
     const STATUS_GENERAL_ERROR = 'General Error';
     const STATUS_STOPPED = 'Stopped';
-    const STATUS_PAUSED = 'Waiting';
+    const STATUS_PAUSED = 'Paused';
 
 
     public $original_filename;
