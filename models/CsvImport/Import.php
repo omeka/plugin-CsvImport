@@ -13,6 +13,7 @@ class CsvImport_Import extends Omeka_Record
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
 
+    const STATUS_QUEUED = 'Queued';
     const STATUS_IN_PROGRESS = 'In Progress';
     const STATUS_COMPLETED = 'Completed';
     const STATUS_IN_PROGRESS_UNDO = 'Undo In Progress';
@@ -143,9 +144,9 @@ class CsvImport_Import extends Omeka_Record
         return $this->status == self::STATUS_GENERAL_ERROR;
     }
 
-    public function isPaused()
+    public function isQueued()
     {
-        return $this->status == self::STATUS_PAUSED;
+        return $this->status == self::STATUS_QUEUED;
     }
 
     public function isFinished()
@@ -186,7 +187,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function resume()
     {
-        if (!$this->isPaused()) {
+        if (!$this->isQueued()) {
             $this->_log("Cannot resume an import that has not been paused.");
             return false;
         }
@@ -232,7 +233,7 @@ class CsvImport_Import extends Omeka_Record
                     $this->_log("Finished batch of $this->_batchSize "
                         . "items at: %time%");
                     $this->_log("Memory usage: %memory%");
-                    return $this->pause();
+                    return $this->queue();
                 }
             } catch (Exception $e) {
                 $this->status = self::STATUS_GENERAL_ERROR;
@@ -268,7 +269,7 @@ class CsvImport_Import extends Omeka_Record
         $this->forceSave();
     }
 
-    public function pause()
+    public function queue()
     {
         if ($this->status != self::STATUS_IN_PROGRESS) {
             $this->_log("Cannot pause an import that is not in progress.");
@@ -276,7 +277,7 @@ class CsvImport_Import extends Omeka_Record
         }
 
         $this->file_position = $this->getIterator()->tell();
-        $this->status = self::STATUS_PAUSED;
+        $this->status = self::STATUS_QUEUED;
         $this->forceSave();
     }
 

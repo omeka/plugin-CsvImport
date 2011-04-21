@@ -105,7 +105,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             }
         }
         $csvImport->setColumnMaps($columnMaps);
-        $csvImport->setStatus(CsvImport_Import::STATUS_IN_PROGRESS);
+        $csvImport->setStatus(CsvImport_Import::STATUS_QUEUED);
         $csvImport->forceSave();
 
         $csvConfig = $this->_getPluginConfig();

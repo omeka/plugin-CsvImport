@@ -21,7 +21,7 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
         $import->setBatchSize($this->_batchSize);
         call_user_func(array($import, $this->_method));
         
-        if ($import->isPaused()) {
+        if ($import->isQueued()) {
             $this->_dispatcher->setQueueName('imports');
             $this->_dispatcher->send(__CLASS__, 
                 array(
