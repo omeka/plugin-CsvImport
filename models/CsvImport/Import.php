@@ -13,15 +13,14 @@ class CsvImport_Import extends Omeka_Record
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
 
-    const QUEUED = 'Queued';
-    const IN_PROGRESS = 'In Progress';
-    const COMPLETED = 'Completed';
-    const IN_PROGRESS_UNDO = 'Undo In Progress';
-    const COMPLETED_UNDO = 'Completed Undo';
-    const GENERAL_ERROR = 'General Error';
-    const STOPPED = 'Stopped';
-    const PAUSED = 'Paused';
-
+    const QUEUED = 'queued';
+    const IN_PROGRESS = 'in_progress';
+    const COMPLETED = 'completed';
+    const IN_PROGRESS_UNDO = 'undo_in_progress';
+    const COMPLETED_UNDO = 'completed_undo';
+    const ERROR = 'error';
+    const STOPPED = 'stopped';
+    const PAUSED = 'paused';
 
     public $original_filename;
     public $file_path;
@@ -141,7 +140,7 @@ class CsvImport_Import extends Omeka_Record
 
     public function isError()
     {
-        return $this->status == self::GENERAL_ERROR;
+        return $this->status == self::ERROR;
     }
 
     public function isStopped()
@@ -246,7 +245,7 @@ class CsvImport_Import extends Omeka_Record
                     return $this->queue();
                 }
             } catch (Exception $e) {
-                $this->status = self::GENERAL_ERROR;
+                $this->status = self::ERROR;
                 $this->forceSave();
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;

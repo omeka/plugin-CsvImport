@@ -25,7 +25,7 @@
                 <td><?php echo html_escape($csvImport->added); ?></td>
                 <td><?php echo html_escape($csvImport->original_filename); ?></td>
                 <td><?php echo $csvImport->getProgress(); ?></td>
-                <td><?php echo html_escape($csvImport->status); ?></td>
+                <td><?php echo html_escape(Inflector::humanize($csvImport->status)); ?></td>
                 <?php
                 if ($csvImport->isFinished() || $csvImport->isStopped()): ?>
                     <td><?php echo delete_button($this->url(
