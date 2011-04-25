@@ -14,6 +14,7 @@ function csv_import_install()
        `id` int(10) unsigned NOT NULL auto_increment,
        `item_type_id` int(10) unsigned NOT NULL,
        `collection_id` int(10) unsigned NOT NULL,       
+       `owner_id` int unsigned NOT NULL,
        `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
        `original_filename` text collate utf8_unicode_ci NOT NULL,
        `file_path` text collate utf8_unicode_ci NOT NULL,

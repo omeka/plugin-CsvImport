@@ -27,6 +27,7 @@ class CsvImport_Import extends Omeka_Record
     public $file_position = 0;
     public $item_type_id;
     public $collection_id;
+    public $owner_id;
     public $added; 
 
     public $delimiter;
@@ -92,6 +93,23 @@ class CsvImport_Import extends Omeka_Record
     public function setStatus($status)
     {
         $this->status = (string)$status;
+    }
+
+    public function setOwnerId($userId) 
+    {
+        $this->owner_id = $userId;
+    }
+
+    private function _getOwner()
+    {
+        if (!$this->_owner) {
+            $this->_owner = $this->getTable('User')->find($this->owner_id);
+            if (!$this->_owner) {
+                throw new UnexpectedValueException("Cannot run import for "
+                    . "a user account that no longer exists.");
+            }
+        }
+        return $this->_owner;
     }
 
     public function setColumnMaps($maps)
@@ -215,7 +233,8 @@ class CsvImport_Import extends Omeka_Record
             'public'         => $this->is_public, 
             'featured'       => $this->is_featured, 
             'item_type_id'   => $this->item_type_id,
-            'collection_id'  => $this->collection_id
+            'collection_id'  => $this->collection_id,
+            'tag_entity'     => $this->_getOwner()->Entity,
         );
 
         $maps = $this->getColumnMaps();

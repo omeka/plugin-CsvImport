@@ -67,6 +67,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->collectionId = $form->getValue('collection_id');
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
+        $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
         $this->_helper->redirector->goto('map-columns');   
     }
     
