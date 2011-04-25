@@ -128,7 +128,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function undoImportAction()
     {
         $csvImport = $this->findById();
-        $csvImport->status = CsvImport_Import::IN_PROGRESS_UNDO;
+        $csvImport->status = CsvImport_Import::QUEUED;
         $csvImport->forceSave();
 
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
