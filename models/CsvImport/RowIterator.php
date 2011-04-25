@@ -176,9 +176,9 @@ class CsvImport_RowIterator implements SeekableIterator
                 . "names have been set.");
         }
         if (count($row) != $this->_colCount) {
-            $printable = var_export($row, true);
-            throw new CsvImport_MissingColumnException("Row containing "
-                . "$printable does not have the required {$this->_colCount} "
+            $printable = substr(join($this->_delimiter, $row), 0, 30) . '...';
+            throw new CsvImport_MissingColumnException("Row beginning with "
+                . "'$printable' does not have the required {$this->_colCount} "
                 . "rows.");
         }
         for($i = 0; $i < $this->_colCount; $i++) 

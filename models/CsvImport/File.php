@@ -104,8 +104,13 @@ class CsvImport_File implements IteratorAggregate
         } catch (CsvImport_DuplicateColumnException $e) {
             $this->_parseErrors[] = $e->getMessage() 
                 . " Please ensure that all column names are unique.";
-            _log("[CsvImport] Error parsing CSV file '{$this->_filePath}': "
-                . $e->getMessage(), Zend_Log::NOTICE);
+            //_log("[CsvImport] Error parsing CSV file '{$this->_filePath}': "
+                //. $e->getMessage(), Zend_Log::NOTICE);
+            return false;
+        } catch (CsvImport_MissingColumnException $e) {
+            $this->_parseErrors[] = $e->getMessage()
+                . " Please ensure that the CSV file is formatted correctly"
+                . " and contains the expected number of columns for each row.";
             return false;
         }
         return true;
