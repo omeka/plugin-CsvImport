@@ -29,13 +29,15 @@ class CsvImport_Form_Main extends Omeka_Form
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
-        array_unshift($values, 'Select Item Type');
+        $values = array('' => 'Select Item Type') + $values;
+        
         $this->addElement('select', 'item_type_id', array(
             'label' => 'Item Type',
             'multiOptions' => $values,
         ));
         $values = get_db()->getTable('Collection')->findPairsForSelectForm();
-        array_unshift($values, 'Select Collection');
+        $values = array('' => 'Select Collection') + $values;
+
         $this->addElement('select', 'collection_id', array(
             'label' => 'Collection',
             'multiOptions' => $values,
