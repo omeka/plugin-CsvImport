@@ -196,12 +196,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     private function _sessionIsValid()
     {
         $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 
-            'collectionId', 'itemTypeId');
+            'collectionId', 'itemTypeId', 'ownerId');
 
         foreach ($requiredKeys as $key) {
-            if (!isset($this->session->$key) 
-                || !is_numeric($this->session->$key)
-            ) {
+            if (!isset($this->session->$key)) {
                 return false;
             }
         }
