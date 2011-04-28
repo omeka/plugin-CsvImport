@@ -1,6 +1,6 @@
 <?php
 
-class CsvImport_ColumnMap_Set extends ArrayObject
+class CsvImport_ColumnMap_Set
 {
     private $_maps = array();
     
