@@ -11,7 +11,8 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
     {
         $rawTags = explode(',', $row[$this->_columnName]);
         $trimmed = array_map('trim', $rawTags);
-        $tags = array_merge($result, $trimmed);
+        $cleaned = array_diff($trimmed, array(''));
+        $tags = array_merge($result, $cleaned);
         return $tags;
     }
 }
