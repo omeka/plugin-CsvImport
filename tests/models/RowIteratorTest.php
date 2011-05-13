@@ -24,6 +24,14 @@ class CsvImport_RowIteratorTest extends PHPUnit_Framework_TestCase
         'file' => 'file',
     );
 
+    private $_validFirstRow = array(
+        'title' => "Robinson Crusoe", 
+        'creator' => "Daniel Defoe", 
+        'description' => "A man survives on an island.", 
+        'tags' => "book, classic, island", 
+        'file' => "",
+    );
+
     private $_validFile;
 
     public function setUp()
@@ -60,7 +68,7 @@ class CsvImport_RowIteratorTest extends PHPUnit_Framework_TestCase
     {
         $iterator = new CsvImport_RowIterator($this->validFilePath);
         $iterator->rewind();
-        $this->assertEquals($this->_validHeader, $iterator->current());
+        $this->assertEquals($this->_validFirstRow, $iterator->current());
     }
 
     public function testInvalidDelimiter()
