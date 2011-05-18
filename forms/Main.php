@@ -32,24 +32,37 @@ class CsvImport_Form_Main extends Omeka_Form
         $values = array('' => 'Select Item Type') + $values;
         
         $this->addElement('select', 'item_type_id', array(
-            'label' => 'Item Type',
+            'label' => 'Select Item Type',
             'multiOptions' => $values,
         ));
         $values = get_db()->getTable('Collection')->findPairsForSelectForm();
         $values = array('' => 'Select Collection') + $values;
 
         $this->addElement('select', 'collection_id', array(
-            'label' => 'Collection',
+            'label' => 'Select Collection',
             'multiOptions' => $values,
         ));
         $this->addElement('checkbox', 'items_are_public', array(
-            'label' => 'Items Are Public?',
+            'label' => 'Make All Items Public?',
         ));
         $this->addElement('checkbox', 'items_are_featured', array(
-            'label' => 'Items Are Featured?',
+            'label' => 'Feature All Items?',
         ));
+        switch ($this->_columnDelimiter) {
+            case ',':
+                $delimiterText = 'comma';
+                break;
+            case ';':
+                $delimiterText = 'semi-colon';
+                break;
+            default:
+                $delimiterText = $this->_columnDelimiter;
+                break;
+        }
         $this->addElement('text', 'column_delimiter', array(
-            'label' => 'Column Delimiter',
+            'label' => 'Choose Column Delimiter',
+            'description' => "A single character that will be used to "
+                . "separate columns in the file ($delimiterText by default).",
             'value' => $this->_columnDelimiter,
             'required' => true,
             'size' => '1',
@@ -114,7 +127,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir 
                     . '/' . md5(mt_rand() + microtime(true)));
         $this->addElement('file', 'csv_file', array(
-            'label' => 'Upload Your CSV File',
+            'label' => 'Upload CSV File',
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
