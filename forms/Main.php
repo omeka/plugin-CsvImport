@@ -62,7 +62,8 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->addElement('text', 'column_delimiter', array(
             'label' => 'Choose Column Delimiter',
             'description' => "A single character that will be used to "
-                . "separate columns in the file ($delimiterText by default).",
+                . "separate columns in the file ($delimiterText by default)."
+                . " Note that tabs and whitespace are not accepted.",
             'value' => $this->_columnDelimiter,
             'required' => true,
             'size' => '1',
