@@ -339,7 +339,10 @@ class CsvImport_Import extends Omeka_Record
                     )
                 );
             } catch (Omeka_File_Ingest_InvalidException $e) { 
-                $this->_log($e, Zend_Log::ERR);
+                $msg = "Error occurred when attempting to ingest the "
+                     . "following URL as a file: '$url': "
+                     . $e->getMessage();
+                $this->_log($msg, Zend_Log::INFO);
                 $item->delete();
                 return false;
             }            
