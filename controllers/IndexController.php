@@ -22,7 +22,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
-        $this->_helper->db->setDefaultModelName('CsvImport_Import');
+        if (version_compare(OMEKA_VERSION, '2.0-dev', '>=')) {
+            $this->_helper->db->setDefaultModelName('CsvImport_Import');
+        } else {
+            $this->_modelClass = 'CsvImport_Import';
+        }
     }
 
     public function preDispatch()
@@ -30,7 +34,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->view->navigation($this->_getNavigation());
     }
 
-    public function indexAction() 
+    public function indexAction()
     {
         $form = $this->_getMainForm();
         $this->view->form = $form;
@@ -51,8 +55,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $delimiter = $form->getValue('column_delimiter');
         $file = new CsvImport_File($filePath, $delimiter);
         
-        if (!$file->parse()) {                    
-            return $this->flashError('Your file is incorrectly formatted. ' 
+        if (!$file->parse()) {
+            return $this->flashError('Your file is incorrectly formatted. '
                 . $file->getErrorString());
         }
 
@@ -60,15 +64,15 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->filePath = $filePath;
         $this->session->columnDelimiter = $delimiter;
         $this->session->itemTypeId = $form->getValue('item_type_id');
-        $this->session->itemsArePublic = 
+        $this->session->itemsArePublic =
             $form->getValue('items_are_public');
-        $this->session->itemsAreFeatured = 
+        $this->session->itemsAreFeatured =
             $form->getValue('items_are_featured');
         $this->session->collectionId = $form->getValue('collection_id');
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
-        $this->_helper->redirector->goto('map-columns');   
+        $this->_helper->redirector->goto('map-columns');
     }
     
     public function mapColumnsAction()
@@ -144,7 +148,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function clearHistoryAction()
     {
         $csvImport = $this->findById();
-        if ($csvImport->status == 
+        if ($csvImport->status ==
             CsvImport_Import::COMPLETED_UNDO
         ) {
             $csvImport->delete();
@@ -186,7 +190,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 $this->_pluginConfig = $config->CsvImport->toArray();
             }
             if (!array_key_exists('fileDestination', $this->_pluginConfig)) {
-                $this->_pluginConfig['fileDestination'] = 
+                $this->_pluginConfig['fileDestination'] =
                     Zend_Registry::get('storage')->getTempDir();
             }
         }
@@ -195,7 +199,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     private function _sessionIsValid()
     {
-        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured', 
+        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured',
             'collectionId', 'itemTypeId', 'ownerId');
 
         foreach ($requiredKeys as $key) {
