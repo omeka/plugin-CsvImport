@@ -12,7 +12,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
 
     public function map($row, $result)
     {
-        if ($this->_isHtml) {
+        if ($this->_isHtml && class_exists('Omeka_Filter_HtmlPurifier')) {
             $filter = new Omeka_Filter_HtmlPurifier();
             $text = $filter->filter($row[$this->_columnName]);
         } else {
