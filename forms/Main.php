@@ -25,12 +25,16 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         parent::init();
         $this->setAttrib('id', 'csvimport');
-        $this->setMethod('post'); 
+        $this->setMethod('post');
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => 'Select Item Type') + $values;
         
+        $this->addElement('checkbox', 'omeka_csv_export', array(
+            'label' => 'Use an export from Omeka CSV Report', 'description'=> 'Selecting this will override the options below'
+        ));
+
         $this->addElement('select', 'item_type_id', array(
             'label' => 'Select Item Type',
             'multiOptions' => $values,
@@ -48,6 +52,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->addElement('checkbox', 'items_are_featured', array(
             'label' => 'Feature All Items?',
         ));
+
         switch ($this->_columnDelimiter) {
             case ',':
                 $delimiterText = 'comma';
@@ -68,10 +73,10 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => true,
             'size' => '1',
             'validators' => array(
-                array('validator' => 'NotEmpty', 
-                      'breakChainOnFailure' => true, 
+                array('validator' => 'NotEmpty',
+                      'breakChainOnFailure' => true,
                       'options' => array('messages' => array(
-                            Zend_Validate_NotEmpty::IS_EMPTY => 
+                            Zend_Validate_NotEmpty::IS_EMPTY =>
                                 "Column delimiter must be one character long.",
                       )),
                 ),
@@ -79,9 +84,9 @@ class CsvImport_Form_Main extends Omeka_Form
                     'min' => 1,
                     'max' => 1,
                     'messages' => array(
-                        Zend_Validate_StringLength::TOO_SHORT => 
+                        Zend_Validate_StringLength::TOO_SHORT =>
                             "Column delimiter must be one character long.",
-                        Zend_Validate_StringLength::TOO_LONG => 
+                        Zend_Validate_StringLength::TOO_LONG =>
                             "Column delimiter must be one character long.",
                     ),
                 )),
@@ -116,16 +121,16 @@ class CsvImport_Form_Main extends Omeka_Form
             new Zend_Validate_File_Count(1),
         );
         if ($this->_requiredExtensions) {
-            $fileValidators[] = 
+            $fileValidators[] =
                 new Omeka_Validate_File_Extension($this->_requiredExtensions);
         }
         if ($this->_requiredMimeTypes) {
-            $fileValidators[] = 
+            $fileValidators[] =
                 new Omeka_Validate_File_MimeType($this->_requiredMimeTypes);
         }
         // Random filename in the temporary directory.
         // Prevents race condition.
-        $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir 
+        $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir
                     . '/' . md5(mt_rand() + microtime(true)));
         $this->addElement('file', 'csv_file', array(
             'label' => 'Upload CSV File',
@@ -169,11 +174,11 @@ class CsvImport_Form_Main extends Omeka_Form
     /**
      * Set the maximum size for an uploaded CSV file.
      *
-     * If this is not set in the plugin configuration, 
+     * If this is not set in the plugin configuration,
      * defaults to 'upload_max_filesize' setting in php.
-     * 
-     * If this is set but it exceeds the aforementioned php setting, the size 
-     * will be reduced to that lower setting. 
+     *
+     * If this is set but it exceeds the aforementioned php setting, the size
+     * will be reduced to that lower setting.
      */
     public function setMaxFileSize($size = null)
     {

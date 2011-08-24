@@ -20,6 +20,11 @@ class CsvImport_ColumnMap_Set
             CsvImport_ColumnMap::TARGET_TYPE_FILE => array(),
             CsvImport_ColumnMap::TARGET_TYPE_ELEMENT => array(),
             CsvImport_ColumnMap::TARGET_TYPE_TAG => array(),
+            CsvImport_ColumnMap::METADATA_COLLECTION => array(),
+            CsvImport_ColumnMap::METADATA_FEATURED => array(),
+            CsvImport_ColumnMap::METADATA_ITEM_TYPE => array(),
+            CsvImport_ColumnMap::METADATA_PUBLIC => array()
+            
         );
         foreach ($this->_maps as $map) {
             $subset = $allResults[$map->getType()];

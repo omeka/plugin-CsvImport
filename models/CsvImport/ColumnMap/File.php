@@ -10,9 +10,10 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
 
     public function map($row, $result)
     {
-        $url = trim($row[$this->_columnName]);
+        $urlString = trim($row[$this->_columnName]);
+        $urls = explode(',', $urlString);
         if ($url) {
-            $result[] = $url;
+            $result[] = $urls;
         }
         return $result;
     }

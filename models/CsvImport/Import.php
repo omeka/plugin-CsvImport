@@ -1,15 +1,15 @@
 <?php
 /**
  * CsvImport_Import - represents a csv import event
- * 
- * @version $Id$ 
+ *
+ * @version $Id$
  * @package CsvImport
  * @author CHNM
  * @copyright Center for History and New Media, 2008-2011
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  **/
-class CsvImport_Import extends Omeka_Record 
-{ 
+class CsvImport_Import extends Omeka_Record
+{
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
 
@@ -28,7 +28,7 @@ class CsvImport_Import extends Omeka_Record
     public $item_type_id;
     public $collection_id;
     public $owner_id;
-    public $added; 
+    public $added;
 
     public $delimiter;
     public $is_public;
@@ -48,12 +48,12 @@ class CsvImport_Import extends Omeka_Record
     private $_batchSize = 0;
 
     /**
-     * An array of columnMaps, where each columnMap maps a column index number 
+     * An array of columnMaps, where each columnMap maps a column index number
      * (starting at 0) to an element, tag, and/or file.
      *
-     * @var array 
+     * @var array
      */
-    private $_columnMaps; 
+    private $_columnMaps;
 
     public function setItemsArePublic($flag)
     {
@@ -95,7 +95,7 @@ class CsvImport_Import extends Omeka_Record
         $this->status = (string)$status;
     }
 
-    public function setOwnerId($userId) 
+    public function setOwnerId($userId)
     {
         $this->owner_id = $userId;
     }
@@ -128,10 +128,10 @@ class CsvImport_Import extends Omeka_Record
     /**
      * Set the number of items to create before pausing the import.
      *
-     * Used primarily for performance reasons, i.e. long-running imports may 
-     * time out or hog system resources in such a way that prevents other 
-     * imports from running.  When used in conjunction with Omeka_Job and 
-     * resume(), this can be used to spawn multiple sequential jobs for a given 
+     * Used primarily for performance reasons, i.e. long-running imports may
+     * time out or hog system resources in such a way that prevents other
+     * imports from running.  When used in conjunction with Omeka_Job and
+     * resume(), this can be used to spawn multiple sequential jobs for a given
      * import.
      */
     public function setBatchSize($size)
@@ -185,14 +185,14 @@ class CsvImport_Import extends Omeka_Record
      * Imports the csv file.  This function can only be run once.
      * To import the same csv file, you will have to
      * create another instance of CsvImport_Import and run start
-     * 
+     *
      * @return boolean true if the import is successful, else false
      */
-    public function start() 
-    { 
+    public function start()
+    {
         $this->_log("Started import at: %time%");
         $this->status = self::IN_PROGRESS;
-        $this->forceSave(); 
+        $this->forceSave();
         
         $this->_importLoop($this->file_position);
         return !$this->isError();
@@ -230,8 +230,8 @@ class CsvImport_Import extends Omeka_Record
     {
         register_shutdown_function(array($this, 'stop'));
         $itemMetadata = array(
-            'public'         => $this->is_public, 
-            'featured'       => $this->is_featured, 
+            'public'         => $this->is_public,
+            'featured'       => $this->is_featured,
             'item_type_id'   => $this->item_type_id,
             'collection_id'  => $this->collection_id,
             'tag_entity'     => $this->_getOwner()->Entity,
@@ -267,7 +267,7 @@ class CsvImport_Import extends Omeka_Record
 
                 $rows->next();
             } catch (Omeka_Job_Worker_InterruptException $e) {
-                // Interruptions usually indicate that we should resume from 
+                // Interruptions usually indicate that we should resume from
                 // the last stopping position.
                 return $this->queue();
             } catch (Exception $e) {
@@ -316,14 +316,19 @@ class CsvImport_Import extends Omeka_Record
 
     // adds an item based on the row data
     // returns inserted Item
-    private function _addItemFromRow($row, $itemMetadata, $maps) 
+    private function _addItemFromRow($row, $itemMetadata, $maps)
     {
         $result = $maps->map($row);
         $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
         $elementTexts = $result[CsvImport_ColumnMap::TARGET_TYPE_ELEMENT];
         $tags = $result[CsvImport_ColumnMap::TARGET_TYPE_TAG];
+        //@TODO: if this is coming from CSV Report, bring in the itemmetadata coming from the report
+        if(!empty($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
+            $itemMetadata['collection_id'] = $result[CsvImport_ColumnMap::METADATA_COLLECTION][0];
+        }
+
         try {
-            $item = insert_item(array_merge(array('tags' => $tags), 
+            $item = insert_item(array_merge(array('tags' => $tags),
                 $itemMetadata), $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
             $this->_log($e, Zend_Log::ERR);
@@ -332,20 +337,20 @@ class CsvImport_Import extends Omeka_Record
 
         foreach($fileUrls as $url) {
             try {
-                $file = insert_files_for_item($item, 
-                    'Url', $url, 
+                $file = insert_files_for_item($item,
+                    'Url', $url,
                     array(
                         'ignore_invalid_files' => false,
                     )
                 );
-            } catch (Omeka_File_Ingest_InvalidException $e) { 
+            } catch (Omeka_File_Ingest_InvalidException $e) {
                 $msg = "Error occurred when attempting to ingest the "
                      . "following URL as a file: '$url': "
                      . $e->getMessage();
                 $this->_log($msg, Zend_Log::INFO);
                 $item->delete();
                 return false;
-            }            
+            }
             release_object($file);
         }
 
@@ -354,16 +359,16 @@ class CsvImport_Import extends Omeka_Record
         return $item;
     }
 
-    private function recordImportedItemId($itemId) 
+    private function recordImportedItemId($itemId)
     {
         $csvImportedItem = new CsvImport_ImportedItem();
-        $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' => 
+        $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' =>
             $itemId));
         $csvImportedItem->forceSave();
         $this->_importedCount++;
     }
 
-    public function getCsvFile() 
+    public function getCsvFile()
     {
         if (empty($this->_csvFile)) {
             $this->_csvFile = new CsvImport_File($this->file_path,
@@ -372,7 +377,7 @@ class CsvImport_Import extends Omeka_Record
         return $this->_csvFile;
     }
 
-    public function getColumnMaps() 
+    public function getColumnMaps()
     {
         if($this->_columnMaps === null) {
             $columnMaps = unserialize($this->serialized_column_maps);
@@ -387,7 +392,7 @@ class CsvImport_Import extends Omeka_Record
         return $this->_columnMaps;
     }
 
-    public function undo() 
+    public function undo()
     {
         $this->status = self::IN_PROGRESS_UNDO;
         $this->forceSave();
@@ -413,8 +418,8 @@ class CsvImport_Import extends Omeka_Record
         $this->forceSave();
     }
 
-    // returns the number of items currently imported.  if a user undoes an 
-    // import, it decreases the count to show the number of items left to 
+    // returns the number of items currently imported.  if a user undoes an
+    // import, it decreases the count to show the number of items left to
     // unimport
     public function getImportedItemCount()
     {
@@ -428,7 +433,7 @@ class CsvImport_Import extends Omeka_Record
     {
         $importedItemCount = $this->getImportedItemCount();
         $info = array(
-            'Imported' => $importedItemCount, 
+            'Imported' => $importedItemCount,
             'Skipped Rows' => $this->skipped_row_count,
             'Skipped Items' => $this->skipped_item_count,
         );

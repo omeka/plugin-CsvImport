@@ -63,6 +63,8 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->originalFilename = $filename;
         $this->session->filePath = $filePath;
         $this->session->columnDelimiter = $delimiter;
+
+        
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic =
             $form->getValue('items_are_public');
@@ -72,6 +74,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
+            
+        if($form->getValue('omeka_csv_export')) {
+            $this->_helper->redirector->goto('omeka-csv');
+        }
         $this->_helper->redirector->goto('map-columns');
     }
     
@@ -111,6 +117,71 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::QUEUED);
+        $csvImport->forceSave();
+
+        $csvConfig = $this->_getPluginConfig();
+        $jobDispatcher = Zend_Registry::get('job_dispatcher');
+        $jobDispatcher->setQueueName('imports');
+        $jobDispatcher->send('CsvImport_ImportTask',
+            array(
+                'importId' => $csvImport->id,
+                'memoryLimit' => @$csvConfig['memoryLimit'],
+                'batchSize' => @$csvConfig['batchSize'],
+            )
+        );
+
+        $this->session->unsetAll();
+        $this->flashSuccess('Successfully started the import. Reload this page '
+            . 'for status updates.');
+        $this->_helper->redirector->goto('browse');
+    }
+    
+    public function omekaCsvAction()
+    {
+        $fh = fopen(CSV_IMPORT_DIRECTORY . '/csv_files/omeka_csv_report_structure.csv', 'r');
+        $headings = fgetcsv($fh);
+        fclose($fh);
+        $columnMaps = array();
+        foreach($headings as $heading) {
+            
+            switch ($heading) {
+                case 'collection':
+                    $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
+                    break;
+                case 'itemType':
+                    $columnMaps[] = new CsvImport_ColumnMap_ItemType($heading);
+                    break;
+                case 'file':
+                    $columnMaps[] = new CsvImport_ColumnMap_File($heading);
+                    break;
+                case 'tags':
+                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading);
+                    break;
+                case 'public':
+                    $columnMaps[] = new CsvImport_ColumnMap_Public($heading);
+                    break;
+                case 'featured':
+                    $columnMaps[] = new CsvImport_ColumnMap_Featured($heading);
+                    break;
+                default:
+                    $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
+                    break;
+            }
+        }
+        $csvImport = new CsvImport_Import();
+        //this is the clever way that mapColumns action sets the values passed along from indexAction
+        //many will be irrelevant here, since CsvImport allows variable itemTypes and Collection
+        
+        //@TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually
+        foreach ($this->session->getIterator() as $key => $value) {
+            $setMethod = 'set' . ucwords($key);
+            if (method_exists($csvImport, $setMethod)) {
+                $csvImport->$setMethod($value);
+            }
+        }
+        $csvImport->setColumnMaps($columnMaps);
+        $csvImport->setStatus(CsvImport_Import::QUEUED);
+        
         $csvImport->forceSave();
 
         $csvConfig = $this->_getPluginConfig();
