@@ -323,10 +323,16 @@ class CsvImport_Import extends Omeka_Record
         $elementTexts = $result[CsvImport_ColumnMap::TARGET_TYPE_ELEMENT];
         $tags = $result[CsvImport_ColumnMap::TARGET_TYPE_TAG];
         //@TODO: if this is coming from CSV Report, bring in the itemmetadata coming from the report
-        if(!empty($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
+        if(isset($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
             $itemMetadata['collection_id'] = $result[CsvImport_ColumnMap::METADATA_COLLECTION][0];
         }
-
+        if(isset($result[CsvImport_ColumnMap::METADATA_PUBLIC])) {
+            $itemMetadata['public'] = $result[CsvImport_ColumnMap::METADATA_PUBLIC][0];
+        }
+        if(isset($result[CsvImport_ColumnMap::METADATA_FEATURED])) {
+            $itemMetadata['featured'] = $result[CsvImport_ColumnMap::METADATA_FEATURED][0];
+        }
+        
         try {
             $item = insert_item(array_merge(array('tags' => $tags),
                 $itemMetadata), $elementTexts);
