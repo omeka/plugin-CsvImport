@@ -40,6 +40,6 @@ Omeka.CsvImport.confirm = function() {(function ($) {
  */
 
 Omeka.CsvImport.toggleImportOptions = function () {(function ($) {
-	$('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter').toggle();
+	$('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter').slideToggle();
 })(jQuery)};
 
