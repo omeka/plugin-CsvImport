@@ -340,9 +340,7 @@ class CsvImport_Import extends Omeka_Record
             }
             
         }
-        
         try {
-            
             $item = insert_item(array_merge(array('tags' => $tags),
                 $itemMetadata), $elementTexts);
         } catch (Omeka_Validator_Exception $e) {

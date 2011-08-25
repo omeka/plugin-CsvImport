@@ -17,9 +17,17 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap {
     
     public function getCollectionId($name)
     {
-        //@TODO
+        //CollectionTable doesn't have a findBy name filter 1.5-dev
+        
         $db = get_db();
-        $collection = $db->getTable('Collection')->findBy(array('name' => $name));
+        $collectionTable = $db->getTable('Collection');
+        $select = $collectionTable->getSelect();
+        $select->where('name = ?', $name);
+        $collection = $collectionTable->fetchObject($select);
+        if(empty($collection)) {
+            _log("Collection not found. Collections must be created with identical names prior to import", Zend_Log::NOTICE);
+            return false;
+        }
         return $collection->id;
     }
 }
