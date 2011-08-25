@@ -9,7 +9,13 @@
     <?php echo flash(); ?>
     <?php echo $this->form; ?>
 </div>
-
-<?php 
-    foot(); 
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function () {
+    jQuery('#omeka_csv_export').click(Omeka.CsvImport.toggleImportOptions);
+});
+//]]>
+</script>
+<?php
+    foot();
 ?>

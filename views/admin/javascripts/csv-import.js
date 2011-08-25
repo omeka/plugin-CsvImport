@@ -32,3 +32,14 @@ Omeka.CsvImport.confirm = function() {(function ($) {
         return confirm("Undoing an import will delete all of its imported items. Are you sure you want to undo this import?");
     });
 })(jQuery)};
+
+
+/**
+ * Disable most options if Import from Csv Report is checked
+ * 
+ */
+
+Omeka.CsvImport.toggleImportOptions = function () {(function ($) {
+	$('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter').toggle();
+})(jQuery)};
+
