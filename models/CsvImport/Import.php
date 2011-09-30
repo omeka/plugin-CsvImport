@@ -347,8 +347,7 @@ class CsvImport_Import extends Omeka_Record
             $this->_log($e, Zend_Log::ERR);
             return false;
         }
-
-        foreach($fileUrls as $url) {
+        foreach($fileUrls[0] as $url) {
             try {
                 $file = insert_files_for_item($item,
                     'Url', $url,
@@ -356,6 +355,7 @@ class CsvImport_Import extends Omeka_Record
                         'ignore_invalid_files' => false,
                     )
                 );
+
             } catch (Omeka_File_Ingest_InvalidException $e) {
                 $msg = "Error occurred when attempting to ingest the "
                      . "following URL as a file: '$url': "
