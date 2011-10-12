@@ -138,12 +138,10 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     public function omekaCsvAction()
     {
-        $fh = fopen(CSV_IMPORT_DIRECTORY . '/csv_files/omeka_csv_report_structure.csv', 'r');
-        $headings = fgetcsv($fh);
-        fclose($fh);
+        $headings = $this->session->columnNames;
         $columnMaps = array();
         foreach($headings as $heading) {
-            
+
             switch ($heading) {
                 case 'collection':
                     $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
@@ -164,6 +162,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                     $columnMaps[] = new CsvImport_ColumnMap_Featured($heading);
                     break;
                 default:
+                    //@TODO: make sure this doesn't break regular import
                     $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
                     break;
             }
