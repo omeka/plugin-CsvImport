@@ -74,8 +74,9 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
-            
+
         if($form->getValue('omeka_csv_export')) {
+            
             $this->_helper->redirector->goto('omeka-csv');
         }
         $this->_helper->redirector->goto('map-columns');
@@ -168,6 +169,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             }
         }
         $csvImport = new CsvImport_Import();
+        
         //this is the clever way that mapColumns action sets the values passed along from indexAction
         //many will be irrelevant here, since CsvImport allows variable itemTypes and Collection
         
@@ -180,7 +182,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::QUEUED);
-        
         $csvImport->forceSave();
 
         $csvConfig = $this->_getPluginConfig();

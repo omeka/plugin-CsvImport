@@ -9,7 +9,7 @@ class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap {
 
     public function map($row, $result)
     {
-        $result[] = $row[$this->_columnName];
+        $result = $row[$this->_columnName];
         return $result;
     }
 }

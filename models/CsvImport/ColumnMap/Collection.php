@@ -11,7 +11,7 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap {
     public function map($row, $result)
     {
         $name = $row[$this->_columnName];
-        $result[] = $this->getCollectionId($name);
+        $result = $this->getCollectionId($name);
         return $result;
     }
     
