@@ -57,12 +57,14 @@ class CsvImport_Import extends Omeka_Record
 
     public function setItemsArePublic($flag)
     {
-        $this->is_public = (boolean)$flag;
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->is_public = $booleanFilter->filter($flag);
     }
 
     public function setItemsAreFeatured($flag)
     {
-        $this->is_featured = (boolean)$flag;
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->is_featured = $booleanFilter->filter($flag);
     }
 
     public function setCollectionId($id)
@@ -340,6 +342,7 @@ class CsvImport_Import extends Omeka_Record
             }
             
         }
+
         try {
             $item = insert_item(array_merge(array('tags' => $tags),
                 $itemMetadata), $elementTexts);

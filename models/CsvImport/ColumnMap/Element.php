@@ -20,7 +20,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
         }
         $result[] = array(
             'element_id' => $this->_elementId,
-            'html' => $this->_isHtml,
+            'html' => $this->_isHtml ? 1 : 0,
             'text' => $text,
         );
         return $result;
