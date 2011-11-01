@@ -24,7 +24,7 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap {
         $select = $collectionTable->getSelect();
         $select->where('name = ?', $name);
         $collection = $collectionTable->fetchObject($select);
-        if(empty($collection)) {
+        if(! $collection) {
             _log("Collection not found. Collections must be created with identical names prior to import", Zend_Log::NOTICE);
             return false;
         }
