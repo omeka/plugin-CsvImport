@@ -12,7 +12,7 @@
 }
 
 #csvimport span.add-element {
-    background-image: url('../../../../../admin/themes/default/images/add.png');
+    background-image: url('../../../../../application/views/scripts/images/silk-icons/add.png');
     background-repeat: no-repeat;
     width: 20px;
 }
