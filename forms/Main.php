@@ -18,8 +18,6 @@ class CsvImport_Form_Main extends Omeka_Form
     private $_columnDelimiter = ',';
     private $_fileDestinationDir;
     private $_maxFileSize;
-    private $_requiredMimeTypes = array('text/csv', 'text/plain');
-    private $_requiredExtensions = array('txt', 'csv');
 
     public function init()
     {
@@ -151,25 +149,6 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->_fileDestinationDir = $dest;
     }
 
-    public function setRequiredMimeType($mimeType)
-    {
-        if (empty($mimeType)) {
-            $this->_requiredMimeTypes = array();
-        } else {
-            $mimeTypes = explode(',', $mimeType);
-            $this->_requiredMimeTypes = $mimeTypes;
-        }
-    }
-
-    public function setRequiredExtension($ext)
-    {
-        if (empty($ext)) {
-            $this->_requiredExtensions = array();
-        } else {
-            $exts = explode(',', $ext);
-            $this->_requiredExtensions = $exts;
-        }
-    }
 
     /**
      * Set the maximum size for an uploaded CSV file.
