@@ -353,25 +353,30 @@ class CsvImport_Import extends Omeka_Record
             $this->_log($e, Zend_Log::ERR);
             return false;
         }
-        foreach($fileUrls[0] as $url) {
-            try {
-                $file = insert_files_for_item($item,
-                    'Url', $url,
-                    array(
-                        'ignore_invalid_files' => false,
-                    )
-                );
 
-            } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Error occurred when attempting to ingest the "
-                     . "following URL as a file: '$url': "
-                     . $e->getMessage();
-                $this->_log($msg, Zend_Log::INFO);
-                $item->delete();
-                return false;
-            }
-            release_object($file);
+        if(!empty($fileUrls)) {
+                foreach($fileUrls[0] as $url) {
+
+                    try {
+                        $file = insert_files_for_item($item,
+                            'Url', $url,
+                            array(
+                                'ignore_invalid_files' => false,
+                            )
+                        );
+
+                    } catch (Omeka_File_Ingest_InvalidException $e) {
+                        $msg = "Error occurred when attempting to ingest the "
+                             . "following URL as a file: '$url': "
+                             . $e->getMessage();
+                        $this->_log($msg, Zend_Log::INFO);
+                        $item->delete();
+                        return false;
+                    }
+                    release_object($file);
+                }
         }
+
 
         // Makes it easy to unimport the item later.
         $this->recordImportedItemId($item->id);
