@@ -31,13 +31,16 @@ class CsvImport_Form_Mapping extends Omeka_Form
                                   + $elementsByElementSetName;
         foreach ($this->_columnNames as $index => $colName) {
             $rowSubForm = new Zend_Form_SubForm();
-            $rowSubForm->addElement('select',
+            $selectElement = $rowSubForm->createElement('select',
                 'element',
                 array(
                     'class' => 'map-element',
                     'multiOptions' => $elementsByElementSetName,
+                    'multiple' => false // see ZF-8452
                 )
             );
+            $selectElement->setIsArray(true);
+            $rowSubForm->addElement($selectElement);
             $rowSubForm->addElement('checkbox', 'html');
             $rowSubForm->addElement('checkbox', 'tags');
             $rowSubForm->addElement('checkbox', 'file');
@@ -83,7 +86,12 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $columnMaps = array();
         foreach ($this->_columnNames as $key => $colName) {
             if ($map = $this->getColumnMap($key, $colName)) {
-                $columnMaps[] = $map;
+                var_dump($map);
+                if (is_array($map)) {
+                    $columnMaps = array_merge($columnMaps, $map);
+                } else {
+                    $columnMaps[] = $map;
+                }
             }
         }
         return $columnMaps;
@@ -127,10 +135,13 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * @internal It's unclear whether the original behavior allowed a row to 
-     * represent a tag, a file, and an HTML element text at the same time.  If 
-     * so, that behavior is weird and buggy and it's going away until deemed 
-     * otherwise.
+     * Get the mappings from one column in the CSV file.
+     *
+     * Some columns can have multiple mappings; these are represented
+     * as an array of maps.
+     *
+     * @return CsvImport_ColumnMap|array|null A ColumnMap or an array of
+     *  ColumnMaps
      */
     private function getColumnMap($index, $columnName)
     {
@@ -139,10 +150,15 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $columnMap = new CsvImport_ColumnMap_Tag($columnName);
         } else if ($this->isFileMapped($index)) {
             $columnMap = new CsvImport_ColumnMap_File($columnName);
-        } else if ($elementId = $this->getMappedElementId($index)) {
-            $columnMap = new CsvImport_ColumnMap_Element($columnName);
-            $columnMap->setOptions(array('elementId' => $elementId,
-                                         'isHtml' => $this->_getRowValue($index, 'html')));
+        } else if ($elementIds = $this->getMappedElementId($index)) {
+            $columnMap = array();
+            $isHtml = $this->_getRowValue($index, 'html');
+            foreach($elementIds as $elementId) {
+                $elementMap = new CsvImport_ColumnMap_Element($columnName);
+                $elementMap->setOptions(array('elementId' => $elementId,
+                                             'isHtml' => $isHtml));
+                $columnMap[] = $elementMap;
+            }
         }
         return $columnMap;
     }
