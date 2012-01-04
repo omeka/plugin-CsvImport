@@ -60,6 +60,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
                 . $file->getErrorString());
         }
 
+        $this->session->setExpirationHops(2);
         $this->session->originalFilename = $filename;
         $this->session->filePath = $filePath;
         $this->session->columnDelimiter = $delimiter;
