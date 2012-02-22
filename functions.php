@@ -10,7 +10,7 @@ function csv_import_install()
     $db = get_db();
     
     // create csv imports table
-    $db->exec("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
+    $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
        `id` int(10) unsigned NOT NULL auto_increment,
        `item_type_id` int(10) unsigned NOT NULL,
        `collection_id` int(10) unsigned NOT NULL,       
@@ -30,7 +30,7 @@ function csv_import_install()
        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
    
    // create csv imported items table
-   $db->exec("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
+   $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
       `id` int(10) unsigned NOT NULL auto_increment,
       `item_id` int(10) unsigned NOT NULL,
       `import_id` int(10) unsigned NOT NULL,       
