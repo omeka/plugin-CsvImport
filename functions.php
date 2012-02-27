@@ -2,18 +2,18 @@
 
 /**
  * Install the plugin.
- * 
+ *
  * @return void
  */
 function csv_import_install()
-{    
+{
     $db = get_db();
-    
+
     // create csv imports table
     $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
        `id` int(10) unsigned NOT NULL auto_increment,
        `item_type_id` int(10) unsigned NOT NULL,
-       `collection_id` int(10) unsigned NOT NULL,       
+       `collection_id` int(10) unsigned NOT NULL,
        `owner_id` int unsigned NOT NULL,
        `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
        `original_filename` text collate utf8_unicode_ci NOT NULL,
@@ -28,22 +28,22 @@ function csv_import_install()
        `added` timestamp NOT NULL default '0000-00-00 00:00:00',
        PRIMARY KEY  (`id`)
        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
-   
+
    // create csv imported items table
    $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
       `id` int(10) unsigned NOT NULL auto_increment,
       `item_id` int(10) unsigned NOT NULL,
-      `import_id` int(10) unsigned NOT NULL,       
+      `import_id` int(10) unsigned NOT NULL,
       PRIMARY KEY  (`id`),
       KEY (`import_id`),
       UNIQUE (`item_id`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");    
-       
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+
 }
 
 /**
  * Uninstall the plugin.
- * 
+ *
  * @return void
  */
 function csv_import_uninstall()
@@ -51,14 +51,14 @@ function csv_import_uninstall()
     // delete the plugin options
     delete_option('csv_import_memory_limit');
     delete_option('csv_import_php_path');
-    
+
     // drop the tables
     $db = get_db();
     $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imports`";
     $db->query($sql);
     $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imported_items`";
     $db->query($sql);
-    
+
 }
 
 /**
@@ -68,16 +68,22 @@ function csv_import_uninstall()
  */
 function csv_import_define_acl($acl)
 {
-    // only allow super users and admins to import csv files
-    $acl->loadResourceList(array(
-        'CsvImport_Index' => array(
-            'index', 
-            'map-columns', 
-            'undo-import', 
-            'clear-history', 
-            'browse'
-        )
-    ));
+
+    if (version_compare(OMEKA_VERSION, '2.0-dev', '>=')) {
+        $acl->addResource('CsvImport_Index');
+    } else {
+        // only allow super users and admins to import csv files
+        $acl->loadResourceList(array(
+            'CsvImport_Index' => array(
+                'index',
+                'map-columns',
+                'undo-import',
+                'clear-history',
+                'browse'
+            )
+        ));
+    }
+
     // Hack to disable CRUD actions.
     $acl->deny(null, 'CsvImport_Index', array('show', 'add', 'edit', 'delete'));
     $acl->deny('admin', 'CsvImport_Index');
@@ -85,13 +91,13 @@ function csv_import_define_acl($acl)
 
 /**
  * Add the admin navigation for the plugin.
- * 
+ *
  * @return array
  */
 function csv_import_admin_navigation($tabs)
 {
     if (get_acl()->isAllowed(current_user(), 'CsvImport_Index', 'index')) {
-        $tabs['CSV Import'] = uri('csv-import');        
+        $tabs['CSV Import'] = uri('csv-import');
     }
     return $tabs;
 }
