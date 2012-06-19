@@ -150,10 +150,16 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $columnMap = new CsvImport_ColumnMap_Tag($columnName);
         } else if ($this->isFileMapped($index)) {
             $columnMap = new CsvImport_ColumnMap_File($columnName);
-        } else if ($elementIds = $this->getMappedElementId($index)) {
+        } else {
+            $elementIds = $this->getMappedElementId($index);
             $columnMap = array();
             $isHtml = $this->_getRowValue($index, 'html');
             foreach($elementIds as $elementId) {
+                // Make sure to skip empty mappings
+                if (!$elementId) {
+                    continue;
+                }
+                
                 $elementMap = new CsvImport_ColumnMap_Element($columnName);
                 $elementMap->setOptions(array('elementId' => $elementId,
                                              'isHtml' => $isHtml));
