@@ -86,7 +86,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $columnMaps = array();
         foreach ($this->_columnNames as $key => $colName) {
             if ($map = $this->getColumnMap($key, $colName)) {
-                var_dump($map);
                 if (is_array($map)) {
                     $columnMaps = array_merge($columnMaps, $map);
                 } else {
@@ -145,27 +144,30 @@ class CsvImport_Form_Mapping extends Omeka_Form
      */
     private function getColumnMap($index, $columnName)
     {
-        $columnMap = null;
+        $columnMap = array();
+
         if ($this->isTagMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap_Tag($columnName);
-        } else if ($this->isFileMapped($index)) {
-            $columnMap = new CsvImport_ColumnMap_File($columnName);
-        } else {
-            $elementIds = $this->getMappedElementId($index);
-            $columnMap = array();
-            $isHtml = $this->_getRowValue($index, 'html');
-            foreach($elementIds as $elementId) {
-                // Make sure to skip empty mappings
-                if (!$elementId) {
-                    continue;
-                }
-                
-                $elementMap = new CsvImport_ColumnMap_Element($columnName);
-                $elementMap->setOptions(array('elementId' => $elementId,
-                                             'isHtml' => $isHtml));
-                $columnMap[] = $elementMap;
-            }
+            $columnMap[] = new CsvImport_ColumnMap_Tag($columnName);
         }
+
+        if ($this->isFileMapped($index)) {
+            $columnMap[] = new CsvImport_ColumnMap_File($columnName);
+        }
+
+        $elementIds = $this->getMappedElementId($index);
+        $isHtml = $this->_getRowValue($index, 'html');
+        foreach($elementIds as $elementId) {
+            // Make sure to skip empty mappings
+            if (!$elementId) {
+                continue;
+            }
+            
+            $elementMap = new CsvImport_ColumnMap_Element($columnName);
+            $elementMap->setOptions(array('elementId' => $elementId,
+                                         'isHtml' => $isHtml));
+            $columnMap[] = $elementMap;
+        }
+
         return $columnMap;
     }
 }
