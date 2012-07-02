@@ -5,8 +5,8 @@
 <?php echo $this->navigation()->menu()->setUlClass('section-nav'); ?>
 
 <div id="primary">
-    <h2>Step 1: Select File and Item Settings</h2>
     <?php echo flash(); ?>
+    <h2>Step 1: Select File and Item Settings</h2>
     <?php echo $this->form; ?>
 </div>
 <script type="text/javascript">
