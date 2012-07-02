@@ -30,7 +30,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $values = array('' => 'Select Item Type') + $values;
         
         $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => 'Use an export from Omeka CSV Report', 'description'=> 'Selecting this will override the options below'
+            'label' => 'Use an export from Omeka CSV Report', 'description'=> 'Selecting this will override the options below.'
         ));
 
         $this->addElement('select', 'item_type_id', array(
@@ -102,7 +102,7 @@ class CsvImport_Form_Main extends Omeka_Form
         if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
             $maxSize = $this->getMaxFileSize()->toString();
             $this->csv_file->addError(
-                "The file you have uploaded exceeds the maximum file size "
+                "The file you have uploaded exceeds the maximum post size "
                 . "allowed by the server. Please upload a file smaller "
                 . "than $maxSize.");
             return false;
@@ -113,9 +113,13 @@ class CsvImport_Form_Main extends Omeka_Form
 
     private function _addFileElement()
     {
+        $size = $this->getMaxFileSize();
+        $byteSize = clone $this->getMaxFileSize();
+        $byteSize->setType(Zend_Measure_Binary::BYTE);
+
         $fileValidators = array(
             new Zend_Validate_File_Size(array(
-                'max' => (string)$this->getMaxFileSize())),
+                'max' => $byteSize->getValue())),
             new Zend_Validate_File_Count(1),
         );
         if ($this->_requiredExtensions) {
@@ -135,6 +139,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
+            'description' => "Maximum file size is {$size->toString()}."
         ));
         $this->csv_file->addFilter($filter);
     }
@@ -154,53 +159,61 @@ class CsvImport_Form_Main extends Omeka_Form
      * Set the maximum size for an uploaded CSV file.
      *
      * If this is not set in the plugin configuration,
-     * defaults to 'upload_max_filesize' setting in php.
+     * defaults to the smaller of 'upload_max_filesize' and 'post_max_size'
+     * settings in php.
      *
      * If this is set but it exceeds the aforementioned php setting, the size
      * will be reduced to that lower setting.
      */
     public function setMaxFileSize($size = null)
     {
-        $phpIniSize = $this->_getSizeMeasure(ini_get('upload_max_filesize'));
-	if ($size) {
-	    $pluginIniSize = $this->_getSizeMeasure($size);
-            if ($pluginIniSize->compare($phpIniSize)) {
-                $this->_maxFileSize = $phpIniSize;
-            } else {
-                $this->_maxFileSize = $pluginIniSize;
-            }
+        if (!$this->_maxFileSize) {
+            $postMaxSize = $this->_getSizeMeasure(ini_get('post_max_size'));
+            $fileMaxSize = $this->_getSizeMeasure(ini_get('upload_max_filesize'));
+
+            // Start with the max size as the lower of the two php ini settings.
+            $maxSize = $postMaxSize->compare($fileMaxSize) > 0
+                     ? $fileMaxSize
+                     : $postMaxSize;
         } else {
-            $this->_maxFileSize = $phpIniSize;
+            $maxSize = $this->_maxFileSize;
         }
+
+        if ($size) {
+            $newSize = $this->_getSizeMeasure($size);
+            if ($pluginIniSize->compare($maxSize) > 0) {
+                $maxSize = $newSize;
+            }
+        }
+        $this->_maxFileSize = $maxSize;
     }
 
     public function getMaxFileSize()
     {
-	if (!$this->_maxFileSize) {
-	    $this->setMaxFileSize();
-	}
+        if (!$this->_maxFileSize) {
+            $this->setMaxFileSize();
+        }
         return $this->_maxFileSize;
     }
 
     private function _getSizeMeasure($size)
     {
-        if (!preg_match('/(\d+)([BKMGT]?)/', $size, $matches)) {
+        if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
             return false;
         }
+        
         $sizeType = Zend_Measure_Binary::BYTE;
-        // Why reimplement this?  Seems pointless, but no PHP API.
+
         $sizeTypes = array(
-            'B' => Zend_Measure_Binary::BYTE,
             'K' => Zend_Measure_Binary::KILOBYTE,
             'M' => Zend_Measure_Binary::MEGABYTE,
             'G' => Zend_Measure_Binary::GIGABYTE,
-            'T' => Zend_Measure_Binary::TERABYTE,
         );
-        if (array_key_exists($matches[2], $sizeTypes)) {
+
+        if (count($matches) == 3 && array_key_exists($matches[2], $sizeTypes)) {
             $sizeType = $sizeTypes[$matches[2]];
         }
 
-        $measure = new Zend_Measure_Binary($matches[1], $sizeType);
-        return $measure;
+        return new Zend_Measure_Binary($matches[1], $sizeType);
     }
 }
