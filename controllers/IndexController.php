@@ -78,7 +78,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
         if($form->getValue('omeka_csv_export')) {
-            $this->_helper->redirector->goto('omeka-csv');
+            $this->_helper->redirector->goto('check-omeka-csv');
         }
 
         $this->_helper->redirector->goto('map-columns');
@@ -141,6 +141,34 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->flashSuccess('Import started. Reload this page '
             . 'for status updates.');
         $this->_helper->redirector->goto('browse');
+    }
+    
+    /**
+     * For import of Omeka.net CSV. Checks if the user didn't read the manual and so didn't make sure all needed Elements are present
+     */
+
+    public function checkOmekaCsvAction()
+    {
+        $elementTable = get_db()->getTable('Element');
+        $skipColumns = array('itemType' , 'collection','tags','public','featured','file');
+        $errors = array();
+        foreach($this->session->columnNames as $columnName){
+            if(!in_array($columnName, $skipColumns)) {
+                $data = explode(':', $columnName);
+                //$data is like array('Element Set Name', 'Element Name');
+                //dig up the element_id
+                $element = $elementTable->findByElementSetNameAndElementName($data[0], $data[1]);
+                if(empty($element)) {                    
+                    $errors[] = array('set'=>$data[0], 'element'=>$data[1]);
+                }                                
+            }            
+        }
+        
+        if(empty($errors)) {
+            $this->_helper->redirector->goto('omeka-csv');
+        } else {
+            $this->view->errors = $errors;
+        }
     }
     
     public function omekaCsvAction()
