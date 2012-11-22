@@ -1,12 +1,10 @@
 <?php
-    head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+    echo head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
 ?>
-<h1>CSV Import</h1>
-<?php echo $this->navigation()->menu()->setUlClass('section-nav'); ?>
-
+<?php echo common('csvimport-nav'); ?>
 <div id="primary">
     <?php echo flash(); ?>
-    <h2>Step 1: Select File and Item Settings</h2>
+    <h2><?php echo __('Step 1: Select File and Item Settings'); ?></h2>
     <?php echo $this->form; ?>
 </div>
 <script type="text/javascript">
@@ -17,5 +15,5 @@ jQuery(document).ready(function () {
 //]]>
 </script>
 <?php
-    foot();
+    echo foot();
 ?>

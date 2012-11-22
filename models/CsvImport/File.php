@@ -1,18 +1,13 @@
 <?php
 /**
- * CsvImport_File class
+ * CsvImport_File class - represents a csv file
  *
- * @copyright  Center for History and New Media, 2008-2011
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @version    $Id:$
- **/
-
-/**
- * CsvImport_File - represents a csv file
- * 
  * @package CsvImport
  * @author CHNM
- **/
+ */
 class CsvImport_File implements IteratorAggregate
 {
 
@@ -94,7 +89,7 @@ class CsvImport_File implements IteratorAggregate
     public function parse()
     {
         if ($this->_columnNames || $this->_columnExamples) {
-            throw new RuntimeException("Cannot be parsed twice.");
+            throw new RuntimeException('Cannot be parsed twice.');
         }
 
         $rowIterator = $this->getIterator();
@@ -103,14 +98,12 @@ class CsvImport_File implements IteratorAggregate
             $this->_columnExamples = $rowIterator->current(); 
         } catch (CsvImport_DuplicateColumnException $e) {
             $this->_parseErrors[] = $e->getMessage() 
-                . " Please ensure that all column names are unique.";
-            //_log("[CsvImport] Error parsing CSV file '{$this->_filePath}': "
-                //. $e->getMessage(), Zend_Log::NOTICE);
+                . ' ' . __('Please ensure that all column names are unique.');
             return false;
         } catch (CsvImport_MissingColumnException $e) {
             $this->_parseErrors[] = $e->getMessage()
-                . " Please ensure that the CSV file is formatted correctly"
-                . " and contains the expected number of columns for each row.";
+                . ' ' . __('Please ensure that the CSV file is formatted correctly'
+                . ' and contains the expected number of columns for each row.');
             return false;
         }
         return true;

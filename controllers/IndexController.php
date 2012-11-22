@@ -1,37 +1,22 @@
 <?php
 /**
- * @version $Id$
- * @copyright Center for History and New Media, 2008-2011
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
- * @package CsvImport
- */
-
-/**
  * The CvsImport index controller class.
  *
+ * @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
+ * @version $Id$
  * @package CsvImport
- * @author CHNM
- * @copyright Center for History and New Media, 2008-2011
+ * @author CHNM 
  */
-class CsvImport_IndexController extends Omeka_Controller_Action
+class CsvImport_IndexController extends Omeka_Controller_AbstractActionController
 {
     protected $_browseRecordsPerPage = 10;
-
     private $_pluginConfig = array();
 
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
-        if (version_compare(OMEKA_VERSION, '2.0-dev', '>=')) {
-            $this->_helper->db->setDefaultModelName('CsvImport_Import');
-        } else {
-            $this->_modelClass = 'CsvImport_Import';
-        }
-    }
-
-    public function preDispatch()
-    {
-        $this->view->navigation($this->_getNavigation());
+        $this->_helper->db->setDefaultModelName('CsvImport_Import');        
     }
 
     public function indexAction()
@@ -44,12 +29,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
 
         if (!$form->isValid($this->getRequest()->getPost())) {
-            $this->flashError('Invalid form input. Please see errors below and try again.');
+            $this->_helper->flashMessenger(__('Invalid form input. Please see errors below and try again.'), 'error');
             return;
         }
 
         if (!$form->csv_file->receive()) {
-            $this->flashError("Error uploading file.  Please try again.");
+            $this->_helper->flashMessenger(__('Error uploading file. Please try again.'), 'error');
             return;
         }
 
@@ -59,8 +44,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $file = new CsvImport_File($filePath, $delimiter);
         
         if (!$file->parse()) {
-            $this->flashError('Your file is incorrectly formatted. '
-                . $file->getErrorString());
+            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.') . ' ' . $file->getErrorString(), 'error');
             return;
         }
 
@@ -77,7 +61,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $this->session->columnExamples = $file->getColumnExamples();
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
-        if($form->getValue('omeka_csv_export')) {
+        if ($form->getValue('omeka_csv_export')) {
             $this->_helper->redirector->goto('check-omeka-csv');
         }
 
@@ -87,7 +71,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function mapColumnsAction()
     {
         if (!$this->_sessionIsValid()) {
-            $this->flash('Import settings expired. Please try again.');
+            $this->_helper->flashMessenger(__('Import settings expired. Please try again.'), 'error');
             $this->_helper->redirector->goto('index');
             return;
         }
@@ -104,14 +88,13 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             return;
         }
         if (!$form->isValid($this->getRequest()->getPost())) {
-            $this->flashError('Invalid form input. Please try again.');
+            $this->_helper->flashMessenger(__('Invalid form input. Please try again.'), 'error');
             return;
         }
 
         $columnMaps = $form->getMappings();
         if (count($columnMaps) == 0) {
-            $this->flashError('Please map at least one column to an '
-                . 'element, file, or tag.');
+            $this->_helper->flashMessenger(__('Please map at least one column to an element, file, or tag.'), 'error');
             return;
         }
         
@@ -124,12 +107,12 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::QUEUED);
-        $csvImport->forceSave();
+        $csvImport->save();
 
         $csvConfig = $this->_getPluginConfig();
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName('imports');
-        $jobDispatcher->send('CsvImport_ImportTask',
+        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
+        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
             array(
                 'importId' => $csvImport->id,
                 'memoryLimit' => @$csvConfig['memoryLimit'],
@@ -138,8 +121,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         );
 
         $this->session->unsetAll();
-        $this->flashSuccess('Import started. Reload this page '
-            . 'for status updates.');
+        $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         $this->_helper->redirector->goto('browse');
     }
     
@@ -150,10 +132,15 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     public function checkOmekaCsvAction()
     {
         $elementTable = get_db()->getTable('Element');
-        $skipColumns = array('itemType' , 'collection','tags','public','featured','file');
+        $skipColumns = array('itemType', 
+                             'collection',
+                             'tags',
+                             'public',
+                             'featured',
+                             'file');
         $errors = array();
-        foreach($this->session->columnNames as $columnName){
-            if(!in_array($columnName, $skipColumns)) {
+        foreach ($this->session->columnNames as $columnName){
+            if (!in_array($columnName, $skipColumns)) {
                 $data = explode(':', $columnName);
                 //$data is like array('Element Set Name', 'Element Name');
                 //dig up the element_id
@@ -164,7 +151,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
             }            
         }
         
-        if(empty($errors)) {
+        if (empty($errors)) {
             $this->_helper->redirector->goto('omeka-csv');
         } else {
             $this->view->errors = $errors;
@@ -175,8 +162,7 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     {
         $headings = $this->session->columnNames;
         $columnMaps = array();
-        foreach($headings as $heading) {
-
+        foreach ($headings as $heading) {
             switch ($heading) {
                 case 'collection':
                     $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
@@ -216,48 +202,46 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         }
         $csvImport->setColumnMaps($columnMaps);
         $csvImport->setStatus(CsvImport_Import::QUEUED);
-        $csvImport->forceSave();
+        $csvImport->save();
 
         $csvConfig = $this->_getPluginConfig();
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName('imports');
-        $jobDispatcher->send('CsvImport_ImportTask',
-            array(
-                'importId' => $csvImport->id,
-                'memoryLimit' => @$csvConfig['memoryLimit'],
-                'batchSize' => @$csvConfig['batchSize'],
+        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
+        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
+                                        array('importId' => $csvImport->id,
+                                               'memoryLimit' => @$csvConfig['memoryLimit'],
+                                               'batchSize' => @$csvConfig['batchSize'],
             )
         );
 
         $this->session->unsetAll();
-        $this->flashSuccess('Import started. Reload this page '
-            . 'for status updates.');
+        $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         $this->_helper->redirector->goto('browse');
     }
     
     public function undoImportAction()
     {
-        $csvImport = $this->findById();
+        $csvImport = $this->_helper->db->findById();
         $csvImport->status = CsvImport_Import::QUEUED;
-        $csvImport->forceSave();
+        $csvImport->save();
 
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName('imports');
-        $jobDispatcher->send('CsvImport_ImportTask',
-            array('importId' => $csvImport->id, 'method' => 'undo'));
-        $this->flashSuccess('Undo import started. Reload '
-            . 'this page for status updates.');
+        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
+        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
+                                        array('importId' => $csvImport->id, 
+                                               'method' => 'undo'));
+        $this->_helper->flashMessenger(__('Undo import started. Reload this page for status updates.'), 'success');
         $this->_helper->redirector->goto('browse');
     }
     
     public function clearHistoryAction()
     {
-        $csvImport = $this->findById();
+        $csvImport = $this->_helper->db->findById();
         if ($csvImport->status ==
             CsvImport_Import::COMPLETED_UNDO
         ) {
             $csvImport->delete();
-            $this->flashSuccess("Cleared import from the history.");
+            $this->_helper->flashMessenger(__('Cleared import from the history.'), 'success');
         }
         $this->_helper->redirector->goto('browse');
     }
@@ -268,22 +252,6 @@ class CsvImport_IndexController extends Omeka_Controller_Action
         $csvConfig = $this->_getPluginConfig();
         $form = new CsvImport_Form_Main($csvConfig);
         return $form;
-    }
-
-    private function _getNavigation()
-    {
-        return new Zend_Navigation(array(
-            array(
-                'label' => 'Import Items',
-                'action' => 'index',
-                'module' => 'csv-import',
-            ),
-            array(
-                'label' => 'Status',
-                'action' => 'browse',
-                'module' => 'csv-import',
-            ),
-        ));
     }
 
     private function _getPluginConfig()
@@ -303,9 +271,11 @@ class CsvImport_IndexController extends Omeka_Controller_Action
     
     private function _sessionIsValid()
     {
-        $requiredKeys = array('itemsArePublic', 'itemsAreFeatured',
-            'collectionId', 'itemTypeId', 'ownerId');
-
+        $requiredKeys = array('itemsArePublic', 
+                              'itemsAreFeatured',
+                              'collectionId', 
+                              'itemTypeId', 
+                              'ownerId');
         foreach ($requiredKeys as $key) {
             if (!isset($this->session->$key)) {
                 return false;

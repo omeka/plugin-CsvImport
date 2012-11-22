@@ -1,18 +1,14 @@
 <?php
 /**
- * @version $Id$
- * @copyright Center for History and New Media, 2008-2011
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
- * @package CsvImport
- */
-
-/**
  * The form on csv-import/index/map-columns.
  *
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
+ * @version    $Id:$
  * @package CsvImport
  * @author CHNM
- * @copyright Center for History and New Media, 2008-2011
  */
+
 class CsvImport_Form_Mapping extends Omeka_Form
 {
     private $_itemTypeId;
@@ -25,8 +21,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $this->setAttrib('id', 'csvimport-mapping');
         $this->setMethod('post'); 
 
-        $elementsByElementSetName = 
-            csv_import_get_elements_by_element_set_name($this->_itemTypeId);
+        $elementsByElementSetName = $this->_getElementPairs($this->_itemTypeId);
         $elementsByElementSetName = array('' => 'Select Below') 
                                   + $elementsByElementSetName;
         foreach ($this->_columnNames as $index => $colName) {
@@ -49,7 +44,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
         }
 
         $this->addElement('submit', 'submit',
-            array('label' => 'Import CSV File',
+            array('label' => __('Import CSV File'),
                   'class' => 'submit submit-medium'));
     }
 
@@ -85,7 +80,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
     {
         $columnMaps = array();
         foreach ($this->_columnNames as $key => $colName) {
-            if ($map = $this->getColumnMap($key, $colName)) {
+            if ($map = $this->_getColumnMap($key, $colName)) {
                 if (is_array($map)) {
                     $columnMaps = array_merge($columnMaps, $map);
                 } else {
@@ -96,17 +91,17 @@ class CsvImport_Form_Mapping extends Omeka_Form
         return $columnMaps;
     }
 
-    private function isTagMapped($index)
+    private function _isTagMapped($index)
     {
         return $this->getSubForm("row$index")->tags->isChecked();
     }
 
-    private function isFileMapped($index)
+    private function _isFileMapped($index)
     {
         return $this->getSubForm("row$index")->file->isChecked();
     }
 
-    private function getMappedElementId($index)
+    private function _getMappedElementId($index)
     {
         return $this->_getRowValue($index, 'element');
     }
@@ -139,22 +134,23 @@ class CsvImport_Form_Mapping extends Omeka_Form
      * Some columns can have multiple mappings; these are represented
      * as an array of maps.
      *
-     * @return CsvImport_ColumnMap|array|null A ColumnMap or an array of
-     *  ColumnMaps
+     * @param int $index
+     * @param string $columnName
+     * @return CsvImport_ColumnMap|array|null A ColumnMap or an array of ColumnMaps
      */
-    private function getColumnMap($index, $columnName)
+    private function _getColumnMap($index, $columnName)
     {
         $columnMap = array();
 
-        if ($this->isTagMapped($index)) {
+        if ($this->_isTagMapped($index)) {
             $columnMap[] = new CsvImport_ColumnMap_Tag($columnName);
         }
 
-        if ($this->isFileMapped($index)) {
+        if ($this->_isFileMapped($index)) {
             $columnMap[] = new CsvImport_ColumnMap_File($columnName);
         }
 
-        $elementIds = $this->getMappedElementId($index);
+        $elementIds = $this->_getMappedElementId($index);
         $isHtml = $this->_getRowValue($index, 'html');
         foreach($elementIds as $elementId) {
             // Make sure to skip empty mappings
@@ -169,5 +165,20 @@ class CsvImport_Form_Mapping extends Omeka_Form
         }
 
         return $columnMap;
+    }
+    
+    /**
+    * Returns element selection array for an item type or Dublin Core. 
+    * This is used for selecting elements in form dropdowns
+    *
+    * @param int|null $itemTypeId The id of the item type.  
+    * If null, then it only includes Dublin Core elements
+    * @return array
+    */
+    protected function _getElementPairs($itemTypeId=null)
+    {
+        $params = $itemTypeId ? array('item_type_id' => $itemTypeId)
+                              : array('exclude_item_type' => true);
+        return get_db()->getTable('Element')->findPairsForSelectForm($params);
     }
 }
