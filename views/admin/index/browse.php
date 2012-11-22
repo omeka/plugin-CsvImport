@@ -7,6 +7,9 @@
     <h2><?php echo __('Status'); ?></h2>
     <?php echo flash(); ?>
     <div class="pagination"><?php echo pagination_links(); ?></div>
+        
+    <?php if (iterator_count(loop('csv_import_imports'))): ?>
+    
     <table class="simple" cellspacing="0" cellpadding="0">
         <thead>
             <tr>
@@ -52,6 +55,10 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    <?php else: ?>
+        <p><?php echo __('You have no imports yet.'); ?></p> 
+    <?php endif; ?>
+    
 </div>
 <script type="text/javascript">
 //<![CDATA[

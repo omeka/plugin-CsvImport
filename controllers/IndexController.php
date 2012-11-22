@@ -138,23 +138,47 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                              'public',
                              'featured',
                              'file');
-        $errors = array();
+        
+        $skipColumnsWrapped = array();
+        foreach($skipColumns as $skipColumn) {
+            $skipColumnsWrapped[] = "'" . $skipColumn . "'";
+        }
+        $skipColumnsText = '( ' . implode(',  ', $skipColumnsWrapped) . ' )';
+    
+        if (empty($this->session->columnNames)) {
+            $this->_helper->redirector->goto('index');   
+        }
+        
+        $hasError = false;        
         foreach ($this->session->columnNames as $columnName){
             if (!in_array($columnName, $skipColumns)) {
                 $data = explode(':', $columnName);
-                //$data is like array('Element Set Name', 'Element Name');
-                //dig up the element_id
-                $element = $elementTable->findByElementSetNameAndElementName($data[0], $data[1]);
-                if(empty($element)) {                    
-                    $errors[] = array('set'=>$data[0], 'element'=>$data[1]);
-                }                                
-            }            
+                if (count($data) != 2) {
+                    $this->_helper->flashMessenger(__('Invalid column names. Column names must either be one of the following %s, or have the following format: {ElementSetName}:{ElementName}', $skipColumnsText), 'error');
+                    $hasError = true;
+                    break;
+                }
+            }
         }
         
-        if (empty($errors)) {
+        if (!$hasError) {
+            foreach ($this->session->columnNames as $columnName){
+                if (!in_array($columnName, $skipColumns)) {
+                    $data = explode(':', $columnName);
+                    //$data is like array('Element Set Name', 'Element Name');
+                    $elementSetName = $data[0];
+                    $elementName = $data[1];
+                    $element = $elementTable->findByElementSetNameAndElementName($elementSetName, $elementName);
+                    if (empty($element)) {                    
+                        $this->_helper->flashMessenger(__('Element "%s" is not found in element set "%s"', array($elementName, $elementSetName)), 'error');
+                         $hasError = true;
+                    }                                
+                }            
+            }
+        }
+        
+        if (!$hasError) {
             $this->_helper->redirector->goto('omeka-csv');
-        } else {
-            $this->view->errors = $errors;
         }
     }
     
