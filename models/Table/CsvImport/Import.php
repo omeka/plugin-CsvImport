@@ -1,12 +1,10 @@
 <?php
 /**
- * Class for import table.
+ * Table_CsvImport_Import class
  * 
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- * @version    $Id:$
  * @package CsvImport
- * @author CHNM
  */
 class Table_CsvImport_Import extends Omeka_Db_Table
 {

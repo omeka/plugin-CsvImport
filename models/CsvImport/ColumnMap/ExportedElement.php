@@ -1,18 +1,15 @@
 <?php
 
 /**
- * ExportedElement works with csv files exported from another Omeka installation using CSV Report
- * Differs from Element in the structure of the result coming from map()
- *
- * Also assumes all elements are HTML, and that they're already purified, which is
- * only slightly more naughty that the usual import, which sets isHTML at the Element level,
- * while in practice it is set on the ElementText (i.e., Item) level.
+ * CsvImport_ColumnMap_ExportedElement class - works with csv files exported from another Omeka
+ * installation using CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of 
+ * the result coming from map(). Also assumes all elements are HTML, and that they're already 
+ * purified, which is only slightly more naughty that the usual import, which sets isHTML at 
+ * the Element level, while in practice it is set on the ElementText (i.e., Item) level.
  *
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- * @version    $Id:$
  * @package CsvImport
- * @author CHNM
  */
 
 class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap {
