@@ -7,25 +7,36 @@
     <h2><?php echo __('Status'); ?></h2>
     <?php echo flash(); ?>
     <div class="pagination"><?php echo pagination_links(); ?></div>
-        
-    <?php if (iterator_count(loop('csv_import_imports'))): ?>
-    
+    <?php if (iterator_count(loop('CsvImport_Import'))): ?>
     <table class="simple" cellspacing="0" cellpadding="0">
         <thead>
-            <tr>
-                <th><?php echo __('Import Date'); ?></th>
-                <th><?php echo __('CSV File'); ?></th>
-                <th><?php echo __('Item Count'); ?></th>
-                <th><?php echo __('Status'); ?></th>
-                <th><?php echo __('Action'); ?></th>
+            <tr>                
+                <?php
+                $browseHeadings[__('Import Date')] = 'added';
+                $browseHeadings[__('CSV File')] = 'original_filename';
+                $browseHeadings[__('Imported Items')] = null;
+                $browseHeadings[__('Skipped Items')] = 'skipped_item_count';
+                $browseHeadings[__('Skipped Rows')] = 'skipped_row_count';
+                $browseHeadings[__('Status')] = 'status';
+                $browseHeadings[__('Action')] = null;
+                echo browse_sort_links($browseHeadings, array('link_tag' => 'th scope="col"', 'list_tag' => '')); 
+                ?>
             </tr>
         </thead>
         <tbody>
-            <?php foreach(loop('csv_import_imports') as $csvImport): ?>
-            <tr>
-                <td><?php echo html_escape($csvImport->added); ?></td>
+            <?php //foreach(loop('csv_import_imports') as $csvImport): ?>
+            
+            <?php $key = 0; ?>
+            <?php foreach (loop('CsvImport_Import') as $csvImport): ?>
+            <tr class="<?php if(++$key%2==1) echo 'odd'; else echo 'even'; ?>">
+            
+                <td><?php echo html_escape(format_date($csvImport->added, Zend_Date::DATETIME_SHORT)); ?></td>
                 <td><?php echo html_escape($csvImport->original_filename); ?></td>
-                <td><?php echo html_escape($csvImport->getProgress()); ?></td>
+                
+                <td><?php echo html_escape($csvImport->getImportedItemCount()); ?></td>
+                <td><?php echo html_escape($csvImport->skipped_item_count); ?></td>
+                <td><?php echo html_escape($csvImport->skipped_row_count); ?></td>
+                
                 <td><?php echo html_escape(__(Inflector::humanize($csvImport->status, 'all'))); ?></td>
                 <?php
                     if ($csvImport->isFinished() 

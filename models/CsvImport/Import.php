@@ -313,21 +313,6 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         return $importedItemCount;
     }
 
-    public function getProgress()
-    {
-        $importedItemCount = $this->getImportedItemCount();
-        $info = array(
-            'Imported' => $importedItemCount,
-            'Skipped Rows' => $this->skipped_row_count,
-            'Skipped Items' => $this->skipped_item_count,
-        );
-        $progress = '';
-        foreach ($info as $key => $value) {
-            $progress[] = __($key) . ': ' . $value;
-        }
-        return implode(' / ', $progress);
-    }
-
     private function _importLoop($startAt = null)
     {
         register_shutdown_function(array($this, 'stop'));

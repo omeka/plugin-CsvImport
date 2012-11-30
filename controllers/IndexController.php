@@ -241,6 +241,20 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('browse');
     }
     
+    /**
+     * Browse the imports.
+     * 
+     */
+    public function browseAction()
+    {
+        if (!$this->_getParam('sort_field')) {
+            $this->_setParam('sort_field', 'added');
+            $this->_setParam('sort_dir', 'd');
+        }
+        
+        parent::browseAction();
+    }
+    
     public function undoImportAction()
     {
         $csvImport = $this->_helper->db->findById();

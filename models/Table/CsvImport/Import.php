@@ -8,10 +8,4 @@
  */
 class Table_CsvImport_Import extends Omeka_Db_Table
 {
-    public function getSelect()
-    {
-        $select = parent::getSelect();
-        $select->order('added DESC');
-        return $select;
-    }
 }
