@@ -1,19 +1,13 @@
 <?php
 /**
- * CsvImport_ColumnMap class
- *
- * @copyright  Center for History and New Media, 2008-2011
- * @license    http://www.gnu.org/licenses/gpl-3.0.txt
- * @version    $Id:$
- */
-
-/**
- * CsvImport_ColumnMap - represents a mapping
+ * CsvImport_ColumnMap class - represents a mapping
  * from a column in a csv file to an item element, file, or tag
  *
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
- * @author CHNM
  */
+
 abstract class CsvImport_ColumnMap
 {
     const TARGET_TYPE_ELEMENT = 'Element';

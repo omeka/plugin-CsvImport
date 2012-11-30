@@ -52,3 +52,7 @@ table#column-mappings div.inputs {
     color: #333333;
     font-weight: bold;
 }
+
+div.csvimportnext {
+  clear:both;
+}

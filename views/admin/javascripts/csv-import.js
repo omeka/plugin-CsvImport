@@ -37,7 +37,15 @@ Omeka.CsvImport = {};
     /**
      * Disable most options if Import from Csv Report is checked
      */
-    Omeka.CsvImport.toggleImportOptions = function () {
-        $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter').slideToggle();
+    Omeka.CsvImport.updateImportOptions = function () {
+        // we need to test whether the checkbox is checked
+        // because fields will all be displayed if the form fails validation
+        var fields = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter');
+        if ($('#omeka_csv_export').is(':checked')) {
+          fields.slideUp();
+        } else {
+          fields.slideDown();
+        }
     };
+         
 })(jQuery);

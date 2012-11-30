@@ -1,18 +1,12 @@
 <?php
 /**
- * @version $Id$
- * @copyright Center for History and New Media, 2008-2011
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
+ * CsvImport_Form_Main class - represents the form on csv-import/index/index.
+ *
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
 
-/**
- * The form on csv-import/index/index.
- *
- * @package CsvImport
- * @author CHNM
- * @copyright Center for History and New Media, 2008-2011
- */
 class CsvImport_Form_Main extends Omeka_Form
 {
     private $_columnDelimiter = ',';
@@ -27,28 +21,29 @@ class CsvImport_Form_Main extends Omeka_Form
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
-        $values = array('' => 'Select Item Type') + $values;
+        $values = array('' => __('Select Item Type')) + $values;
         
         $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => 'Use an export from Omeka CSV Report', 'description'=> 'Selecting this will override the options below.'
-        ));
+            'label' => __('Use an export from Omeka CSV Report'), 
+            'description'=> __('Selecting this will override the options below.'))
+        );
 
         $this->addElement('select', 'item_type_id', array(
-            'label' => 'Select Item Type',
+            'label' => __('Select Item Type'),
             'multiOptions' => $values,
         ));
         $values = get_db()->getTable('Collection')->findPairsForSelectForm();
-        $values = array('' => 'Select Collection') + $values;
+        $values = array('' => __('Select Collection')) + $values;
 
         $this->addElement('select', 'collection_id', array(
-            'label' => 'Select Collection',
+            'label' => __('Select Collection'),
             'multiOptions' => $values,
         ));
         $this->addElement('checkbox', 'items_are_public', array(
-            'label' => 'Make All Items Public?',
+            'label' => __('Make All Items Public?'),
         ));
         $this->addElement('checkbox', 'items_are_featured', array(
-            'label' => 'Feature All Items?',
+            'label' => __('Feature All Items?'),
         ));
 
         switch ($this->_columnDelimiter) {
@@ -63,10 +58,10 @@ class CsvImport_Form_Main extends Omeka_Form
                 break;
         }
         $this->addElement('text', 'column_delimiter', array(
-            'label' => 'Choose Column Delimiter',
-            'description' => "A single character that will be used to "
-                . "separate columns in the file ($delimiterText by default)."
-                . " Note that tabs and whitespace are not accepted.",
+            'label' => __('Choose Column Delimiter'),
+            'description' => __('A single character that will be used to '
+                . 'separate columns in the file (%s by default).'
+                . ' Note that tabs and whitespace are not accepted.', $delimiterText),
             'value' => $this->_columnDelimiter,
             'required' => true,
             'size' => '1',
@@ -75,7 +70,7 @@ class CsvImport_Form_Main extends Omeka_Form
                       'breakChainOnFailure' => true,
                       'options' => array('messages' => array(
                             Zend_Validate_NotEmpty::IS_EMPTY =>
-                                "Column delimiter must be one character long.",
+                                __('Column delimiter must be one character long.'),
                       )),
                 ),
                 array('validator' => 'StringLength', 'options' => array(
@@ -83,17 +78,26 @@ class CsvImport_Form_Main extends Omeka_Form
                     'max' => 1,
                     'messages' => array(
                         Zend_Validate_StringLength::TOO_SHORT =>
-                            "Column delimiter must be one character long.",
+                            __('Column delimiter must be one character long.'),
                         Zend_Validate_StringLength::TOO_LONG =>
-                            "Column delimiter must be one character long.",
+                            __('Column delimiter must be one character long.'),
                     ),
                 )),
             ),
         ));
-        $this->addElement('submit', 'submit', array(
-            'label' => 'Next',
-            'class' => 'submit submit-medium',
-        ));
+        $this->applyOmekaStyles();
+        $this->setAutoApplyOmekaStyles(false);
+        
+        $submit = $this->createElement('submit', 
+                                    'submit', 
+                                    array('label' => __('Next'),
+                                          'class' => 'submit submit-medium'));
+            
+        
+        $submit->setDecorators(array('ViewHelper',
+                                      array('HtmlTag', array('tag' => 'div', 'class' => 'csvimportnext'))));
+                                            
+        $this->addElement($submit);
     }
 
     public function isValid($post)
@@ -102,9 +106,9 @@ class CsvImport_Form_Main extends Omeka_Form
         if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
             $maxSize = $this->getMaxFileSize()->toString();
             $this->csv_file->addError(
-                "The file you have uploaded exceeds the maximum post size "
-                . "allowed by the server. Please upload a file smaller "
-                . "than $maxSize.");
+                __('The file you have uploaded exceeds the maximum post size '
+                . 'allowed by the server. Please upload a file smaller '
+                . 'than %s.', $maxSize));
             return false;
         }
 
@@ -135,11 +139,11 @@ class CsvImport_Form_Main extends Omeka_Form
         $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir
                     . '/' . md5(mt_rand() + microtime(true)));
         $this->addElement('file', 'csv_file', array(
-            'label' => 'Upload CSV File',
+            'label' => __('Upload CSV File'),
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
-            'description' => "Maximum file size is {$size->toString()}."
+            'description' => __("Maximum file size is %s.", $size->toString())
         ));
         $this->csv_file->addFilter($filter);
     }
@@ -153,7 +157,6 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         $this->_fileDestinationDir = $dest;
     }
-
 
     /**
      * Set the maximum size for an uploaded CSV file.

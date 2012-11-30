@@ -1,21 +1,20 @@
 <?php
-    head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+    echo head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
 ?>
-<h1>CSV Import</h1>
-<?php echo $this->navigation()->menu()->setUlClass('section-nav'); ?>
-
+<?php echo common('csvimport-nav'); ?>
 <div id="primary">
     <?php echo flash(); ?>
-    <h2>Step 1: Select File and Item Settings</h2>
+    <h2><?php echo __('Step 1: Select File and Item Settings'); ?></h2>
     <?php echo $this->form; ?>
 </div>
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready(function () {
-    jQuery('#omeka_csv_export').click(Omeka.CsvImport.toggleImportOptions);
+    jQuery('#omeka_csv_export').click(Omeka.CsvImport.updateImportOptions);
+    Omeka.CsvImport.updateImportOptions(); // need this to reset invalid forms
 });
 //]]>
 </script>
 <?php
-    foot();
+    echo foot();
 ?>
