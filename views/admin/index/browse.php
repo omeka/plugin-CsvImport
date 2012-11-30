@@ -23,9 +23,7 @@
                 ?>
             </tr>
         </thead>
-        <tbody>
-            <?php //foreach(loop('csv_import_imports') as $csvImport): ?>
-            
+        <tbody>            
             <?php $key = 0; ?>
             <?php foreach (loop('CsvImport_Import') as $csvImport): ?>
             <tr class="<?php if(++$key%2==1) echo 'odd'; else echo 'even'; ?>">
