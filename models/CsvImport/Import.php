@@ -1,14 +1,12 @@
 <?php
 /**
- * CsvImport_Import - represents a csv import event
+ * CsvImport_Import class - represents a csv import event
  *
- * @version $Id$
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
- * @author CHNM
- * @copyright Center for History and New Media, 2008-2011
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
- **/
-class CsvImport_Import extends Omeka_Record
+ */
+class CsvImport_Import extends Omeka_Record_AbstractRecord
 {
 
     const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
@@ -106,17 +104,6 @@ class CsvImport_Import extends Omeka_Record
     {
         $this->_isOmekaExport = $flag;
     }
-    private function _getOwner()
-    {
-        if (!$this->_owner) {
-            $this->_owner = $this->getTable('User')->find($this->owner_id);
-            if (!$this->_owner) {
-                throw new UnexpectedValueException("Cannot run import for "
-                    . "a user account that no longer exists.");
-            }
-        }
-        return $this->_owner;
-    }
 
     public function setColumnMaps($maps)
     {
@@ -150,7 +137,7 @@ class CsvImport_Import extends Omeka_Record
         return $this->getCsvFile()->getIterator();
     }
 
-    protected function beforeSave()
+    protected function beforeSave($args)
     {
         $this->serialized_column_maps = serialize($this->getColumnMaps());
     }
@@ -198,7 +185,7 @@ class CsvImport_Import extends Omeka_Record
     {
         $this->_log("Started import at: %time%");
         $this->status = self::IN_PROGRESS;
-        $this->forceSave();
+        $this->save();
         
         $this->_importLoop($this->file_position);
         return !$this->isError();
@@ -214,7 +201,7 @@ class CsvImport_Import extends Omeka_Record
         $this->_log("Finished importing $this->_importedCount items (skipped "
             . "$this->skipped_row_count rows).", Zend_Log::INFO);
         $this->status = self::COMPLETED;
-        $this->forceSave();
+        $this->save();
         return true;
     }
 
@@ -226,10 +213,104 @@ class CsvImport_Import extends Omeka_Record
         }
         $this->_log("Resumed import at: %time%");
         $this->status = self::IN_PROGRESS;
-        $this->forceSave();
+        $this->save();
 
         $this->_importLoop($this->file_position);
         return !$this->isError();
+    }
+
+    /**
+     * Stop the import.
+     *
+     * Sets status flag to 'stopped';
+     */
+    public function stop()
+    {
+        // Anything besides 'in progress' signifies a finished import.
+        if ($this->status != self::IN_PROGRESS) {
+            return false;
+        }
+
+        $logMsg = "Stopping import due to error";
+        if ($error = error_get_last()) {
+            $logMsg .= ": " . $error['message'];
+        } else {
+            $logMsg .= '.';
+        }
+        $this->_log($logMsg);
+        $this->status = self::STOPPED;
+        $this->save();
+    }
+
+    public function queue()
+    {
+        if ($this->status != self::IN_PROGRESS) {
+            $this->_log("Cannot pause an import that is not in progress.");
+            return false;
+        }
+
+        $this->status = self::QUEUED;
+        $this->save();
+    }
+
+    public function getCsvFile()
+    {
+        if (empty($this->_csvFile)) {
+            $this->_csvFile = new CsvImport_File($this->file_path,
+                $this->delimiter);
+        }
+        return $this->_csvFile;
+    }
+
+    public function getColumnMaps()
+    {
+        if($this->_columnMaps === null) {
+            $columnMaps = unserialize($this->serialized_column_maps);
+            if (!($columnMaps instanceof CsvImport_ColumnMap_Set)) {
+                throw new UnexpectedValueException("Column maps must be "
+                    . "an instance of CsvImport_ColumnMap_Set. Instead, the "
+                    . "following was given: " . var_export($columnMaps, true));
+            }
+            $this->_columnMaps = $columnMaps;
+        }
+
+        return $this->_columnMaps;
+    }
+
+    public function undo()
+    {
+        $this->status = self::IN_PROGRESS_UNDO;
+        $this->save();
+
+        $db = $this->getDb();
+        $searchSql = "SELECT `item_id` FROM $db->CsvImport_ImportedItem"
+                   . " WHERE `import_id` = " . (int)$this->id
+                   . " LIMIT " . self::UNDO_IMPORT_LIMIT_PER_QUERY;
+        $it = $this->getTable('Item');
+        while ($itemIds = $db->fetchCol($searchSql)) {
+            $inClause = 'IN (' . join(', ', $itemIds) . ')';
+            $items = $it->fetchObjects($it->getSelect()
+                                          ->where("`items`.`id` $inClause"));
+            foreach ($items as $item) {
+                $item->delete();
+                release_object($item);
+            }
+            $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
+        }
+
+        $this->status = self::COMPLETED_UNDO;
+        $this->save();
+    }
+
+    // returns the number of items currently imported.  if a user undoes an
+    // import, it decreases the count to show the number of items left to
+    // unimport
+    public function getImportedItemCount()
+    {
+        $iit = $this->getTable('CsvImport_ImportedItem');
+        $sql = $iit->getSelectForCount()->where('`import_id` = ?');
+        $importedItemCount = $this->getDb()->fetchOne($sql, array($this->id));
+        return $importedItemCount;
     }
 
     private function _importLoop($startAt = null)
@@ -240,7 +321,6 @@ class CsvImport_Import extends Omeka_Record
             'featured'       => $this->is_featured,
             'item_type_id'   => $this->item_type_id,
             'collection_id'  => $this->collection_id,
-            'tag_entity'     => $this->_getOwner()->Entity,
         );
 
         $maps = $this->getColumnMaps();
@@ -278,46 +358,12 @@ class CsvImport_Import extends Omeka_Record
                 return $this->queue();
             } catch (Exception $e) {
                 $this->status = self::ERROR;
-                $this->forceSave();
+                $this->save();
                 $this->_log($e, Zend_Log::ERR);
                 throw $e;
             }
         }
         return $this->finish();
-    }
-
-    /**
-     * Stop the import.
-     *
-     * Sets status flag to 'stopped';
-     */
-    public function stop()
-    {
-        // Anything besides 'in progress' signifies a finished import.
-        if ($this->status != self::IN_PROGRESS) {
-            return false;
-        }
-
-        $logMsg = "Stopping import due to error";
-        if ($error = error_get_last()) {
-            $logMsg .= ": " . $error['message'];
-        } else {
-            $logMsg .= '.';
-        }
-        $this->_log($logMsg);
-        $this->status = self::STOPPED;
-        $this->forceSave();
-    }
-
-    public function queue()
-    {
-        if ($this->status != self::IN_PROGRESS) {
-            $this->_log("Cannot pause an import that is not in progress.");
-            return false;
-        }
-
-        $this->status = self::QUEUED;
-        $this->forceSave();
     }
 
     // adds an item based on the row data
@@ -331,21 +377,20 @@ class CsvImport_Import extends Omeka_Record
 
         //If this is coming from CSV Report, bring in the itemmetadata coming from the report
 
-        if(!is_null($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
+        if (!is_null($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
             $itemMetadata['collection_id'] = $result[CsvImport_ColumnMap::METADATA_COLLECTION];
         }
-        if(!is_null($result[CsvImport_ColumnMap::METADATA_PUBLIC])) {
+        if (!is_null($result[CsvImport_ColumnMap::METADATA_PUBLIC])) {
             $itemMetadata['public'] = $result[CsvImport_ColumnMap::METADATA_PUBLIC];
         }
-        if(!is_null($result[CsvImport_ColumnMap::METADATA_FEATURED])) {
+        if (!is_null($result[CsvImport_ColumnMap::METADATA_FEATURED])) {
             $itemMetadata['featured'] = $result[CsvImport_ColumnMap::METADATA_FEATURED];
         }
         
-        if(!empty($result[CsvImport_ColumnMap::METADATA_ITEM_TYPE])) {
+        if (!empty($result[CsvImport_ColumnMap::METADATA_ITEM_TYPE])) {
             $itemMetadata['item_type_name'] = $result[CsvImport_ColumnMap::METADATA_ITEM_TYPE];
         }
 
-        
         try {
             $item = insert_item(array_merge(array('tags' => $tags),
                 $itemMetadata), $elementTexts);
@@ -354,130 +399,49 @@ class CsvImport_Import extends Omeka_Record
             return false;
         }
 
-        if(!empty($fileUrls)) {
-                foreach($fileUrls[0] as $url) {
-
-                    try {
-                        $file = insert_files_for_item($item,
-                            'Url', $url,
-                            array(
-                                'ignore_invalid_files' => false,
-                            )
-                        );
-
-                    } catch (Omeka_File_Ingest_InvalidException $e) {
-                        $msg = "Error occurred when attempting to ingest the "
-                             . "following URL as a file: '$url': "
-                             . $e->getMessage();
-                        $this->_log($msg, Zend_Log::INFO);
-                        $item->delete();
-                        return false;
-                    }
-                    release_object($file);
+        if (!empty($fileUrls)) {
+            foreach($fileUrls[0] as $url) {
+                try {
+                    $file = insert_files_for_item($item,
+                        'Url', $url,
+                        array(
+                            'ignore_invalid_files' => false,
+                        )
+                    );
+                } catch (Omeka_File_Ingest_InvalidException $e) {
+                    $msg = "Error occurred when attempting to ingest the "
+                         . "following URL as a file: '$url': "
+                         . $e->getMessage();
+                    $this->_log($msg, Zend_Log::INFO);
+                    $item->delete();
+                    return false;
                 }
+                release_object($file);
+            }
         }
 
-
         // Makes it easy to unimport the item later.
-        $this->recordImportedItemId($item->id);
+        $this->_recordImportedItemId($item->id);
         return $item;
     }
 
-    private function recordImportedItemId($itemId)
+    private function _recordImportedItemId($itemId)
     {
         $csvImportedItem = new CsvImport_ImportedItem();
-        $csvImportedItem->setArray(array('import_id' => $this->id, 'item_id' =>
-            $itemId));
-        $csvImportedItem->forceSave();
+        $csvImportedItem->setArray(array('import_id' => $this->id, 
+                                         'item_id' => $itemId));
+        $csvImportedItem->save();
         $this->_importedCount++;
-    }
-
-    public function getCsvFile()
-    {
-        if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->file_path,
-                $this->delimiter);
-        }
-        return $this->_csvFile;
-    }
-
-    public function getColumnMaps()
-    {
-        if($this->_columnMaps === null) {
-            $columnMaps = unserialize($this->serialized_column_maps);
-            if (!($columnMaps instanceof CsvImport_ColumnMap_Set)) {
-                throw new UnexpectedValueException("Column maps must be "
-                    . "an instance of CsvImport_ColumnMap_Set. Instead, the "
-                    . "following was given: " . var_export($columnMaps, true));
-            }
-            $this->_columnMaps = $columnMaps;
-        }
-
-        return $this->_columnMaps;
-    }
-
-    public function undo()
-    {
-        $this->status = self::IN_PROGRESS_UNDO;
-        $this->forceSave();
-
-        $db = $this->getDb();
-        $searchSql = "SELECT item_id FROM $db->CsvImport_ImportedItem"
-                   . " WHERE import_id = " . (int)$this->id
-                   . " LIMIT " . self::UNDO_IMPORT_LIMIT_PER_QUERY;
-        $it = $this->getTable('Item');
-
-        while ($itemIds = $db->fetchCol($searchSql)) {
-            $inClause = 'IN (' . join(', ', $itemIds) . ')';
-            $items = $it->fetchObjects($it->getSelect()
-                                          ->where("i.id $inClause"));
-            foreach ($items as $item) {
-                $item->delete();
-                release_object($item);
-            }
-            $db->delete($db->CsvImport_ImportedItem, "item_id $inClause");
-        }
-
-        $this->status = self::COMPLETED_UNDO;
-        $this->forceSave();
-    }
-
-    // returns the number of items currently imported.  if a user undoes an
-    // import, it decreases the count to show the number of items left to
-    // unimport
-    public function getImportedItemCount()
-    {
-        $iit = $this->getTable('CsvImport_ImportedItem');
-        $sql = $iit->getSelectForCount()->where('`import_id` = ?');
-        $importedItemCount = $this->getDb()->fetchOne($sql, array($this->id));
-        return $importedItemCount;
-    }
-
-    public function getProgress()
-    {
-        $importedItemCount = $this->getImportedItemCount();
-        $info = array(
-            'Imported' => $importedItemCount,
-            'Skipped Rows' => $this->skipped_row_count,
-            'Skipped Items' => $this->skipped_item_count,
-        );
-        $progress = '';
-        foreach ($info as $key => $value) {
-            $progress[] = $key . ': ' . $value;
-        }
-        return implode(' / ', $progress);
     }
 
     private function _log($msg, $priority = Zend_Log::DEBUG)
     {
-        if ($logger = Omeka_Context::getInstance()->getLogger()) {
-            if (strpos($msg, '%time%') !== false) {
-                $msg = str_replace('%time%', Zend_Date::now()->toString(), $msg);
-            }
-            if (strpos($msg, '%memory%') !== false) {
-                $msg = str_replace('%memory%', memory_get_usage(), $msg);
-            }
-            $logger->log('[CsvImport] ' . $msg, $priority);
+        if (strpos($msg, '%time%') !== false) {
+            $msg = str_replace('%time%', Zend_Date::now()->toString(), $msg);
         }
+        if (strpos($msg, '%memory%') !== false) {
+            $msg = str_replace('%memory%', memory_get_usage(), $msg);
+        }
+        _log('[CsvImport] ' . $msg, $priority);
     }
 }

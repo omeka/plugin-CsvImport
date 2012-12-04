@@ -1,9 +1,15 @@
 <?php
 /**
+ * CsvImport_ImportTask class
  *
+ * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
+ * @package CsvImport
  */
-class CsvImport_ImportTask extends Omeka_JobAbstract
+class CsvImport_ImportTask extends Omeka_Job_AbstractJob
 {
+    const QUEUE_NAME = 'imports';
+    
     private $_importId;
     private $_method = 'start';
     private $_memoryLimit;
@@ -22,8 +28,8 @@ class CsvImport_ImportTask extends Omeka_JobAbstract
         call_user_func(array($import, $this->_method));
         
         if ($import->isQueued()) {
-            $this->_dispatcher->setQueueName('imports');
-            $this->_dispatcher->send(__CLASS__, 
+            $this->_dispatcher->setQueueName(self::QUEUE_NAME);
+            $this->_dispatcher->sendLongRunning(__CLASS__, 
                 array(
                     'importId' => $import->id, 
                     'memoryLimit' => $this->_memoryLimit,
