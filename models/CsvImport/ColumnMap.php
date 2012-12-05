@@ -7,7 +7,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-
 abstract class CsvImport_ColumnMap
 {
     const TARGET_TYPE_ELEMENT = 'Element';
@@ -29,6 +28,11 @@ abstract class CsvImport_ColumnMap
         $this->_columnName = $columnName;
     }
 
+    /**
+     * Returns the type of column map
+     *
+     * @return string The type of column map
+     */
     public function getType()
     {
         return $this->_targetType;
@@ -37,6 +41,11 @@ abstract class CsvImport_ColumnMap
     /**
      * Use the column mapping to convert a CSV row into a value that can be
      * parsed by insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row in the CSV file
+     * @param array $result
+     * @return array An array value that can be parsed 
+     * by insert_item() or insert_files_for_item()
      */
     abstract public function map($row, $result);
 }

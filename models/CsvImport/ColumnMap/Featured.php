@@ -6,8 +6,8 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_Featured extends CsvImport_ColumnMap {
-    
+class CsvImport_ColumnMap_Featured extends CsvImport_ColumnMap 
+{
     public function __construct($columnName)
     {
         parent::__construct($columnName);

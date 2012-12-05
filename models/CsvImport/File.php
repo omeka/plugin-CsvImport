@@ -8,7 +8,6 @@
  */
 class CsvImport_File implements IteratorAggregate
 {
-
     private $_filePath;
     private $_columnNames = array();
     private $_columnExamples = array();
@@ -67,7 +66,7 @@ class CsvImport_File implements IteratorAggregate
     }
 
     /**
-     * Get iterator.
+     * Get an iterator for the rows in the CSV file.
      * 
      * @return CsvImport_RowIterator
      */
@@ -83,13 +82,14 @@ class CsvImport_File implements IteratorAggregate
     /**
      * Parse metadata.  Currently retrieves the column names and an "example" 
      * row, i.e. the first row after the header.
+     *
+     * @return boolean
      */
     public function parse()
     {
         if ($this->_columnNames || $this->_columnExamples) {
             throw new RuntimeException('Cannot be parsed twice.');
         }
-
         $rowIterator = $this->getIterator();
         try {
             $this->_columnNames = $rowIterator->getColumnNames();
@@ -107,6 +107,11 @@ class CsvImport_File implements IteratorAggregate
         return true;
     }
 
+    /**
+     * Get the error string
+     * 
+     * @return string
+     */
     public function getErrorString()
     {
         return join(' ', $this->_parseErrors);
