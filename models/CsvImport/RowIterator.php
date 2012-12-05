@@ -10,7 +10,6 @@ class CsvImport_RowIterator implements SeekableIterator
 {
     private $_filePath;
     private $_handle;
-
     private $_currentRow;
     private $_currentRowNumber;
     private $_delimiter = ',';
@@ -22,6 +21,7 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * @param string $filePath
+     * @param string $delimiter  The column delimiter
      */
     public function __construct($filePath, $delimiter = null) 
     {
@@ -34,7 +34,8 @@ class CsvImport_RowIterator implements SeekableIterator
     /**
      * Rewind the Iterator to the first element.
      * Similar to the reset() function for arrays in PHP
-     * @return void
+     *
+     * @throws CsvImport_DuplicateColumnException
      */
     function rewind()
     {
@@ -60,7 +61,8 @@ class CsvImport_RowIterator implements SeekableIterator
     /**
      * Return the current element.
      * Similar to the current() function for arrays in PHP
-     * @return mixed current element from the collection
+     *
+     * @return mixed current element
      */
     function current()
     {
@@ -70,7 +72,8 @@ class CsvImport_RowIterator implements SeekableIterator
     /**
      * Return the identifying key of the current element.
      * Similar to the key() function for arrays in PHP
-     * @return mixed either an integer or a string
+     *
+     * @return scalar
      */
     function key()
     {
@@ -80,7 +83,8 @@ class CsvImport_RowIterator implements SeekableIterator
     /**
      * Move forward to next element.
      * Similar to the next() function for arrays in PHP
-     * @return void
+     *
+     * @throws Exception
      */
     function next()
     {
@@ -98,6 +102,8 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * Seek to a starting position for the file.
+     *
+     * @param int The offset
      */
     public function seek($index)
     {
@@ -109,12 +115,20 @@ class CsvImport_RowIterator implements SeekableIterator
         $this->_moveNext();
     }
 
+    /**
+     * Returns current position of the file pointer
+     *
+     * @return int The current position of the filer pointer
+     */
     public function tell()
     {
         return ftell($this->_getFileHandle());
     }
 
-    private function _moveNext()
+    /**
+     * Move to the next row in the file
+     */
+    protected function _moveNext()
     {
         if ($nextRow = $this->_getNextRow()) {
             $this->_currentRow = $this->_formatRow($nextRow);
@@ -129,18 +143,27 @@ class CsvImport_RowIterator implements SeekableIterator
         }
     }
 
-    function valid()
+    /**
+     * Returns whether the current file position is valid
+     *
+     * @return boolean
+     */
+    public function valid()
     {
         if (!file_exists($this->_filePath)) {
             return false;
         }
-
         if (!$this->_getFileHandle()) {
             return false;
         }
         return $this->_valid;
     }
 
+    /**
+     * Returns array of column names
+     *
+     * @return array
+     */
     public function getColumnNames()
     {
         if (!$this->_colNames) {
@@ -150,11 +173,13 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Get the number of rows that were skipped since the last time 
+     * Returns the number of rows that were skipped since the last time 
      * the function was called.
      *
      * Skipped count is reset to 0 after each call to getSkippedCount(). This 
-     * makes it easier to aggregate the number over multiple job runs. 
+     * makes it easier to aggregate the number over multiple job runs.
+     *
+     * @return int The number of rows skipped since last time function was called 
      */
     public function getSkippedCount()
     {
@@ -163,12 +188,24 @@ class CsvImport_RowIterator implements SeekableIterator
         return $skipped;
     }
 
+    /**
+     * Sets whether to skip invalid rows
+     *
+     * @param boolean $flag
+     */
     public function skipInvalidRows($flag)
     {
         $this->_skipInvalidRows = (boolean)$flag;
     }
-
-    private function _formatRow($row)
+    
+    /**
+     * Formats a row
+     *
+     * @throws LogicException
+     * @throws CsvImport_MissingColumnException
+     * @return array The formatted row
+     */
+    protected function _formatRow($row)
     {
         $formattedRow = array();
         if (!isset($this->_colNames)) {
@@ -188,7 +225,12 @@ class CsvImport_RowIterator implements SeekableIterator
         return $formattedRow;
     }
 
-    private function _getFileHandle()
+    /**
+     * Returns a file handle for the CSV file
+     *
+     * @return resource The file handle
+     */
+    protected function _getFileHandle()
     {
         if (!$this->_handle) {
             ini_set('auto_detect_line_endings', true);
@@ -197,7 +239,12 @@ class CsvImport_RowIterator implements SeekableIterator
         return $this->_handle;
     }
 
-    private function _getNextRow()
+    /**
+     * Returns the next row in the CSV file
+     *
+     * @return array The row
+     */
+    protected function _getNextRow()
     {
         $currentRow = array();
         $handle = $this->_getFileHandle();
@@ -206,5 +253,4 @@ class CsvImport_RowIterator implements SeekableIterator
             return $row;
         }
     }
-
 }

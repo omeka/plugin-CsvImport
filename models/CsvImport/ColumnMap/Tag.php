@@ -6,10 +6,10 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-
 class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
 {
-    const DEFAULT_DELIMITER = ',';
+    const TAG_DELIMTER_OPTION_NAME = 'csv_import_tag_delimiter';
+    const DEFAULT_TAG_DELIMITER = ',';
 
     public function __construct($columnName)
     {
@@ -26,11 +26,10 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
         return $tags;
     }
 
-    private function _getDelimiter()
+    protected function _getDelimiter()
     {
-        // New in 1.4.
-        if (!($delimiter = get_option('tag_delimiter'))) {
-            $delimiter = self::DEFAULT_DELIMITER;
+        if (!($delimiter = get_option(self::TAG_DELIMTER_OPTION_NAME))) {
+            $delimiter = self::DEFAULT_TAG_DELIMITER;
         }
         return $delimiter;
     }

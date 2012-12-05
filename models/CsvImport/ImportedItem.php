@@ -12,11 +12,21 @@ class CsvImport_ImportedItem extends Omeka_Record_AbstractRecord
     public $import_id;
     public $item_id;
 
+    /**
+     * Returns the item id for the imported item
+     * 
+     * @return int The item id.
+     */
     public function getItemId()
     {
         return $this->item_id;
     }
 
+    /**
+     * Returns the import id for the imported item
+     * 
+     * @return int The import id.
+     */
     public function getImportId()
     {
         return $this->import_id;
