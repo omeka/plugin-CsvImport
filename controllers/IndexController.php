@@ -100,9 +100,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         if (count($columnMaps) == 0) {
             $this->_helper->flashMessenger(__('Please map at least one column to an element, file, or tag.'), 'error');
             return;
-        }
+        }        
         
-        $csvImport = new CsvImport_Import();
+        $csvImport = new CsvImport_Import();        
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
             if (method_exists($csvImport, $setMethod)) {

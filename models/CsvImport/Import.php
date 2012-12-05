@@ -385,7 +385,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $this->status = self::COMPLETED_UNDO;
         $this->save();
         $this->_log("Completed undo import.");
-        return true
+        return true;
     }
 
     /**
