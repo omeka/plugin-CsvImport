@@ -184,7 +184,7 @@ class CsvImport_Form_Main extends Omeka_Form
 
         if ($size) {
             $newSize = $this->_getSizeMeasure($size);
-            if ($pluginIniSize->compare($maxSize) > 0) {
+            if ($maxSize->compare($newSize) > 0) {
                 $maxSize = $newSize;
             }
         }
