@@ -12,6 +12,9 @@ class CsvImport_Form_Mapping extends Omeka_Form
     private $_itemTypeId;
     private $_columnNames = array();
     private $_columnExamples = array();
+    private $_fileDelimiter;
+    private $_tagDelimiter;
+    private $_elementDelimiter;
 
     public function init()
     {
@@ -72,6 +75,21 @@ class CsvImport_Form_Mapping extends Omeka_Form
     public function setItemTypeId($itemTypeId)
     {
         $this->_itemTypeId = $itemTypeId;
+    }
+
+    public function setElementDelimiter($elementDelimiter)
+    {
+        $this->_elementDelimiter = $elementDelimiter;
+    }
+
+    public function setFileDelimiter($fileDelimiter)
+    {
+        $this->_fileDelimiter = $fileDelimiter;
+    }
+
+    public function setTagDelimiter($tagDelimiter)
+    {
+        $this->_tagDelimiter = $tagDelimiter;
     }
 
     public function getMappings()
@@ -141,11 +159,11 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $columnMap = array();
 
         if ($this->_isTagMapped($index)) {
-            $columnMap[] = new CsvImport_ColumnMap_Tag($columnName);
+            $columnMap[] = new CsvImport_ColumnMap_Tag($columnName, $this->_tagDelimiter);
         }
 
         if ($this->_isFileMapped($index)) {
-            $columnMap[] = new CsvImport_ColumnMap_File($columnName);
+            $columnMap[] = new CsvImport_ColumnMap_File($columnName, $this->_fileDelimiter);
         }
 
         $elementIds = $this->_getMappedElementId($index);
@@ -156,7 +174,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
                 continue;
             }
             
-            $elementMap = new CsvImport_ColumnMap_Element($columnName);
+            $elementMap = new CsvImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
             $elementMap->setOptions(array('elementId' => $elementId,
                                          'isHtml' => $isHtml));
             $columnMap[] = $elementMap;

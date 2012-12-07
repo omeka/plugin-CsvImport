@@ -14,12 +14,23 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
 {
     private $_elementId;
 
+    /**
+     * @param string $columnName
+     */
     public function __construct($columnName)
     {
         parent::__construct($columnName);
         $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_ELEMENT;
     }
 
+    /**
+     * Map a row to an array that can be parsed by
+     * insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row to map
+     * @param array $result
+     * @return array The result
+     */
     public function map($row, $result)
     {
         //@TODO: see if we can handle multiple values
@@ -37,6 +48,11 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         return $result;
     }
 
+    /**
+     * Sets the mapping options
+     *
+     * @param array $options
+     */
     public function setOptions($options)
     {
         $this->_elementId = $options['elementId'];

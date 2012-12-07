@@ -40,7 +40,7 @@ Omeka.CsvImport = {};
     Omeka.CsvImport.updateImportOptions = function () {
         // we need to test whether the checkbox is checked
         // because fields will all be displayed if the form fails validation
-        var fields = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter');
+        var fields = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter, #element_delimiter, #tag_delimiter, #file_delimiter');
         if ($('#omeka_csv_export').is(':checked')) {
           fields.slideUp();
         } else {

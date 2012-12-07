@@ -8,11 +8,14 @@
  */
 class CsvImport_RowIterator implements SeekableIterator
 {
+    const DEFAULT_COLUMN_DELIMTER_OPTION_NAME = 'csv_import_default_column_delimiter';
+    const DEFAULT_COLUMN_DELIMITER = ',';
+    
     private $_filePath;
     private $_handle;
     private $_currentRow;
     private $_currentRowNumber;
-    private $_delimiter = ',';
+    private $_columnDelimiter;
     private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
@@ -21,14 +24,26 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * @param string $filePath
-     * @param string $delimiter  The column delimiter
+     * @param string $columnDelimiter  The column delimiter
      */
-    public function __construct($filePath, $delimiter = null) 
+    public function __construct($filePath, $columnDelimiter = null) 
     {
         $this->_filePath = $filePath;
-        if ($delimiter) {
-            $this->_delimiter = $delimiter;
+        if ($columnDelimiter !== null) {
+            $this->_columnDelimiter = $columnDelimiter;
+        } else {
+            $this->_columnDelimiter = self::getDefaultColumnDelimiter();
         }
+    }
+    
+    /**
+     * Returns the column delimiter.  
+     *
+     * @return string The column delimiter
+     */
+    public function getColumnDelimiter()
+    {
+        return $this->_columnDelimiter;
     }
     
     /**
@@ -37,7 +52,7 @@ class CsvImport_RowIterator implements SeekableIterator
      *
      * @throws CsvImport_DuplicateColumnException
      */
-    function rewind()
+    public function rewind()
     {
         if ($this->_handle) {
             fclose($this->_handle);
@@ -64,7 +79,7 @@ class CsvImport_RowIterator implements SeekableIterator
      *
      * @return mixed current element
      */
-    function current()
+    public function current()
     {
         return $this->_currentRow;
     }
@@ -75,7 +90,7 @@ class CsvImport_RowIterator implements SeekableIterator
      *
      * @return scalar
      */
-    function key()
+    public function key()
     {
         return $this->_currentRowNumber;
     }
@@ -86,7 +101,7 @@ class CsvImport_RowIterator implements SeekableIterator
      *
      * @throws Exception
      */
-    function next()
+    public function next()
     {
         try {
             $this->_moveNext();
@@ -213,12 +228,12 @@ class CsvImport_RowIterator implements SeekableIterator
                 . "names have been set.");
         }
         if (count($row) != $this->_colCount) {
-            $printable = substr(join($this->_delimiter, $row), 0, 30) . '...';
+            $printable = substr(join($this->_columnDelimiter, $row), 0, 30) . '...';
             throw new CsvImport_MissingColumnException("Row beginning with "
                 . "'$printable' does not have the required {$this->_colCount} "
                 . "rows.");
         }
-        for($i = 0; $i < $this->_colCount; $i++) 
+        for ($i = 0; $i < $this->_colCount; $i++) 
         {
             $formattedRow[$this->_colNames[$i]] = $row[$i];
         }
@@ -248,9 +263,24 @@ class CsvImport_RowIterator implements SeekableIterator
     {
         $currentRow = array();
         $handle = $this->_getFileHandle();
-        while (($row = fgetcsv($handle, 0, $this->_delimiter)) !== FALSE) {
+        while (($row = fgetcsv($handle, 0, $this->_columnDelimiter)) !== FALSE) {
             $this->_currentRowNumber++;
             return $row;
         }
+    }
+    
+    /**
+     * Returns the default column delimiter.  
+     * Uses the default column delimiter specified in the options table 
+     * if available.
+     *
+     * @return string The default column delimiter
+     */
+    static public function getDefaultColumnDelimiter()
+    {
+        if (!($delimiter = get_option(self::DEFAULT_COLUMN_DELIMTER_OPTION_NAME))) {
+            $delimiter = self::DEFAULT_COLUMN_DELIMITER;
+        }
+        return $delimiter;
     }
 }

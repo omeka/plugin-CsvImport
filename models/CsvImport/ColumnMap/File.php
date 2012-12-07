@@ -8,29 +8,70 @@
  */
 class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
 {
-    const FILE_DELIMTER_OPTION_NAME = 'csv_import_file_delimiter';
+    const DEFAULT_FILE_DELIMTER_OPTION_NAME = 'csv_import_default_file_delimiter';
     const DEFAULT_FILE_DELIMITER = ',';
     
-    public function __construct($columnName)
+    private $_fileDelimiter;
+
+    /**
+     * @param string $columnName
+     * @param string $fileDelimiter
+     */    
+    public function __construct($columnName, $fileDelimiter=null)
     {
         parent::__construct($columnName);
         $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_FILE;
+        if ($fileDelimiter !== null) {
+            $this->_fileDelimiter = $fileDelimiter;
+        } else {
+            $this->_fileDelimiter = self::getDefaultFileDelimiter();            
+        }
     }
 
+    /**
+     * Map a row to an array that can be parsed by
+     * insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row to map
+     * @param array $result
+     * @return array The result
+     */
     public function map($row, $result)
     {
-        $delimiter = $this->_getDelimiter();
         $urlString = trim($row[$this->_columnName]);
         if ($urlString) {
-            $urls = explode($delimiter, $urlString);
-            $result[] = $urls;
+            if ($this->_fileDelimiter == '') {
+                $rawUrls = array($urlString);
+            } else {
+                $rawUrls = explode($this->_fileDelimiter, $urlString);
+            }
+            $trimmedUrls = array_map('trim', $rawUrls);
+            $cleanedUrls = array_diff($trimmedUrls, array(''));
+            $result = array_merge($result, $cleanedUrls);            
         }
         return $result;
     }
     
-    protected function _getDelimiter()
+    /**
+     * Return the file delimiter
+     *
+     * @return string The file delimiter
+     */
+    public function getFileDelimiter()
     {
-        if (!($delimiter = get_option(self::FILE_DELIMTER_OPTION_NAME))) {
+        return $this->_fileDelimiter;
+    }
+    
+    /**
+     * Returns the default file delimiter.  
+     * Uses the default file delimiter specified in the options table 
+     * if available.
+     *
+     * @return string The default file delimiter
+     */
+    static public function getDefaultFileDelimiter()
+    {
+        if (!($delimiter = get_option(self::DEFAULT_FILE_DELIMTER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_FILE_DELIMITER;
         }
         return $delimiter;
