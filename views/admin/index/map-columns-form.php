@@ -11,14 +11,15 @@
         <th><?php echo __('Map To Element'); ?></th>
         <th><?php echo __('Use HTML?'); ?></th>
         <th><?php echo __('Tags?'); ?></th>
-        <th><?php echo __('File?'); ?></th>
+        <th><?php echo __('Files?'); ?></th>
     </tr>
     </thead>
     <tbody>
 <?php for($i = 0; $i < count($colNames); $i++): ?>
         <tr>
         <td><strong><?php echo html_escape($colNames[$i]); ?></strong></td>
-        <td>&quot;<?php echo html_escape($colExamples[$colNames[$i]]); ?>&quot;</td>
+        <?php $exampleString = $colExamples[$colNames[$i]]; ?>
+        <td>&quot;<?php echo html_escape(substr($exampleString, 0, 47)); ?>&quot;<?php if (strlen($exampleString) > 47) { echo '...';} ?></td>
         <?php echo $this->form->getSubForm("row$i"); ?>
         </tr>
 <?php endfor; ?>

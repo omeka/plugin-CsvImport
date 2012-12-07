@@ -62,6 +62,9 @@ defined('CSV_IMPORT_DIRECTORY') or define('CSV_IMPORT_DIRECTORY', dirname(__FILE
  */
 class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
 {
+    const MEMORY_LIMIT_OPTION_NAME = 'csv_import_memory_limit';
+    const PHP_PATH_OPTION_NAME = 'csv_import_php_path';
+    
     /**
      * @var array Hooks for the plugin.
      */
@@ -78,8 +81,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     /**
      * @var array Options and their default values.
      */
-    protected $_options = array('csv_import_memory_limit' => '',
-                                'csv_import_php_path' => '');
+    protected $_options = array(self::MEMORY_LIMIT_OPTION_NAME => '',
+                                self::PHP_PATH_OPTION_NAME => '');
 
     
     /**

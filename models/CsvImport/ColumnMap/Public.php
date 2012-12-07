@@ -7,13 +7,24 @@
  * @package CsvImport
  */
 class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap 
-{    
+{
+    /**
+     * @param string $columnName
+     */ 
     public function __construct($columnName)
     {
         parent::__construct($columnName);
         $this->_targetType = CsvImport_ColumnMap::METADATA_PUBLIC;
     }
 
+    /**
+     * Map a row to an array that can be parsed by
+     * insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row to map
+     * @param array $result
+     * @return array The result
+     */
     public function map($row, $result)
     {
         $result = $row[$this->_columnName];

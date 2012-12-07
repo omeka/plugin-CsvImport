@@ -8,7 +8,7 @@
  */
 class CsvImport_ImportTask extends Omeka_Job_AbstractJob
 {
-    const QUEUE_NAME = 'imports';
+    const QUEUE_NAME = 'csv_import_imports';
     
     private $_importId;
     private $_method = 'start';
