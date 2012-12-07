@@ -6,9 +6,11 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
- 
 class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
 {
+    const FILE_DELIMTER_OPTION_NAME = 'csv_import_file_delimiter';
+    const DEFAULT_FILE_DELIMITER = ',';
+    
     public function __construct($columnName)
     {
         parent::__construct($columnName);
@@ -17,11 +19,20 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
 
     public function map($row, $result)
     {
+        $delimiter = $this->_getDelimiter();
         $urlString = trim($row[$this->_columnName]);
         if ($urlString) {
-            $urls = explode(',', $urlString);
+            $urls = explode($delimiter, $urlString);
             $result[] = $urls;
         }
         return $result;
+    }
+    
+    protected function _getDelimiter()
+    {
+        if (!($delimiter = get_option(self::FILE_DELIMTER_OPTION_NAME))) {
+            $delimiter = self::DEFAULT_FILE_DELIMITER;
+        }
+        return $delimiter;
     }
 }

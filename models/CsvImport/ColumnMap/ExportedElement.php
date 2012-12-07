@@ -1,5 +1,4 @@
 <?php
-
 /**
  * CsvImport_ColumnMap_ExportedElement class - works with csv files exported from another Omeka
  * installation using CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of 
@@ -11,9 +10,8 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-
-class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap {
-
+class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap 
+{
     private $_elementId;
 
     public function __construct($columnName)

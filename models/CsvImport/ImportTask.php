@@ -15,6 +15,9 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     private $_memoryLimit;
     private $_batchSize;
 
+    /**
+     * Performs the import task 
+     */
     public function perform()
     {
         if ($this->_memoryLimit) {
@@ -40,27 +43,52 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
         }
     }
 
+    /**
+     * Set the number of items to create before pausing the import.
+     * 
+     * @param int $size
+     */
     public function setBatchSize($size)
     {
         $this->_batchSize = (int)$size;
     }
 
+    /**
+     * Set the memory limit for the task
+     * 
+     * @param string $limit
+     */
     public function setMemoryLimit($limit)
     {
         $this->_memoryLimit = $limit;
     }
 
+    /**
+     * Set the import id for the task
+     * 
+     * @param int $id
+     */
     public function setImportId($id)
     {
-        $this->_importId = $id;
+        $this->_importId = (int)$id;
     }
 
+    /**
+     * Set the method name of the import object to be run by the task
+     * 
+     * @param string $name
+     */
     public function setMethod($name)
     {
         $this->_method = $name;
     }
 
-    private function _getImport()
+    /**
+     * Returns the import of the import task
+     * 
+     * @return CsvImport_Import The import of the import task
+     */
+    protected function _getImport()
     {
         return $this->_db->getTable('CsvImport_Import')->find($this->_importId);
     }

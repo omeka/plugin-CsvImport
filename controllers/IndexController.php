@@ -9,7 +9,7 @@
 class CsvImport_IndexController extends Omeka_Controller_AbstractActionController
 {
     protected $_browseRecordsPerPage = 10;
-    private $_pluginConfig = array();
+    protected $_pluginConfig = array();
 
     public function init()
     {
@@ -17,6 +17,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->db->setDefaultModelName('CsvImport_Import');        
     }
 
+    /**
+     * Configure a new import.
+     */
     public function indexAction()
     {
         $form = $this->_getMainForm();
@@ -66,6 +69,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('map-columns');
     }
     
+    /**
+     * Map the columns for an import
+     */
     public function mapColumnsAction()
     {
         if (!$this->_sessionIsValid()) {
@@ -94,9 +100,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         if (count($columnMaps) == 0) {
             $this->_helper->flashMessenger(__('Please map at least one column to an element, file, or tag.'), 'error');
             return;
-        }
+        }        
         
-        $csvImport = new CsvImport_Import();
+        $csvImport = new CsvImport_Import();        
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
             if (method_exists($csvImport, $setMethod)) {
@@ -124,9 +130,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
     
     /**
-     * For import of Omeka.net CSV. Checks if the user didn't read the manual and so didn't make sure all needed Elements are present
+     * For import of Omeka.net CSV. 
+     * Check if all needed Elements are present.
      */
-
     public function checkOmekaCsvAction()
     {
         $elementTable = get_db()->getTable('Element');
@@ -180,6 +186,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
     }
     
+    /**
+     * Create and queue a new import
+     */
     public function omekaCsvAction()
     {
         $headings = $this->session->columnNames;
@@ -255,6 +264,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         parent::browseAction();
     }
     
+    /**
+     * Undo the import
+     * 
+     */
     public function undoImportAction()
     {
         $csvImport = $this->_helper->db->findById();
@@ -270,6 +283,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('browse');
     }
     
+    /**
+     * Clear the import history.
+     * 
+     */
     public function clearHistoryAction()
     {
         $csvImport = $this->_helper->db->findById();
@@ -282,7 +299,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('browse');
     }
     
-    private function _getMainForm()
+    /**
+     * Get the main Csv Import form.
+     * 
+     * @return CsvImport_Form_Main
+     */
+    protected function _getMainForm()
     {
         require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
         $csvConfig = $this->_getPluginConfig();
@@ -290,7 +312,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         return $form;
     }
 
-    private function _getPluginConfig()
+    /**
+      * Returns the plugin configuration
+      * 
+      * @return array
+      */
+    protected function _getPluginConfig()
     {
         if (!$this->_pluginConfig) {
             $config = $this->getInvokeArg('bootstrap')->config->plugins;
@@ -305,7 +332,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         return $this->_pluginConfig;
     }
     
-    private function _sessionIsValid()
+    /**
+     * Returns whether the session is valid
+     * 
+     * @return boolean
+     */
+    protected function _sessionIsValid()
     {
         $requiredKeys = array('itemsArePublic', 
                               'itemsAreFeatured',
