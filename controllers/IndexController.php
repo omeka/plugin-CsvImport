@@ -11,6 +11,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     protected $_browseRecordsPerPage = 10;
     protected $_pluginConfig = array();
 
+    /**
+     * Initialize the controller.
+     */
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
@@ -21,7 +24,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      * Configure a new import.
      */
     public function indexAction()
-    {
+    {        
         $form = $this->_getMainForm();
         $this->view->form = $form;
 
@@ -41,8 +44,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
         $filePath = $form->csv_file->getFileName();
         $filename = $_FILES['csv_file']['name'];
-        $delimiter = $form->getValue('column_delimiter');
-        $file = new CsvImport_File($filePath, $delimiter);
+        $columnDelimiter = $form->getValue('column_delimiter');
+        $fileDelimiter = $form->getValue('file_delimiter');
+        $tagDelimiter = $form->getValue('tag_delimiter');
+        $elementDelimiter = $form->getValue('element_delimiter');
+        
+        $file = new CsvImport_File($filePath, $columnDelimiter);
         
         if (!$file->parse()) {
             $this->_helper->flashMessenger(__('Your file is incorrectly formatted.') . ' ' . $file->getErrorString(), 'error');
@@ -52,7 +59,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->setExpirationHops(2);
         $this->session->originalFilename = $filename;
         $this->session->filePath = $filePath;
-        $this->session->columnDelimiter = $delimiter;
+        
+        $this->session->columnDelimiter = $columnDelimiter;
+        $this->session->fileDelimiter = $fileDelimiter;
+        $this->session->tagDelimiter = $tagDelimiter;
+        $this->session->elementDelimiter = $elementDelimiter;
         
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = $form->getValue('items_are_public');
@@ -85,6 +96,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             'itemTypeId' => $this->session->itemTypeId,
             'columnNames' => $this->session->columnNames,
             'columnExamples' => $this->session->columnExamples,
+            'fileDelimiter' => $this->session->fileDelimiter,
+            'tagDelimiter' => $this->session->tagDelimiter,
+            'elementDelimiter' => $this->session->elementDelimiter
         ));
         $this->view->form = $form;
                 
@@ -191,6 +205,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     public function omekaCsvAction()
     {
+        // specify the export format's file and tag delimiters
+        // do not allow the user to specify it
+        $fileDelimiter = ',';
+        $tagDelimiter = ',';    
+        
         $headings = $this->session->columnNames;
         $columnMaps = array();
         foreach ($headings as $heading) {
@@ -202,10 +221,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     $columnMaps[] = new CsvImport_ColumnMap_ItemType($heading);
                     break;
                 case 'file':
-                    $columnMaps[] = new CsvImport_ColumnMap_File($heading);
+                    $columnMaps[] = new CsvImport_ColumnMap_File($heading, $fileDelimiter);
                     break;
                 case 'tags':
-                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading);
+                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading, $tagDelimiter);
                     break;
                 case 'public':
                     $columnMaps[] = new CsvImport_ColumnMap_Public($heading);
@@ -240,8 +259,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
         $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
                                         array('importId' => $csvImport->id,
-                                               'memoryLimit' => @$csvConfig['memoryLimit'],
-                                               'batchSize' => @$csvConfig['batchSize'],
+                                              'memoryLimit' => @$csvConfig['memoryLimit'],
+                                              'batchSize' => @$csvConfig['batchSize'],
             )
         );
 

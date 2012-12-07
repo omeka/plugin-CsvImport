@@ -27,7 +27,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $owner_id;
     public $added;
 
-    public $delimiter;
+    public $delimiter; // the column delimiter
     public $is_public;
     public $is_featured;
     public $skipped_row_count = 0;
@@ -332,9 +332,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         } else {
             $logMsg .= '.';
         }
-        $this->_log($logMsg);
         $this->status = self::STOPPED;
         $this->save();
+        $this->_log($logMsg, Zend_Log::ERR);
         return true;
     }
 
@@ -396,8 +396,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function getCsvFile()
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->file_path,
-                $this->delimiter);
+            $this->_csvFile = new CsvImport_File($this->file_path, $this->delimiter);
         }
         return $this->_csvFile;
     }
@@ -526,23 +525,21 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
-        if (!empty($fileUrls)) {
-            foreach($fileUrls[0] as $url) {
-                try {
-                    $file = insert_files_for_item($item,
-                        'Url', $url,
-                        array('ignore_invalid_files' => false)
-                    );
-                } catch (Omeka_File_Ingest_InvalidException $e) {
-                    $msg = "Error occurred when attempting to ingest the "
-                         . "following URL as a file: '$url': "
-                         . $e->getMessage();
-                    $this->_log($msg, Zend_Log::INFO);
-                    $item->delete();
-                    return false;
-                }
-                release_object($file);
+        foreach ($fileUrls as $url) {
+            try {
+                $file = insert_files_for_item($item,
+                                              'Url', 
+                                              $url,
+                                              array('ignore_invalid_files' => false));
+            } catch (Omeka_File_Ingest_InvalidException $e) {
+                $msg = "Error occurred when attempting to ingest the "
+                     . "following URL as a file: '$url': "
+                     . $e->getMessage();
+                $this->_log($msg, Zend_Log::ERR);
+                $item->delete();
+                return false;
             }
+            release_object($file);
         }
 
         // Makes it easy to unimport the item later.

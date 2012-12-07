@@ -9,7 +9,7 @@
 
 require_once 'models/CsvImport/RowIterator.php';
 
-class CsvImport_RowIteratorTest extends PHPUnit_Framework_TestCase
+class CsvImport_RowIteratorTest extends CsvImport_Test_AppTestCase
 {
     private $_validHeader = array(
         'title' => 'title',
@@ -31,6 +31,7 @@ class CsvImport_RowIteratorTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        parent::setUp();
         $this->validFilePath = CSVIMPORT_BASE . '/tests/_files/test.csv';
     }
 

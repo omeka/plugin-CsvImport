@@ -9,17 +9,32 @@
 class CsvImport_ColumnMap_Set
 {
     private $_maps = array();
-    
+
+    /**
+     * @param array $maps The array of column mappings
+     */    
     public function __construct(array $maps)
     {
         $this->_maps = $maps;
     }
 
+    /**
+     * Adds a column map to the set 
+     *
+     * @param CsvImport_ColumnMap $map The column map
+     */
     public function add(CsvImport_ColumnMap $map)
     {
         $this->_maps[] = $map;
     }
 
+    /**
+     * Map a row to an associative array of mappings indexed by column mapping type, 
+     * and where each mapping can be parsed by insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row to map
+     * @return array The associative array of mappings
+     */
     public function map(array $row)
     {
         $allResults = array(
@@ -36,7 +51,6 @@ class CsvImport_ColumnMap_Set
             $subset = $allResults[$map->getType()];
             $allResults[$map->getType()] = $map->map($row, $subset);
         }
-
         return $allResults;
     }
 }

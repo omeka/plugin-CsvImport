@@ -8,27 +8,67 @@
  */
 class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
 {
-    const TAG_DELIMTER_OPTION_NAME = 'csv_import_tag_delimiter';
+    const DEFAULT_TAG_DELIMTER_OPTION_NAME = 'csv_import_default_tag_delimiter';
     const DEFAULT_TAG_DELIMITER = ',';
 
-    public function __construct($columnName)
+    private $_tagDelimiter;
+
+    /**
+     * @param string $columnName
+     * @param string $tagDelimiter
+     */
+    public function __construct($columnName, $tagDelimiter=null)
     {
         parent::__construct($columnName);
         $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_TAG;
+        if ($tagDelimiter !== null) {
+            $this->_tagDelimiter = $tagDelimiter;
+        } else {
+            $this->_tagDelimiter = self::getDefaultTagDelimiter();            
+        }
     }
 
+    /**
+     * Map a row to an array that can be parsed by
+     * insert_item() or insert_files_for_item().
+     *
+     * @param array $row The row to map
+     * @param array $result
+     * @return array The result
+     */
     public function map($row, $result)
     {
-        $rawTags = explode($this->_getDelimiter(), $row[$this->_columnName]);
+        if ($this->_tagDelimiter == '') {
+            $rawTags = array($row[$this->_columnName]);
+        } else {
+            $rawTags = explode($this->_tagDelimiter, $row[$this->_columnName]);            
+        }
         $trimmed = array_map('trim', $rawTags);
         $cleaned = array_diff($trimmed, array(''));
         $tags = array_merge($result, $cleaned);
         return $tags;
     }
 
-    protected function _getDelimiter()
+    /**
+     * Return the tag delimiter
+     *
+     * @return string The tag delimiter
+     */
+    public function getTagDelimiter()
     {
-        if (!($delimiter = get_option(self::TAG_DELIMTER_OPTION_NAME))) {
+        return $this->_tagDelimiter;
+    }
+
+    /**
+     * Returns the default tag delimiter.  
+     * Uses the default tag delimiter specified in the options table 
+     * if available.
+     *
+     * @return string The default tag delimiter
+     */
+    static public function getDefaultTagDelimiter()
+    {
+        if (!($delimiter = get_option(self::DEFAULT_TAG_DELIMTER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_TAG_DELIMITER;
         }
         return $delimiter;

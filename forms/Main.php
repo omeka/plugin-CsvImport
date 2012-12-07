@@ -9,13 +9,25 @@
 
 class CsvImport_Form_Main extends Omeka_Form
 {
-    private $_columnDelimiter = ',';
+    private $_columnDelimiter;
+    private $_fileDelimiter;
+    private $_tagDelimiter;
+    private $_elementDelimiter;
     private $_fileDestinationDir;
     private $_maxFileSize;
 
+    /**
+     * Initialize the form.
+     */
     public function init()
     {
         parent::init();
+        
+        $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
+        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
+        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
+        $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
+        
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post');
 
@@ -46,23 +58,64 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Feature All Items?'),
         ));
 
-        switch ($this->_columnDelimiter) {
+        $this->_addColumnDelimiterElement();
+        $this->_addTagDelimiterElement();
+        $this->_addFileDelimiterElement();
+        $this->_addElementDelimiterElement();
+        
+        $this->applyOmekaStyles();
+        $this->setAutoApplyOmekaStyles(false);
+        
+        $submit = $this->createElement('submit', 
+                                       'submit', 
+                                       array('label' => __('Next'),
+                                             'class' => 'submit submit-medium'));
+            
+        
+        $submit->setDecorators(array('ViewHelper',
+                                      array('HtmlTag', 
+                                            array('tag' => 'div', 
+                                                  'class' => 'csvimportnext'))));
+                                            
+        $this->addElement($submit);
+    }
+
+    /**
+     * Return the human readable word for a delimiter
+     *
+     * @param string $delimiter The delimiter
+     * @return string The human readable word for the delimiter
+     */
+    protected function _getHumanDelimiterText($delimiter)
+    {
+        $delimiterText = $delimiter;
+        switch ($delimiter) {
             case ',':
-                $delimiterText = 'comma';
+                $delimiterText = __('comma');
                 break;
             case ';':
-                $delimiterText = 'semi-colon';
+                $delimiterText = __('semi-colon');
                 break;
-            default:
-                $delimiterText = $this->_columnDelimiter;
+            case '':
+                $delimiterText = __('empty');
                 break;
         }
+        return $delimiterText;
+    }
+
+    /**
+     * Add the column delimiter element to the form
+     */
+    protected function _addColumnDelimiterElement()
+    {
+        $delimiter = $this->_columnDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
         $this->addElement('text', 'column_delimiter', array(
             'label' => __('Choose Column Delimiter'),
             'description' => __('A single character that will be used to '
                 . 'separate columns in the file (%s by default).'
-                . ' Note that tabs and whitespace are not accepted.', $delimiterText),
-            'value' => $this->_columnDelimiter,
+                . ' Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+            'value' => $delimiter,
             'required' => true,
             'size' => '1',
             'validators' => array(
@@ -85,37 +138,109 @@ class CsvImport_Form_Main extends Omeka_Form
                 )),
             ),
         ));
-        $this->applyOmekaStyles();
-        $this->setAutoApplyOmekaStyles(false);
-        
-        $submit = $this->createElement('submit', 
-                                    'submit', 
-                                    array('label' => __('Next'),
-                                          'class' => 'submit submit-medium'));
-            
-        
-        $submit->setDecorators(array('ViewHelper',
-                                      array('HtmlTag', array('tag' => 'div', 'class' => 'csvimportnext'))));
-                                            
-        $this->addElement($submit);
     }
 
-    public function isValid($post)
+    /**
+     * Add the file delimiter element to the form
+     */
+    protected function _addFileDelimiterElement()
+    {        
+        $delimiter = $this->_fileDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+        $this->addElement('text', 'file_delimiter', array(
+            'label' => __('Choose File Delimiter'),
+            'description' => __('A single character that will be used to '
+                . 'separate file paths or URLs within a cell (%s by default).'
+                . '. If the delimiter is empty, then the whole text will be used as the file path or URL. Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '1',
+            'validators' => array(
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 0,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_SHORT =>
+                            __('File delimiter must be empty or one character long.'),
+                        Zend_Validate_StringLength::TOO_LONG =>
+                            __('File delimiter cannot be more than one character long.'),
+                    ),
+                )),
+            ),
+        ));
+    }
+
+    /**
+     * Add the tag delimiter element to the form
+     */    
+    protected function _addTagDelimiterElement()
     {
-        // Too much POST data, return with an error.
-        if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
-            $maxSize = $this->getMaxFileSize()->toString();
-            $this->csv_file->addError(
-                __('The file you have uploaded exceeds the maximum post size '
-                . 'allowed by the server. Please upload a file smaller '
-                . 'than %s.', $maxSize));
-            return false;
-        }
-
-        return parent::isValid($post);
+        $delimiter = $this->_tagDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+        $this->addElement('text', 'tag_delimiter', array(
+            'label' => __('Choose Tag Delimiter'),
+            'description' => __('A single character that will be used to '
+                . 'separate tags within a cell (%s by default).'
+                . ' Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+            'value' => $delimiter,
+            'required' => true,
+            'size' => '1',
+            'validators' => array(
+                array('validator' => 'NotEmpty',
+                      'breakChainOnFailure' => true,
+                      'options' => array('messages' => array(
+                            Zend_Validate_NotEmpty::IS_EMPTY =>
+                                __('Tag delimiter must be one character long.'),
+                      )),
+                ),
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 1,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_SHORT =>
+                            __('Tag delimiter must be one character long.'),
+                        Zend_Validate_StringLength::TOO_LONG =>
+                            __('Tag delimiter must be one character long.'),
+                    ),
+                )),
+            ),
+        ));
     }
 
-    private function _addFileElement()
+    /**
+     * Add the element delimiter element to the form
+     */
+    protected function _addElementDelimiterElement()
+    {
+        $delimiter = $this->_elementDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+        $this->addElement('text', 'element_delimiter', array(
+            'label' => __('Choose Element Delimiter'),
+            'description' => __('A single character that will be used to '
+                . 'separate metadata elements within a cell (%s by default).'
+                . '. If the delimiter is empty, then the whole text will be used as the element text. Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '1',
+            'validators' => array(
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 0,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_SHORT =>
+                            __('Element delimiter must be empty or one character long.'),
+                        Zend_Validate_StringLength::TOO_LONG =>
+                            __('Element delimiter cannot be more than one character long.'),
+                    ),
+                )),
+            ),
+        ));
+    }
+
+    /**
+     * Add the file element to the form
+     */
+    protected function _addFileElement()
     {
         $size = $this->getMaxFileSize();
         $byteSize = clone $this->getMaxFileSize();
@@ -148,11 +273,69 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->csv_file->addFilter($filter);
     }
 
+    /**
+     * Validate the form post
+     */
+    public function isValid($post)
+    {
+        // Too much POST data, return with an error.
+        if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
+            $maxSize = $this->getMaxFileSize()->toString();
+            $this->csv_file->addError(
+                __('The file you have uploaded exceeds the maximum post size '
+                . 'allowed by the server. Please upload a file smaller '
+                . 'than %s.', $maxSize));
+            return false;
+        }
+
+        return parent::isValid($post);
+    }
+
+    /**
+     * Set the column delimiter for the form.
+     *
+     * @param string $delimiter The column delimiter
+     */
     public function setColumnDelimiter($delimiter)
     {
         $this->_columnDelimiter = $delimiter;
     }
 
+    /**
+     * Set the file delimiter for the form.
+     *
+     * @param string $delimiter The file delimiter
+     */
+    public function setFileDelimiter($delimiter)
+    {
+        $this->_fileDelimiter = $delimiter;
+    }
+
+    /**
+     * Set the tag delimiter for the form.
+     *
+     * @param string $delimiter The tag delimiter
+     */    
+    public function setTagDelimiter($delimiter)
+    {
+        $this->_tagDelimiter = $delimiter;
+    }
+
+    /**
+     * Set the element delimiter for the form.
+     *
+     * @param string $delimiter The element delimiter
+     */    
+    public function setElementDelimiter($delimiter)
+    {
+        $this->_elementDelimiter = $delimiter;
+    }
+
+    /**
+     * Set the file destination for the form.
+     *
+     * @param string $dest The file destination
+     */
     public function setFileDestination($dest)
     {
         $this->_fileDestinationDir = $dest;
@@ -167,30 +350,49 @@ class CsvImport_Form_Main extends Omeka_Form
      *
      * If this is set but it exceeds the aforementioned php setting, the size
      * will be reduced to that lower setting.
+     * 
+     * @param string|null $size The maximum file size
      */
     public function setMaxFileSize($size = null)
     {
-        if (!$this->_maxFileSize) {
-            $postMaxSize = $this->_getSizeMeasure(ini_get('post_max_size'));
-            $fileMaxSize = $this->_getSizeMeasure(ini_get('upload_max_filesize'));
+        $postMaxSize = $this->_getBinarySize(ini_get('post_max_size'));
+        $fileMaxSize = $this->_getBinarySize(ini_get('upload_max_filesize'));
+        
+        // Start with the max size as the lower of the two php ini settings.
+        $strictMaxSize = $postMaxSize->compare($fileMaxSize) > 0
+                        ? $fileMaxSize
+                        : $postMaxSize;
 
-            // Start with the max size as the lower of the two php ini settings.
-            $maxSize = $postMaxSize->compare($fileMaxSize) > 0
-                     ? $fileMaxSize
-                     : $postMaxSize;
-        } else {
-            $maxSize = $this->_maxFileSize;
-        }
-
-        if ($size) {
-            $newSize = $this->_getSizeMeasure($size);
-            if ($pluginIniSize->compare($maxSize) > 0) {
-                $maxSize = $newSize;
+        // If the plugin max file size setting is lower, choose it as the strict max size
+        $pluginMaxSizeRaw = trim(get_option(CsvImportPlugin::MEMORY_LIMIT_OPTION_NAME));
+        if ($pluginMaxSizeRaw != '') {
+            if ($pluginMaxSize = $this->_getBinarySize($pluginMaxSizeRaw)) {
+                $strictMaxSize = $strictMaxSize->compare($pluginMaxSize) > 0
+                                ? $pluginMaxSize
+                                : $strictMaxSize;
             }
         }
+
+        if ($size === null) {
+            $maxSize = $this->_maxFileSize;
+        } else {
+            $maxSize = $this->_getBinarySize($size);            
+        }
+        
+        if ($maxSize === false || 
+            $maxSize === null || 
+            $maxSize->compare($strictMaxSize) > 0) {
+            $maxSize = $strictMaxSize;
+        }
+        
         $this->_maxFileSize = $maxSize;
     }
 
+    /**
+     * Return the max file size
+     * 
+     * @return string The max file size
+     */
     public function getMaxFileSize()
     {
         if (!$this->_maxFileSize) {
@@ -199,7 +401,12 @@ class CsvImport_Form_Main extends Omeka_Form
         return $this->_maxFileSize;
     }
 
-    private function _getSizeMeasure($size)
+    /**
+     * Return the binary size measure
+     * 
+     * @return Zend_Measure_Binary The binary size
+     */
+    protected function _getBinarySize($size)
     {
         if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
             return false;
