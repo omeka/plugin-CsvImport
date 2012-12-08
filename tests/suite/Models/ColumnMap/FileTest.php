@@ -7,19 +7,14 @@
  * @package CsvImport
  */
 class CsvImport_ColumnMap_FileTest extends CsvImport_Test_AppTestCase
-{    
-    public function setUp()
-    {
-        parent::setUp();
-        //$this->validFilePath = CSVIMPORT_BASE . '/tests/_files/test.csv';
-    }
-
+{
     public function testConstructWithoutFileDelimiter()
     {
         $columnName = 'title';
         
         $map = new CsvImport_ColumnMap_File($columnName);
         $this->assertInstanceOf('CsvImport_ColumnMap_File', $map);
+        $this->assertEquals(CsvImport_ColumnMap::TYPE_FILE, $map->getType());
     }
 
     public function testConstructWithFileDelimiter()
@@ -29,6 +24,7 @@ class CsvImport_ColumnMap_FileTest extends CsvImport_Test_AppTestCase
         
         $map = new CsvImport_ColumnMap_File($columnName, $fileDelimiter);
         $this->assertInstanceOf('CsvImport_ColumnMap_File', $map);
+        $this->assertEquals(CsvImport_ColumnMap::TYPE_FILE, $map->getType());
         $this->assertEquals($fileDelimiter, $map->getFileDelimiter());
     }
 
@@ -38,7 +34,6 @@ class CsvImport_ColumnMap_FileTest extends CsvImport_Test_AppTestCase
         $fileDelimiter = ',';
         $this->assertEquals($fileDelimiter, CsvImport_ColumnMap_File::getDefaultFileDelimiter());
         
-
         $beforeFileArray = array('a.jpg','B.txt','http://c.com', ' http://d.com/d', ' E.txt', ' f.txt ', ' G/G ', 'h.ico ', 'I ', ' j K ');
         $afterFileArray = array('a.jpg','B.txt','http://c.com', 'http://d.com/d', 'E.txt', 'f.txt', 'G/G', 'h.ico', 'I', 'j K');
         $fileString = implode($fileDelimiter, $beforeFileArray);

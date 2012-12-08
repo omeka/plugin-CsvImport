@@ -40,7 +40,7 @@ class CsvImport_File implements IteratorAggregate
     /**
      * Get an array of headers for the column names
      * 
-     * @return array
+     * @return array The array of headers for the column names
      */
     public function getColumnNames() 
     {

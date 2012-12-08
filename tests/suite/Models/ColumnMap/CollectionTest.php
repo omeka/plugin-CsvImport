@@ -7,17 +7,12 @@
  * @package CsvImport
  */
 class CsvImport_ColumnMap_CollectionTest extends CsvImport_Test_AppTestCase
-{    
-    public function setUp()
-    {
-        parent::setUp();
-        $this->validFilePath = CSVIMPORT_BASE . '/tests/_files/test.csv';
-    }
-
+{
     public function testConstruct()
     {
         $map = new CsvImport_ColumnMap_Collection('title');
         $this->assertInstanceOf('CsvImport_ColumnMap_Collection', $map);
+        $this->assertEquals(CsvImport_ColumnMap::TYPE_COLLECTION, $map->getType());
     }
 
     public function testMapWithCollection()
