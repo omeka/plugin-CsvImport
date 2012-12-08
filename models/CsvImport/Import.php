@@ -275,7 +275,6 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         return !$this->isError();
     }
 
-
     /**
      * Finishes the import.
      * Sets import status to self::COMPLETED
@@ -493,30 +492,30 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {        
         $result = $this->getColumnMaps()->map($row);
         
-        $tags = $result[CsvImport_ColumnMap::TARGET_TYPE_TAG];
+        $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
-            'public'         => $this->is_public,
-            'featured'       => $this->is_featured,
-            'item_type_id'   => $this->item_type_id,
-            'collection_id'  => $this->collection_id,
-            'tags'           => $tags,
+            Builder_Item::IS_PUBLIC      => $this->is_public,
+            Builder_Item::IS_FEATURED    => $this->is_featured,
+            Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
+            Builder_Item::COLLECTION_ID  => $this->collection_id,
+            Builder_Item::TAGS           => $tags,
         );
         
         // If this is coming from CSV Report, bring in the itemmetadata coming from the report
-        if (!is_null($result[CsvImport_ColumnMap::METADATA_COLLECTION])) {
-            $itemMetadata['collection_id'] = $result[CsvImport_ColumnMap::METADATA_COLLECTION];
+        if (!is_null($result[CsvImport_ColumnMap::TYPE_COLLECTION])) {
+            $itemMetadata[Builder_Item::COLLECTION_ID] = $result[CsvImport_ColumnMap::TYPE_COLLECTION];
         }
-        if (!is_null($result[CsvImport_ColumnMap::METADATA_PUBLIC])) {
-            $itemMetadata['public'] = $result[CsvImport_ColumnMap::METADATA_PUBLIC];
+        if (!is_null($result[CsvImport_ColumnMap::TYPE_PUBLIC])) {
+            $itemMetadata[Builder_Item::IS_PUBLIC] = $result[CsvImport_ColumnMap::TYPE_PUBLIC];
         }
-        if (!is_null($result[CsvImport_ColumnMap::METADATA_FEATURED])) {
-            $itemMetadata['featured'] = $result[CsvImport_ColumnMap::METADATA_FEATURED];
+        if (!is_null($result[CsvImport_ColumnMap::TYPE_FEATURED])) {
+            $itemMetadata[Builder_Item::IS_FEATURED] = $result[CsvImport_ColumnMap::TYPE_FEATURED];
         }
-        if (!empty($result[CsvImport_ColumnMap::METADATA_ITEM_TYPE])) {
-            $itemMetadata['item_type_name'] = $result[CsvImport_ColumnMap::METADATA_ITEM_TYPE];
+        if (!empty($result[CsvImport_ColumnMap::TYPE_ITEM_TYPE])) {
+            $itemMetadata[Builder_Item::ITEM_TYPE_NAME] = $result[CsvImport_ColumnMap::TYPE_ITEM_TYPE];
         }
 
-        $elementTexts = $result[CsvImport_ColumnMap::TARGET_TYPE_ELEMENT];
+        $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
@@ -524,7 +523,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return false;
         }
 
-        $fileUrls = $result[CsvImport_ColumnMap::TARGET_TYPE_FILE];
+        $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
         foreach ($fileUrls as $url) {
             try {
                 $file = insert_files_for_item($item,

@@ -10,9 +10,9 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
 {
     const DEFAULT_ELEMENT_DELIMTER_OPTION_NAME = 'csv_import_default_element_delimiter';
     const DEFAULT_ELEMENT_DELIMITER = '';
-    
+
+    private $_isHtml;    
     private $_elementId;
-    private $_isHtml;
     private $_elementDelimiter;
 
     /**
@@ -22,7 +22,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
     public function __construct($columnName, $elementDelimiter=null)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_ELEMENT;
+        $this->_type = CsvImport_ColumnMap::TYPE_ELEMENT;
         if ($elementDelimiter !== null) {
             $this->_elementDelimiter = $elementDelimiter;
         } else {
@@ -80,6 +80,26 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
     public function getElementDelimiter()
     {
         return $this->_elementDelimiter;
+    }
+
+    /**
+     * Return the element id
+     *
+     * @return int The element id
+     */
+    public function getElementId()
+    {
+        return $this->_elementId;
+    }
+    
+    /**
+     * Return whether the element texts are HTML 
+     *
+     * @return bool Whether the element texts are HTML
+     */
+    public function isHtml()
+    {
+        return $this->_isHtml;
     }
 
     /**

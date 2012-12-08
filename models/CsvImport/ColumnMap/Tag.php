@@ -20,7 +20,7 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
     public function __construct($columnName, $tagDelimiter=null)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_TAG;
+        $this->_type = CsvImport_ColumnMap::TYPE_TAG;
         if ($tagDelimiter !== null) {
             $this->_tagDelimiter = $tagDelimiter;
         } else {
@@ -29,12 +29,11 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to an array of tags
      *
      * @param array $row The row to map
      * @param array $result
-     * @return array The result
+     * @return array The array of tags
      */
     public function map($row, $result)
     {
