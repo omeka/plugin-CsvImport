@@ -38,13 +38,13 @@ class CsvImport_ColumnMap_Set
     public function map(array $row)
     {
         $allResults = array(
-            CsvImport_ColumnMap::TARGET_TYPE_FILE => array(),
-            CsvImport_ColumnMap::TARGET_TYPE_ELEMENT => array(),
-            CsvImport_ColumnMap::TARGET_TYPE_TAG => array(),
-            CsvImport_ColumnMap::METADATA_COLLECTION => null,
-            CsvImport_ColumnMap::METADATA_FEATURED => null,
-            CsvImport_ColumnMap::METADATA_ITEM_TYPE => null,
-            CsvImport_ColumnMap::METADATA_PUBLIC => null
+            CsvImport_ColumnMap::TYPE_FILE => array(),
+            CsvImport_ColumnMap::TYPE_ELEMENT => array(),
+            CsvImport_ColumnMap::TYPE_TAG => array(),
+            CsvImport_ColumnMap::TYPE_COLLECTION => null,
+            CsvImport_ColumnMap::TYPE_FEATURED => null,
+            CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
+            CsvImport_ColumnMap::TYPE_PUBLIC => null
             
         );
         foreach ($this->_maps as $map) {

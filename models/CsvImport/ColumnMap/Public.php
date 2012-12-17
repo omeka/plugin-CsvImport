@@ -14,20 +14,26 @@ class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap
     public function __construct($columnName)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::METADATA_PUBLIC;
+        $this->_type = CsvImport_ColumnMap::TYPE_PUBLIC;
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to whether the row corresponding to an item is public or not
      *
      * @param array $row The row to map
      * @param array $result
-     * @return array The result
+     * @return bool Whether the row corresponding to an item is public or not
      */
     public function map($row, $result)
     {
-        $result = $row[$this->_columnName];
-        return $result;
+        $filter = new Omeka_Filter_Boolean;
+        $flag = strtolower(trim($row[$this->_columnName]));
+        if ($flag == 'no') {
+            return 0;
+        } else if ($flag == 'yes') {
+            return 1;
+        } else {
+            return $filter->filter($flag);
+        }
     }
 }

@@ -14,7 +14,7 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap
     public function __construct($columnName)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::METADATA_COLLECTION;
+        $this->_type = CsvImport_ColumnMap::TYPE_COLLECTION;
     }
 
     /**

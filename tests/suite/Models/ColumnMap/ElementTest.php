@@ -7,19 +7,14 @@
  * @package CsvImport
  */
 class CsvImport_ColumnMap_ElementTest extends CsvImport_Test_AppTestCase
-{    
-    public function setUp()
-    {
-        parent::setUp();
-        //$this->validFilePath = CSVIMPORT_BASE . '/tests/_files/test.csv';
-    }
-
+{
     public function testConstructWithoutElementDelimiter()
     {
         $columnName = 'title';
         
         $map = new CsvImport_ColumnMap_Element($columnName);
         $this->assertInstanceOf('CsvImport_ColumnMap_Element', $map);
+        $this->assertEquals(CsvImport_ColumnMap::TYPE_ELEMENT, $map->getType());
     }
 
     public function testConstructWithElementDelimiter()
@@ -29,6 +24,7 @@ class CsvImport_ColumnMap_ElementTest extends CsvImport_Test_AppTestCase
         
         $map = new CsvImport_ColumnMap_Element($columnName, $elementDelimiter);
         $this->assertInstanceOf('CsvImport_ColumnMap_Element', $map);
+        $this->assertEquals(CsvImport_ColumnMap::TYPE_ELEMENT, $map->getType());
         $this->assertEquals($elementDelimiter, $map->getElementDelimiter());
     }
 

@@ -9,16 +9,16 @@
  */
 abstract class CsvImport_ColumnMap
 {
-    const TARGET_TYPE_ELEMENT = 'Element';
-    const TARGET_TYPE_TAG = 'Tag';
-    const TARGET_TYPE_FILE = 'File';
-    const METADATA_COLLECTION = 'Collection';
-    const METADATA_PUBLIC = 'Public';
-    const METADATA_FEATURED = 'Featured';
-    const METADATA_ITEM_TYPE = 'ItemType';
+    const TYPE_ELEMENT = 'Element';
+    const TYPE_TAG = 'Tag';
+    const TYPE_FILE = 'File';
+    const TYPE_COLLECTION = 'Collection';
+    const TYPE_PUBLIC = 'Public';
+    const TYPE_FEATURED = 'Featured';
+    const TYPE_ITEM_TYPE = 'ItemType';
 
     protected $_columnName;
-    protected $_targetType;
+    protected $_type;
 
     /**
      * @param string $columnName
@@ -35,7 +35,7 @@ abstract class CsvImport_ColumnMap
      */
     public function getType()
     {
-        return $this->_targetType;
+        return $this->_type;
     }
 
     /**

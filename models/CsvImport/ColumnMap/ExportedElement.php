@@ -12,7 +12,13 @@
  */
 class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap 
 {
+    const DEFAULT_COLUMN_NAME_DELIMITER = ':';
+    const DEFAULT_ELEMENT_DELIMITER = '^^';
+
+    private $_columnNameDelimiter;
+    private $_elementDelimiter;    
     private $_elementId;
+    private $_isHtml;
 
     /**
      * @param string $columnName
@@ -20,7 +26,17 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     public function __construct($columnName)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_ELEMENT;
+        $this->_type = CsvImport_ColumnMap::TYPE_ELEMENT;
+        $this->_columnNameDelimiter = self::DEFAULT_COLUMN_NAME_DELIMITER;
+        $this->_elementDelimiter = self::DEFAULT_ELEMENT_DELIMITER;
+        $this->_isHtml = true;
+        
+        $element = $this->_getElementFromColumnName();
+        if ($element) {
+            $this->_elementId = $element->id;
+        } else {
+            $this->_elementId = null;
+        }
     }
 
     /**
@@ -33,19 +49,45 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
      */
     public function map($row, $result)
     {
-        //@TODO: see if we can handle multiple values
-        $text = $row[$this->_columnName];
-        $elementTextsData = explode('^^', $text);
-        $data = explode(':', $this->_columnName);
-        //$data is like array('Element Set Name', 'Element Name');
-        //dig up the element_id
-        $elementId = get_db()->getTable('Element')->findByElementSetNameAndElementName($data[0], $data[1])->id;
-        $elementData = array($data[0] => array($data[1] => array() ) );
-        foreach($elementTextsData as $text) {
-            $result[] = array('element_id'=>$elementId, 'html' => 1, 'text'=>$text);
+        $filter = new Omeka_Filter_HtmlPurifier();
+        $text = $filter->filter($row[$this->_columnName]);
+        if ($this->_elementDelimiter == '') {
+            $texts = array($text);
+        } else {
+            $texts = explode($this->_elementDelimiter, $text);    
         }
-        $result[] = $elementData;
+
+        if ($this->_elementId) {
+            foreach($texts as $text) {
+                $result[] = array('element_id' => $this->_elementId, 
+                                  'html' => $this->_isHtml ? 1 : 0, 
+                                  'text' => $text);
+            }
+        }
+
         return $result;
+    }
+
+    /**
+     * Return the element from the column name
+     *
+     * @return Element|null The element from the column name
+     */
+    protected function _getElementFromColumnName()
+    {
+        $element = null;
+        // $columnNameParts is an array like array('Element Set Name', 'Element Name')
+        if (strlen($this->_columnNameDelimiter) > 0) {
+            if ($columnNameParts = explode($this->_columnNameDelimiter, $this->_columnName)) {
+                if (count($columnNameParts) == 2) {
+                    $elementSetName = $columnNameParts[0];
+                    $elementName = $columnNameParts[1];
+                    $element = get_db()->getTable('Element')
+                                       ->findByElementSetNameAndElementName($elementSetName, $elementName);
+                }
+            }
+        }
+        return $element;
     }
 
     /**
@@ -55,6 +97,49 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
      */
     public function setOptions($options)
     {
+        $this->_columnNameDelimiter = $options['columnNameDelimiter'];
+        $this->_elementDelimiter = $options['elementDelimiter'];
         $this->_elementId = $options['elementId'];
+        $this->_isHtml = $options['isHtml'];
+    }
+    
+    /**
+     * Return the element delimiter
+     *
+     * @return string The element delimiter
+     */
+    public function getElementDelimiter()
+    {
+        return $this->_elementDelimiter;
+    }
+    
+    /**
+     * Return the column name delimiter
+     *
+     * @return string The column name delimiter
+     */
+    public function getColumnNameDelimiter()
+    {
+        return $this->_columnNameDelimiter;
+    }
+    
+    /**
+     * Return the element id
+     *
+     * @return int The element id
+     */
+    public function getElementId()
+    {
+        return $this->_elementId;
+    }
+    
+    /**
+     * Return whether the element texts are HTML 
+     *
+     * @return bool Whether the element texts are HTML
+     */
+    public function isHtml()
+    {
+        return $this->_isHtml;
     }
 }

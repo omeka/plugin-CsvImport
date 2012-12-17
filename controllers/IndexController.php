@@ -110,7 +110,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             return;
         }
 
-        $columnMaps = $form->getMappings();
+        $columnMaps = $form->getColumnMaps();
         if (count($columnMaps) == 0) {
             $this->_helper->flashMessenger(__('Please map at least one column to an element, file, or tag.'), 'error');
             return;
@@ -201,7 +201,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
     
     /**
-     * Create and queue a new import
+     * Create and queue a new import from Omeka.net
      */
     public function omekaCsvAction()
     {
@@ -233,7 +233,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     $columnMaps[] = new CsvImport_ColumnMap_Featured($heading);
                     break;
                 default:
-                    //@TODO: make sure this doesn't break regular import
                     $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
                     break;
             }

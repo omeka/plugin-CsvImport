@@ -20,7 +20,7 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
     public function __construct($columnName, $fileDelimiter=null)
     {
         parent::__construct($columnName);
-        $this->_targetType = CsvImport_ColumnMap::TARGET_TYPE_FILE;
+        $this->_type = CsvImport_ColumnMap::TYPE_FILE;
         if ($fileDelimiter !== null) {
             $this->_fileDelimiter = $fileDelimiter;
         } else {

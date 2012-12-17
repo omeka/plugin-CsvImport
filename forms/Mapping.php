@@ -16,6 +16,9 @@ class CsvImport_Form_Mapping extends Omeka_Form
     private $_tagDelimiter;
     private $_elementDelimiter;
 
+    /**
+     * Initialize the form.
+     */
     public function init()
     {
         parent::init();
@@ -49,6 +52,9 @@ class CsvImport_Form_Mapping extends Omeka_Form
                   'class' => 'submit submit-medium'));
     }
 
+    /**
+     * Load the default decorators.
+     */
     public function loadDefaultDecorators()
     {
         $this->setDecorators(array(
@@ -62,37 +68,72 @@ class CsvImport_Form_Mapping extends Omeka_Form
         ));
     }
 
+    /**
+     * Set the column names
+     * 
+     * @param array $columnNames The array of column names (which are strings)
+     */
     public function setColumnNames($columnNames)
     {
         $this->_columnNames = $columnNames;
     }
 
+    /**
+     * Set the column examples
+     * 
+     * @param array $columnExamples The array of column examples (which are strings)
+     */
     public function setColumnExamples($columnExamples)
     {
         $this->_columnExamples = $columnExamples;
     }
 
+    /**
+     * Set the column examples
+     * 
+     * @param int $itemTypeId The id of the item type
+     */
     public function setItemTypeId($itemTypeId)
     {
         $this->_itemTypeId = $itemTypeId;
     }
 
+    /**
+     * Set the element delimiter
+     * 
+     * @param int $elementDelimiter The element delimiter
+     */
     public function setElementDelimiter($elementDelimiter)
     {
         $this->_elementDelimiter = $elementDelimiter;
     }
 
+    /**
+     * Set the file delimiter
+     * 
+     * @param int $fileDelimiter The file delimiter
+     */
     public function setFileDelimiter($fileDelimiter)
     {
         $this->_fileDelimiter = $fileDelimiter;
     }
 
+    /**
+     * Set the tag delimiter
+     * 
+     * @param int $tagDelimiter The tag delimiter
+     */
     public function setTagDelimiter($tagDelimiter)
     {
         $this->_tagDelimiter = $tagDelimiter;
     }
 
-    public function getMappings()
+    /**
+    * Returns array of column maps
+    *
+    * @return array The array of column maps   
+    */
+    public function getColumnMaps()
     {
         $columnMaps = array();
         foreach ($this->_columnNames as $key => $colName) {
@@ -107,27 +148,57 @@ class CsvImport_Form_Mapping extends Omeka_Form
         return $columnMaps;
     }
 
-    private function _isTagMapped($index)
+    /**
+    * Returns whether a subform row contains a tag mapping
+    *
+    * @param int $index The subform row index
+    * @return bool Whether the subform row contains a tag mapping    
+    */
+    protected function _isTagMapped($index)
     {
         return $this->getSubForm("row$index")->tags->isChecked();
     }
 
-    private function _isFileMapped($index)
+    /**
+    * Returns whether a subform row contains a file mapping
+    *
+    * @param int $index The subform row index
+    * @return bool Whether a subform row contains a file mapping    
+    */
+    protected function _isFileMapped($index)
     {
         return $this->getSubForm("row$index")->file->isChecked();
     }
 
-    private function _getMappedElementId($index)
+    /**
+    * Returns the element id mapped to the subform row
+    *
+    * @param int $index The subform row index
+    * @return mixed The element id mapped to the subform row   
+    */
+    protected function _getMappedElementId($index)
     {
         return $this->_getRowValue($index, 'element');
     }
 
-    private function _getRowValue($row, $name)
+    /**
+    * Returns a row element value
+    *
+    * @param int $index The subform row index
+    * @param string $elementName The element name in the row
+    * @return mixed The row element value     
+    */
+    protected function _getRowValue($index, $elementName)
     {
-        return $this->getSubForm("row$row")->$name->getValue();
+        return $this->getSubForm("row$index")->$elementName->getValue();
     }
 
-    private function _setSubFormDecorators($subForm)
+    /**
+    * Adds decorators to a subform.
+    *
+    * @param Zend_Form_SubForm $subForm The subform  
+    */
+    protected function _setSubFormDecorators($subForm)
     {
         // Get rid of the fieldset tag that wraps subforms by default.
         $subForm->setDecorators(array(
@@ -150,11 +221,11 @@ class CsvImport_Form_Mapping extends Omeka_Form
      * Some columns can have multiple mappings; these are represented
      * as an array of maps.
      *
-     * @param int $index
-     * @param string $columnName
+     * @param int $index The subform row index
+     * @param string $columnName The name of the CSV file column
      * @return CsvImport_ColumnMap|array|null A ColumnMap or an array of ColumnMaps
      */
-    private function _getColumnMap($index, $columnName)
+    protected function _getColumnMap($index, $columnName)
     {
         $columnMap = array();
 
