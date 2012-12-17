@@ -202,6 +202,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
+     * Executes after the record is deleted.
+     */
+    protected function afterDelete()
+    {
+        if (file_exists($this->file_path)) {
+            unlink($this->file_path);
+        }
+    }
+
+    /**
      * Returns whether there is an error with the import
      *
      * @return boolean Whether there is an error with the import

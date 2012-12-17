@@ -43,12 +43,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         $filePath = $form->csv_file->getFileName();
-        $filename = $_FILES['csv_file']['name'];
         $columnDelimiter = $form->getValue('column_delimiter');
-        $fileDelimiter = $form->getValue('file_delimiter');
-        $tagDelimiter = $form->getValue('tag_delimiter');
-        $elementDelimiter = $form->getValue('element_delimiter');
-        
+                
         $file = new CsvImport_File($filePath, $columnDelimiter);
         
         if (!$file->parse()) {
@@ -57,20 +53,23 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         $this->session->setExpirationHops(2);
-        $this->session->originalFilename = $filename;
+        $this->session->originalFilename = $_FILES['csv_file']['name'];
         $this->session->filePath = $filePath;
         
         $this->session->columnDelimiter = $columnDelimiter;
-        $this->session->fileDelimiter = $fileDelimiter;
-        $this->session->tagDelimiter = $tagDelimiter;
-        $this->session->elementDelimiter = $elementDelimiter;
+        $this->session->columnNames = $file->getColumnNames();
+        $this->session->columnExamples = $file->getColumnExamples();
         
+        $this->session->fileDelimiter = $form->getValue('file_delimiter');
+        $this->session->tagDelimiter = $form->getValue('tag_delimiter');
+        $this->session->elementDelimiter = $form->getValue('element_delimiter');
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = $form->getValue('items_are_public');
         $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
         $this->session->collectionId = $form->getValue('collection_id');
-        $this->session->columnNames = $file->getColumnNames();
-        $this->session->columnExamples = $file->getColumnExamples();
+        
+        $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
+
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
         if ($form->getValue('omeka_csv_export')) {
@@ -98,11 +97,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             'columnExamples' => $this->session->columnExamples,
             'fileDelimiter' => $this->session->fileDelimiter,
             'tagDelimiter' => $this->session->tagDelimiter,
-            'elementDelimiter' => $this->session->elementDelimiter
+            'elementDelimiter' => $this->session->elementDelimiter,
+            'automapColumnNamesToElements' => $this->session->automapColumnNamesToElements
         ));
         $this->view->form = $form;
                 
-        if (!$this->getRequest()->isPost()) {
+        if (!$this->getRequest()->isPost()) {            
             return;
         }
         if (!$form->isValid($this->getRequest()->getPost())) {
@@ -130,6 +130,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         } else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
         }
+        
         $this->session->unsetAll();
         $this->_helper->redirector->goto('browse');
     }

@@ -15,6 +15,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
     private $_fileDelimiter;
     private $_tagDelimiter;
     private $_elementDelimiter;
+    private $_automapColumnNamesToElements;
 
     /**
      * Initialize the form.
@@ -39,6 +40,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
                 )
             );
             $selectElement->setIsArray(true);
+            if ($this->_automapColumnNamesToElements) {
+                $selectElement->setValue($this->_getElementIdFromColumnName($colName));
+            }
+            
             $rowSubForm->addElement($selectElement);
             $rowSubForm->addElement('checkbox', 'html');
             $rowSubForm->addElement('checkbox', 'tags');
@@ -51,6 +56,41 @@ class CsvImport_Form_Mapping extends Omeka_Form
             array('label' => __('Import CSV File'),
                   'class' => 'submit submit-medium'));
     }
+
+    protected function _getElementIdFromColumnName($columnName, $columnNameDelimiter=':')
+    {
+        $element = $this->_getElementFromColumnName($columnName, $columnNameDelimiter);
+        if ($element) {
+            return $element->id;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Return the element from the column name
+     *
+     * @param string $columnName The name of the column
+     * @param string $columnNameDelimiter The column name delimiter
+     * @return Element|null The element from the column name
+     */
+    protected function _getElementFromColumnName($columnName, $columnNameDelimiter=':')
+    {
+        $element = null;
+        // $columnNameParts is an array like array('Element Set Name', 'Element Name')
+        if (strlen($columnNameDelimiter) > 0) {
+            if ($columnNameParts = explode($columnNameDelimiter, $columnName)) {
+                if (count($columnNameParts) == 2) {
+                    $elementSetName = trim($columnNameParts[0]);
+                    $elementName = trim($columnNameParts[1]);
+                    $element = get_db()->getTable('Element')
+                                       ->findByElementSetNameAndElementName($elementSetName, $elementName);
+                }
+            }
+        }
+        return $element;
+    }
+
 
     /**
      * Load the default decorators.
@@ -126,6 +166,16 @@ class CsvImport_Form_Mapping extends Omeka_Form
     public function setTagDelimiter($tagDelimiter)
     {
         $this->_tagDelimiter = $tagDelimiter;
+    }
+    
+    /**
+     * Set whether or not to automap column names to elements
+     * 
+     * @param boolean $flag Whether or not to automap column names to elements
+     */
+    public function setAutomapColumnNamesToElements($flag)
+    {
+        $this->_automapColumnNamesToElements = (boolean)$flag;
     }
 
     /**

@@ -39,6 +39,12 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Use an export from Omeka CSV Report'), 
             'description'=> __('Selecting this will override the options below.'))
         );
+        
+        $this->addElement('checkbox', 'automap_columns_names_to_elements', array(
+            'label' => __('Automap Column Names to Elements'), 
+            'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
+            'value' => true)
+        );
 
         $this->addElement('select', 'item_type_id', array(
             'label' => __('Select Item Type'),
