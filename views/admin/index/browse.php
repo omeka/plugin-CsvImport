@@ -37,7 +37,7 @@
                 
                 <td><?php echo html_escape(__(Inflector::humanize($csvImport->status, 'all'))); ?></td>
                 <?php
-                    if ($csvImport->isFinished() 
+                    if ($csvImport->isCompleted() 
                         || $csvImport->isStopped()
                         || $csvImport->isError()): ?>
                     <?php 

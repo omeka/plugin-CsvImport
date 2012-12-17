@@ -8,13 +8,16 @@
  */
 class CsvImport_Import extends Omeka_Record_AbstractRecord
 {
-    const UNDO_IMPORT_LIMIT_PER_QUERY = 100;
+    const UNDO_IMPORT_ITEM_LIMIT_PER_QUERY = 50;
 
     const QUEUED = 'queued';
     const IN_PROGRESS = 'in_progress';
     const COMPLETED = 'completed';
+
+    const QUEUED_UNDO = 'queued_undo';
     const IN_PROGRESS_UNDO = 'undo_in_progress';
     const COMPLETED_UNDO = 'completed_undo';
+
     const ERROR = 'error';
     const STOPPED = 'stopped';
     const PAUSED = 'paused';
@@ -239,11 +242,21 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the import is finished
+     * Returns whether the undo import is queued
      *
-     * @return boolean Whether the import is finished
+     * @return boolean Whether the undo import is queued
      */
-    public function isFinished()
+    public function isQueuedUndo()
+    {
+        return $this->status == self::QUEUED_UNDO;
+    }
+
+    /**
+     * Returns whether the import is completed
+     *
+     * @return boolean Whether the import is completed
+     */
+    public function isCompleted()
     {
         return $this->status == self::COMPLETED;
     }
@@ -276,21 +289,39 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Finishes the import.
+     * Completes the import.
      * Sets import status to self::COMPLETED
      *
-     * @return boolean Whether the import was successfully finished 
+     * @return boolean Whether the import was successfully completed 
      */
-    public function finish()
+    public function complete()
     {
-        if ($this->isFinished()) {
-            $this->_log("Cannot finish an import that is already finished.");
+        if ($this->isCompleted()) {
+            $this->_log("Cannot complete an import that is already completed.");
             return false;
         }
         $this->status = self::COMPLETED;
         $this->save();
-        $this->_log("Finished importing $this->_importedCount items (skipped "
+        $this->_log("Completed importing $this->_importedCount items (skipped "
             . "$this->skipped_row_count rows).");
+        return true;
+    }
+    
+    /**
+     * Completes the undo import.
+     * Sets import status to self::COMPLETED_UNDO
+     *
+     * @return boolean Whether the undo import was successfully completed 
+     */
+    public function completeUndo()
+    {
+        if ($this->isUndone()) {
+            $this->_log("Cannot complete an undo import that is already undone.");
+            return false;
+        }
+        $this->status = self::COMPLETED_UNDO;
+        $this->save();
+        $this->_log("Completed undoing the import.");
         return true;
     }
 
@@ -302,30 +333,46 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function resume()
     {
-        if (!$this->isQueued()) {
-            $this->_log("Cannot resume an import that has not been queued.");
+        if (!$this->isQueued() && !$this->isQueuedUndo()) {
+            $this->_log("Cannot resume an import or undo import that has not been queued.");
             return false;
         }
-        $this->status = self::IN_PROGRESS;
-        $this->save();
-        $this->_log("Resumed import.");
-        $this->_importLoop($this->file_position);
+        
+        $undoImport = $this->isQueuedUndo();
+        
+        if ($this->isQueued()) {
+            $this->status = self::IN_PROGRESS;
+            $this->save();
+            $this->_log("Resumed import.");
+            $this->_importLoop($this->file_position);
+        } else {
+            $this->status = self::IN_PROGRESS_UNDO;
+            $this->save();
+            $this->_log("Resumed undo import.");
+            $this->_undoImportLoop();
+        }
+        
         return !$this->isError();
     }
 
     /**
-     * Stops the import. 
+     * Stops the import or undo import. 
      * Sets import status to self::STOPPED
      * 
-     * @return boolean Whether the import was stopped due to an error 
+     * @return boolean Whether the import or undo import was stopped due to an error 
      */
     public function stop()
     {
-        // Anything besides 'in progress' signifies a finished import.
-        if ($this->status != self::IN_PROGRESS) {
-            return false;
+        // If the import or undo import loops were prematurely stopped while in progress,
+        // then there is an error, otherwise there is no error, i.e. the import 
+        // or undo import was completed
+        if ($this->status != self::IN_PROGRESS and
+            $this->status != self::IN_PROGRESS_UNDO) {
+            return false; // no error
         }
-        $logMsg = "Stopped import due to error";
+        
+        // The import or undo import loop was prematurely stopped 
+        $logMsg = "Stopped import or undo import due to error";
         if ($error = error_get_last()) {
             $logMsg .= ": " . $error['message'];
         } else {
@@ -334,7 +381,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $this->status = self::STOPPED;
         $this->save();
         $this->_log($logMsg, Zend_Log::ERR);
-        return true;
+        return true; // stopped with an error
     }
 
     /**
@@ -345,13 +392,58 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function queue()
     {
-        if ($this->status != self::IN_PROGRESS) {
-            $this->_log("Cannot queue an import that is not in progress.");
+        if ($this->isError()) {
+            $this->_log("Cannot queue an import that has an error.");
             return false;
         }
+        
+        if ($this->isStopped()) {
+            $this->_log("Cannot queue an import that has been stopped.");
+            return false;
+        }
+        
+        if ($this->isCompleted()) {
+            $this->_log("Cannot queue an import that has been completed.");
+            return false;
+        }
+        
+        if ($this->isUndone()) {
+            $this->_log("Cannot queue an import that has been undone.");
+            return false;
+        }
+        
         $this->status = self::QUEUED;
         $this->save();
         $this->_log("Queued import.");
+        return true;
+    }
+    
+    /**
+     * Queue the undo import. 
+     * Sets import status to self::QUEUED_UNDO
+     * 
+     * @return boolean Whether the undo import was successfully queued 
+     */
+    public function queueUndo()
+    {
+        if ($this->isError()) {
+            $this->_log("Cannot queue an undo import that has an error.");
+            return false;
+        }
+        
+        if ($this->isStopped()) {
+            $this->_log("Cannot queue an undo import that has been stopped.");
+            return false;
+        }
+        
+        if ($this->isUndone()) {
+            $this->_log("Cannot queue an undo import that has been undone.");
+            return false;
+        }
+        
+        $this->status = self::QUEUED_UNDO;
+        $this->save();
+        $this->_log("Queued undo import.");
         return true;
     }
     
@@ -365,26 +457,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $this->status = self::IN_PROGRESS_UNDO;
         $this->save();
-        $this->_log("Started undo import.");
-        $db = $this->getDb();
-        $searchSql = "SELECT `item_id` FROM $db->CsvImport_ImportedItem"
-                   . " WHERE `import_id` = " . (int)$this->id
-                   . " LIMIT " . self::UNDO_IMPORT_LIMIT_PER_QUERY;
-        $it = $this->getTable('Item');
-        while ($itemIds = $db->fetchCol($searchSql)) {
-            $inClause = 'IN (' . join(', ', $itemIds) . ')';
-            $items = $it->fetchObjects($it->getSelect()
-                                          ->where("`items`.`id` $inClause"));
-            foreach ($items as $item) {
-                $item->delete();
-                release_object($item);
-            }
-            $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
-        }
-        $this->status = self::COMPLETED_UNDO;
-        $this->save();
-        $this->_log("Completed undo import.");
-        return true;
+        $this->_log("Started undo import.");        
+        $this->_undoImportLoop();
+        return !$this->isError();
     }
 
     /**
@@ -443,43 +518,100 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     protected function _importLoop($startAt = null)
     {
-        register_shutdown_function(array($this, 'stop'));
-        $rows = $this->getCsvFile()->getIterator();
-        $rows->rewind();
-        if ($startAt) {
-            $rows->seek($startAt);
-        }
-        $rows->skipInvalidRows(true);
-        $this->_log("Running item import loop. Memory usage: %memory%");
-        while ($rows->valid()) {
-            try {
-                $row = $rows->current();
-                $index = $rows->key();
-                $this->skipped_row_count += $rows->getSkippedCount();
-                if ($item = $this->_addItemFromRow($row)) {
-                    release_object($item);
-                } else {
-                    $this->skipped_item_count++;
-                }
-                $this->file_position = $this->getCsvFile()->getIterator()->tell();
-                if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
-                    $this->_log("Finished batch of $this->_batchSize "
-                        . "items. Memory usage: %memory%");
-                    return $this->queue();
-                }
-                $rows->next();
-            } catch (Omeka_Job_Worker_InterruptException $e) {
-                // Interruptions usually indicate that we should resume from
-                // the last stopping position.
-                return $this->queue();
-            } catch (Exception $e) {
-                $this->status = self::ERROR;
-                $this->save();
-                $this->_log($e, Zend_Log::ERR);
-                throw $e;
+        try {        
+            register_shutdown_function(array($this, 'stop'));
+            $rows = $this->getCsvFile()->getIterator();
+            $rows->rewind();
+            if ($startAt) {
+                $rows->seek($startAt);
             }
+            $rows->skipInvalidRows(true);
+            $this->_log("Running item import loop. Memory usage: %memory%");
+            while ($rows->valid()) {
+                    $row = $rows->current();
+                    $index = $rows->key();
+                    $this->skipped_row_count += $rows->getSkippedCount();
+                    if ($item = $this->_addItemFromRow($row)) {
+                        release_object($item);
+                    } else {
+                        $this->skipped_item_count++;
+                    }
+                    $this->file_position = $this->getCsvFile()->getIterator()->tell();
+                    if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
+                        $this->_log("Completed importing batch of $this->_batchSize "
+                            . "items. Memory usage: %memory%");
+                        return $this->queue();
+                    }
+                    $rows->next();
+            }
+            return $this->complete();
+        } catch (Omeka_Job_Worker_InterruptException $e) {
+            // Interruptions usually indicate that we should resume from
+            // the last stopping position.
+            return $this->queue();
+        } catch (Exception $e) {
+            $this->status = self::ERROR;
+            $this->save();
+            $this->_log($e, Zend_Log::ERR);
+            throw $e;
         }
-        return $this->finish();
+    }
+    
+    /**
+     * Runs the undo import loop
+     * 
+     * @throws Exception
+     * @return boolean Whether the undo import loop was successfully run
+     */
+    protected function _undoImportLoop()
+    {
+        try {
+            $itemLimitPerQuery = self::UNDO_IMPORT_ITEM_LIMIT_PER_QUERY;
+            $batchSize = intval($this->_batchSize);
+            if ($batchSize > 0) {
+                $itemLimitPerQuery = min($itemLimitPerQuery, $batchSize);
+            }
+            register_shutdown_function(array($this, 'stop'));
+            $db = $this->getDb();
+            $searchSql = "SELECT `item_id` FROM $db->CsvImport_ImportedItem"
+                       . " WHERE `import_id` = " . (int)$this->id
+                       . " LIMIT " . $itemLimitPerQuery;
+            $it = $this->getTable('Item');
+            $deletedItemCount = 0;
+            while ($itemIds = $db->fetchCol($searchSql)) {
+                $inClause = 'IN (' . join(', ', $itemIds) . ')';
+                $items = $it->fetchObjects($it->getSelect()
+                                              ->where("`items`.`id` $inClause"));
+                $deletedItemIds = array();
+                foreach ($items as $item) {
+                    $itemId = $item->id;
+                    $item->delete();
+                    release_object($item);
+                    $deletedItemIds[] = $itemId;
+                    $deletedItemCount++;
+                    if ($batchSize > 0 && $deletedItemCount == $batchSize) {
+                        $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                        $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
+                        $this->_log("Completed undoing the import of a batch of $batchSize "
+                            . "items. Memory usage: %memory%");
+                        return $this->queueUndo();
+                    }
+                }
+                $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
+            }
+            return $this->completeUndo();
+        } catch (Omeka_Job_Worker_InterruptException $e) {
+            if ($db && $deletedItemIds) {
+                $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
+            }
+            return $this->queueUndo();
+        } catch (Exception $e) {
+            $this->status = self::ERROR;
+            $this->save();
+            $this->_log($e, Zend_Log::ERR);
+            throw $e;
+        }
     }
     
     /**

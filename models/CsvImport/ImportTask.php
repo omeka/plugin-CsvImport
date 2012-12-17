@@ -9,11 +9,19 @@
 class CsvImport_ImportTask extends Omeka_Job_AbstractJob
 {
     const QUEUE_NAME = 'csv_import_imports';
+    const METHOD_START = 'start';
+    const METHOD_UNDO = 'undo';
     
     private $_importId;
-    private $_method = 'start';
+    private $_method;
     private $_memoryLimit;
     private $_batchSize;
+
+    public function __construct(array $options)
+    {
+        $this->_method = self::METHOD_START;
+        parent::__construct($options);
+    }
 
     /**
      * Performs the import task 
@@ -30,7 +38,7 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
         $import->setBatchSize($this->_batchSize);
         call_user_func(array($import, $this->_method));
         
-        if ($import->isQueued()) {
+        if ($import->isQueued() || $import->isQueuedUndo()) {
             $this->_dispatcher->setQueueName(self::QUEUE_NAME);
             $this->_dispatcher->sendLongRunning(__CLASS__, 
                 array(

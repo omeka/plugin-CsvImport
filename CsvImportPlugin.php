@@ -47,7 +47,7 @@
 * Note that these jobs run sequentially based on the results of prior 
 * jobs, meaning that the import cannot be parallelized.  The first job 
 * will import 5000 rows and then spawn the next job, and so on until 
-* the import is finished.
+* the import is completed.
 *
 * 
 * @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
