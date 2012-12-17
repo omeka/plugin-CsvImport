@@ -124,22 +124,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             }
         }
         $csvImport->setColumnMaps($columnMaps);
-        $csvImport->setStatus(CsvImport_Import::QUEUED);
-        $csvImport->save();
-
-        $csvConfig = $this->_getPluginConfig();
-        $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
-        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
-            array(
-                'importId' => $csvImport->id,
-                'memoryLimit' => @$csvConfig['memoryLimit'],
-                'batchSize' => @$csvConfig['batchSize'],
-            )
-        );
-
+        if ($csvImport->queue()) {    
+            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
+            $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
+        } else {
+            $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
+        }
         $this->session->unsetAll();
-        $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         $this->_helper->redirector->goto('browse');
     }
     
@@ -250,21 +241,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             }
         }
         $csvImport->setColumnMaps($columnMaps);
-        $csvImport->setStatus(CsvImport_Import::QUEUED);
-        $csvImport->save();
-
-        $csvConfig = $this->_getPluginConfig();
-        $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
-        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
-                                        array('importId' => $csvImport->id,
-                                              'memoryLimit' => @$csvConfig['memoryLimit'],
-                                              'batchSize' => @$csvConfig['batchSize'],
-            )
-        );
-
+        if ($csvImport->queue()) {    
+            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
+            $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
+        } else {
+            $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
+        }
         $this->session->unsetAll();
-        $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         $this->_helper->redirector->goto('browse');
     }
     
@@ -278,7 +261,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             $this->_setParam('sort_field', 'added');
             $this->_setParam('sort_dir', 'd');
         }
-        
         parent::browseAction();
     }
     
@@ -289,15 +271,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     public function undoImportAction()
     {
         $csvImport = $this->_helper->db->findById();
-        $csvImport->status = CsvImport_Import::QUEUED;
-        $csvImport->save();
-
-        $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
-        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
-                                        array('importId' => $csvImport->id, 
-                                               'method' => 'undo'));
-        $this->_helper->flashMessenger(__('Undo import started. Reload this page for status updates.'), 'success');
+        if ($csvImport->queueUndo()) {
+            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_UNDO);                                                                   
+            $this->_helper->flashMessenger(__('Undo import started. Reload this page for status updates.'), 'success');
+        } else {
+            $this->_helper->flashMessenger(__('Undo import could not be started. Please check error logs for more details.'), 'error');
+        }
+        
         $this->_helper->redirector->goto('browse');
     }
     
@@ -308,11 +288,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     public function clearHistoryAction()
     {
         $csvImport = $this->_helper->db->findById();
-        if ($csvImport->status ==
-            CsvImport_Import::COMPLETED_UNDO
-        ) {
+        if ($csvImport->isUndone()) {
             $csvImport->delete();
             $this->_helper->flashMessenger(__('Cleared import from the history.'), 'success');
+        } else {
+            $this->_helper->flashMessenger(__('Cannot clear import history.'), 'error');
         }
         $this->_helper->redirector->goto('browse');
     }
@@ -368,5 +348,37 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             }
         }
         return true;
+    }
+    
+    /**
+     * Dispatch an import task.
+     *
+     * @param CsvImport_Import $csvImport The import object
+     * @param string $method The method name to run in the CsvImport_Import object
+     */    
+    protected function _dispatchImportTask($csvImport, $method=null) 
+    {        
+        if ($method === null) {
+            $method = CsvImport_ImportTask::METHOD_START;
+        }
+        $csvConfig = $this->_getPluginConfig();
+        
+        $options = array(
+            'importId' => $csvImport->id,
+            'memoryLimit' => @$csvConfig['memoryLimit'],
+            'batchSize' => @$csvConfig['batchSize'],
+            'method' => $method,
+        );        
+        
+        $jobDispatcher = Zend_Registry::get('job_dispatcher');
+        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
+        $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
+            array(
+                'importId' => $csvImport->id,
+                'memoryLimit' => @$csvConfig['memoryLimit'],
+                'batchSize' => @$csvConfig['batchSize'],
+                'method' => $method,
+            )
+        );
     }
 }
