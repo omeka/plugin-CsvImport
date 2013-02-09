@@ -289,7 +289,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     public function clearHistoryAction()
     {
         $csvImport = $this->_helper->db->findById();
-        if ($csvImport->isUndone()) {
+        $importedItemCount = $csvImport->getImportedItemCount(); 
+        
+        if ($csvImport->isUndone() || 
+            $csvImport->isUndoImportError() || 
+            $csvImport->isOtherError() ||
+            ($csvImport->isImportError() && $importedItemCount == 0)) {
             $csvImport->delete();
             $this->_helper->flashMessenger(__('Cleared import from the history.'), 'success');
         } else {
