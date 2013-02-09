@@ -69,7 +69,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
      * @var array Hooks for the plugin.
      */
     protected $_hooks = array('install', 
-                              'uninstall', 
+                              'uninstall',
+                              'upgrade', 
                               'admin_head', 
                               'define_acl');
 
@@ -128,7 +129,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     /**
      * Uninstall the plugin.
      */
-    function hookUninstall()
+    public function hookUninstall()
     {
         $db = $this->_db;
         
@@ -139,6 +140,21 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         $db->query($sql);
         
         $this->_uninstallOptions();
+    }
+    
+    /**
+     * Upgrade the plugin
+     */
+    public function hookUpgrade($args) 
+    {
+        $oldVersion = $args['old_version'];
+        $newVersion = $args['new_version'];
+        $db = $this->_db;
+        
+        if (version_compare($oldVersion, '2.0-dev', '<=')) {
+            $sql = "UPDATE `{$db->prefix}csv_import_imports` SET `status` = ? WHERE `status` = ?";
+            $db->query($sql, array('other_error', 'error'));
+        }   
     }
     
     /**
@@ -162,7 +178,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     *
     * @param array $args 
     */
-    function hookAdminHead($args)
+    public function hookAdminHead($args)
     {        
         $request = Zend_Controller_Front::getInstance()->getRequest();        
         if ($request->getModuleName() == 'csv-import') {
