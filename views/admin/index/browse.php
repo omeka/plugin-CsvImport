@@ -31,7 +31,8 @@
                 <td><?php echo html_escape(format_date($csvImport->added, Zend_Date::DATETIME_SHORT)); ?></td>
                 <td><?php echo html_escape($csvImport->original_filename); ?></td>
                 
-                <td><?php echo html_escape($csvImport->getImportedItemCount()); ?></td>
+                <?php $importedItemCount = $csvImport->getImportedItemCount(); ?>
+                <td><?php echo html_escape($importedItemCount); ?></td>
                 <td><?php echo html_escape($csvImport->skipped_item_count); ?></td>
                 <td><?php echo html_escape($csvImport->skipped_row_count); ?></td>
                 
@@ -39,7 +40,7 @@
                 <?php
                     if ($csvImport->isCompleted() 
                         || $csvImport->isStopped()
-                        || $csvImport->isError()): ?>
+                        || ($csvImport->isImportError() && $importedItemCount > 0)): ?>
                     <?php 
                     $undoImportUrl = $this->url(array('action' => 'undo-import',
                                                       'id' => $csvImport->id),
@@ -48,7 +49,10 @@
                     <td>
                         <a href="<?php echo html_escape($undoImportUrl);  ?>" class="csv-undo-import delete-button"><?php echo html_escape(__('Undo Import')); ?></a>
                     </td>
-                <?php elseif ($csvImport->isUndone()): ?>
+                <?php elseif ($csvImport->isUndone() || 
+                              $csvImport->isUndoImportError() || 
+                              $csvImport->isOtherError() || 
+                              ($csvImport->isImportError() && $importedItemCount == 0)): ?>
                     <?php 
                     $clearHistoryImportUrl = $this->url(array('action' => 'clear-history',
                                                               'id' => $csvImport->id),

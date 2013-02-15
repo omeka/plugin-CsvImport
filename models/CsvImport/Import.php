@@ -18,7 +18,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     const IN_PROGRESS_UNDO = 'undo_in_progress';
     const COMPLETED_UNDO = 'completed_undo';
 
-    const ERROR = 'error';
+    const IMPORT_ERROR = 'import_error';
+    const UNDO_IMPORT_ERROR = 'undo_import_error';
+    const OTHER_ERROR = 'other_error';
+    
     const STOPPED = 'stopped';
     const PAUSED = 'paused';
 
@@ -212,13 +215,45 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether there is an error with the import
+     * Returns whether there is an error
      *
-     * @return boolean Whether there is an error with the import
+     * @return boolean Whether there is an error
      */
     public function isError()
     {
-        return $this->status == self::ERROR;
+        return $this->isImportError() || 
+               $this->isUndoImportError() ||
+               $this->isOtherError();
+    }
+    
+    /**
+     * Returns whether there is an error with the import process
+     *
+     * @return boolean Whether there is an error with the import process
+     */
+    public function isImportError()
+    {
+        return $this->status == self::IMPORT_ERROR;
+    }
+    
+    /**
+     * Returns whether there is an error with the undo import process
+     *
+     * @return boolean Whether there is an error with the undo import process
+     */
+    public function isUndoImportError()
+    {
+        return $this->status == self::UNDO_IMPORT_ERROR;
+    }
+
+    /**
+     * Returns whether there is an error that is neither related to an import nor undo import process
+     *
+     * @return boolean Whether there is an error that is neither related to an import nor undo import process
+     */
+    public function isOtherError()
+    {
+        return $this->status == self::OTHER_ERROR;
     }
 
     /**
@@ -426,7 +461,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function queueUndo()
     {
-        if ($this->isError()) {
+        if ($this->isUndoImportError()) {
+            $this->_log("Cannot queue an undo import that has an undo import error.");
+            return false;
+        }
+        
+        if ($this->isOtherError()) {
             $this->_log("Cannot queue an undo import that has an error.");
             return false;
         }
@@ -550,7 +590,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             // the last stopping position.
             return $this->queue();
         } catch (Exception $e) {
-            $this->status = self::ERROR;
+            $this->status = self::IMPORT_ERROR;
             $this->save();
             $this->_log($e, Zend_Log::ERR);
             throw $e;
@@ -607,7 +647,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             }
             return $this->queueUndo();
         } catch (Exception $e) {
-            $this->status = self::ERROR;
+            $this->status = self::UNDO_IMPORT_ERROR;
             $this->save();
             $this->_log($e, Zend_Log::ERR);
             throw $e;

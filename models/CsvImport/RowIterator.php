@@ -62,7 +62,7 @@ class CsvImport_RowIterator implements SeekableIterator
         $this->_valid = true;
         // First row should always be the header.
         $colRow = $this->_getNextRow();
-        $this->_colNames = array_keys(array_flip($colRow));
+        $this->_colNames = array_map("trim", array_keys(array_flip($colRow)));
         $this->_colCount = count($colRow);
         $uniqueColCount = count($this->_colNames);
         if ($uniqueColCount != $this->_colCount) {
