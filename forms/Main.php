@@ -120,7 +120,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose Column Delimiter'),
             'description' => __('A single character that will be used to '
                 . 'separate columns in the file (%s by default).'
-                . ' Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+                . ' Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
             'value' => $delimiter,
             'required' => true,
             'size' => '1',
@@ -129,7 +129,7 @@ class CsvImport_Form_Main extends Omeka_Form
                       'breakChainOnFailure' => true,
                       'options' => array('messages' => array(
                             Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('Column delimiter must be one character long.'),
+                                __('Column delimiter cannot be whitespace and must be one character long.'),
                       )),
                 ),
                 array('validator' => 'StringLength', 'options' => array(
@@ -137,9 +137,9 @@ class CsvImport_Form_Main extends Omeka_Form
                     'max' => 1,
                     'messages' => array(
                         Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Column delimiter must be one character long.'),
+                            __('Column delimiter cannot be whitespace and must be one character long.'),
                         Zend_Validate_StringLength::TOO_LONG =>
-                            __('Column delimiter must be one character long.'),
+                            __('Column delimiter cannot be whitespace and must be one character long.'),
                     ),
                 )),
             ),
@@ -157,19 +157,28 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose File Delimiter'),
             'description' => __('A single character that will be used to '
                 . 'separate file paths or URLs within a cell (%s by default).'
-                . '. If the delimiter is empty, then the whole text will be used as the file path or URL. Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+                . ' If the delimiter is empty, then the whole text will be used as the file path or URL. Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
             'value' => $delimiter,
             'required' => false,
             'size' => '1',
             'validators' => array(
+                
+                array('validator' => 'NotEmpty',
+                      'breakChainOnFailure' => true,
+                      'options' => array('type' => 'space', 'messages' => array(
+                            Zend_Validate_NotEmpty::IS_EMPTY =>
+                                __('File delimiter cannot be whitespace, and must be empty or one character long.'),
+                      )),
+                ),
+                
                 array('validator' => 'StringLength', 'options' => array(
                     'min' => 0,
                     'max' => 1,
                     'messages' => array(
                         Zend_Validate_StringLength::TOO_SHORT =>
-                            __('File delimiter must be empty or one character long.'),
+                            __('File delimiter cannot be whitespace, and must be empty or one character long.'),
                         Zend_Validate_StringLength::TOO_LONG =>
-                            __('File delimiter cannot be more than one character long.'),
+                            __('File delimiter cannot be whitespace, and must be empty or one character long.'),
                     ),
                 )),
             ),
@@ -187,7 +196,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose Tag Delimiter'),
             'description' => __('A single character that will be used to '
                 . 'separate tags within a cell (%s by default).'
-                . ' Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+                . ' Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
             'value' => $delimiter,
             'required' => true,
             'size' => '1',
@@ -196,7 +205,7 @@ class CsvImport_Form_Main extends Omeka_Form
                       'breakChainOnFailure' => true,
                       'options' => array('messages' => array(
                             Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('Tag delimiter must be one character long.'),
+                                __('Tag delimiter cannot be whitespace and must be one character long.'),
                       )),
                 ),
                 array('validator' => 'StringLength', 'options' => array(
@@ -204,9 +213,9 @@ class CsvImport_Form_Main extends Omeka_Form
                     'max' => 1,
                     'messages' => array(
                         Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Tag delimiter must be one character long.'),
+                            __('Tag delimiter cannot be whitespace and must be one character long.'),
                         Zend_Validate_StringLength::TOO_LONG =>
-                            __('Tag delimiter must be one character long.'),
+                            __('Tag delimiter cannot be whitespace and must be one character long.'),
                     ),
                 )),
             ),
@@ -224,19 +233,28 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose Element Delimiter'),
             'description' => __('A single character that will be used to '
                 . 'separate metadata elements within a cell (%s by default).'
-                . '. If the delimiter is empty, then the whole text will be used as the element text. Note that tabs and whitespace are not accepted.', $humanDelimiterText),
+                . ' If the delimiter is empty, then the whole text will be used as the element text. Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
             'value' => $delimiter,
             'required' => false,
             'size' => '1',
             'validators' => array(
+                
+                array('validator' => 'NotEmpty',
+                      'breakChainOnFailure' => true,
+                      'options' => array('type' => 'space', 'messages' => array(
+                            Zend_Validate_NotEmpty::IS_EMPTY =>
+                                __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
+                      )),
+                ),
+                
                 array('validator' => 'StringLength', 'options' => array(
                     'min' => 0,
                     'max' => 1,
                     'messages' => array(
                         Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Element delimiter must be empty or one character long.'),
+                            __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
                         Zend_Validate_StringLength::TOO_LONG =>
-                            __('Element delimiter cannot be more than one character long.'),
+                            __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
                     ),
                 )),
             ),
