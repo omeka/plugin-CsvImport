@@ -47,7 +47,8 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
             }
             $trimmedUrls = array_map('trim', $rawUrls);
             $cleanedUrls = array_diff($trimmedUrls, array(''));
-            $result = array_merge($result, $cleanedUrls);            
+            $result = array_merge($result, $cleanedUrls);
+            $result = array_unique($result);          
         }
         return $result;
     }
