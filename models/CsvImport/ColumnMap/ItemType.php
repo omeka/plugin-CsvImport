@@ -6,11 +6,11 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_ItemType extends CsvImport_ColumnMap 
+class CsvImport_ColumnMap_ItemType extends CsvImport_ColumnMap
 {
     /**
      * @param string $columnName
-     */    
+     */
     public function __construct($columnName)
     {
         parent::__construct($columnName);
@@ -18,8 +18,8 @@ class CsvImport_ColumnMap_ItemType extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to an array that can be parsed by insert_item() or
+     * insert_files_for_item().
      *
      * @param array $row The row to map
      * @param array $result

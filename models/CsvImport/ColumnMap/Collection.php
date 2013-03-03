@@ -6,8 +6,8 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap 
-{    
+class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap
+{
     /**
      * @param string $columnName
      */
@@ -18,8 +18,8 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to an array that can be parsed by insert_item() or
+     * insert_files_for_item().
      *
      * @param array $row The row to map
      * @param array $result
@@ -36,28 +36,28 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap
         }
         return $result;
     }
-    
+
     /**
-     * Return a collection by its title
+     * Return a collection by its title.
      *
      * @param string $name The collection name
      * @return Collection The collection
-     */    
+     */
     protected function _getCollectionByTitle($name)
     {
         $db = get_db();
-        
+
         $elementTable = $db->getTable('Element');
         $element = $elementTable->findByElementSetNameAndElementName('Dublin Core', 'Title');
-        
+
         $collectionTable = $db->getTable('Collection');
         $select = $collectionTable->getSelect();
-        $select->joinInner(array('s' => $db->ElementText), 
+        $select->joinInner(array('s' => $db->ElementText),
                            's.record_id = collections.id', array());
         $select->where("s.record_type = 'Collection'");
         $select->where("s.element_id = ?", $element->id);
         $select->where("s.text = ?", $name);
-                
+
         $collection = $collectionTable->fetchObject($select);
         if (!$collection) {
             _log("Collection not found. Collections must be created with identical names prior to import", Zend_Log::NOTICE);

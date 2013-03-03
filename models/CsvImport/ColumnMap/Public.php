@@ -6,11 +6,11 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap 
+class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap
 {
     /**
      * @param string $columnName
-     */ 
+     */
     public function __construct($columnName)
     {
         parent::__construct($columnName);
@@ -18,7 +18,7 @@ class CsvImport_ColumnMap_Public extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to whether the row corresponding to an item is public or not
+     * Map a row to whether the row corresponding to an item is public or not.
      *
      * @param array $row The row to map
      * @param array $result
