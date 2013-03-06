@@ -18,39 +18,39 @@ msgstr ""
 
 #: CsvImportPlugin.php:199
 msgid "Csv Import"
-msgstr ""
+msgstr "CSVインポート"
 
 #: controllers/IndexController.php:36
 msgid "Invalid form input. Please see errors below and try again."
-msgstr ""
+msgstr "無効な入力です。下記のエラーを確認して、もう一度お試し下さい。"
 
 #: controllers/IndexController.php:41
 msgid "Error uploading file. Please try again."
-msgstr ""
+msgstr "ファイルのアップロードでエラーが発生しました。もう一度お試し下さい。"
 
 #: controllers/IndexController.php:51
 msgid "Your file is incorrectly formatted."
-msgstr ""
+msgstr "このファイルのフォーマットが正しくありません。"
 
 #: controllers/IndexController.php:88
 msgid "Import settings expired. Please try again."
-msgstr ""
+msgstr "インポート設定が失効しました。もう一度お試し下さい。"
 
 #: controllers/IndexController.php:109
 msgid "Invalid form input. Please try again."
-msgstr ""
+msgstr "無効な入力です。もう一度お試し下さい。"
 
 #: controllers/IndexController.php:115
 msgid "Please map at least one column to an element, file, or tag."
-msgstr ""
+msgstr "1つの要素・ファイル・タグに対して、少なくとも1つのカラムをマッピングして下さい。"
 
 #: controllers/IndexController.php:129 controllers/IndexController.php:247
 msgid "Import started. Reload this page for status updates."
-msgstr ""
+msgstr "インポートを開始しました。ステータスをアップデートするにはこのページを再読込して下さい。"
 
 #: controllers/IndexController.php:131 controllers/IndexController.php:249
 msgid "Import could not be started. Please check error logs for more details."
-msgstr ""
+msgstr "インポートが開始できませんでした。詳細はエラーログをチェックして下さい。"
 
 #: controllers/IndexController.php:167
 #, php-format
@@ -58,32 +58,34 @@ msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
 msgstr ""
+"無効なカラム名です。カラム名は下記の%sのうちの1つか、次のフォーマット"
+"である必要があります。: {ElementSetName}:{ElementName}"
 
 #: controllers/IndexController.php:183
 #, php-format
 msgid "Element \"%s\" is not found in element set \"%s\""
-msgstr ""
+msgstr "要素\"%s\"は要素セット\"%s\"の中に見つかりません。"
 
 #: controllers/IndexController.php:277
 msgid "Undo import started. Reload this page for status updates."
-msgstr ""
+msgstr "インポートの取り消しを開始しました。ステータスをアップデートするにはこのページを再読込して下さい。"
 
 #: controllers/IndexController.php:279
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
-msgstr ""
+msgstr "インポートの取り消しが開始できませんでした。詳細はエラーログをチェックして下さい。"
 
 #: controllers/IndexController.php:299
 msgid "Cleared import from the history."
-msgstr ""
+msgstr "インポート履歴をクリアしました。"
 
 #: controllers/IndexController.php:301
 msgid "Cannot clear import history."
-msgstr ""
+msgstr "インポート履歴をクリアできませんでした。"
 
 #: forms/Main.php:36 forms/Main.php:50
 msgid "Select Item Type"
-msgstr ""
+msgstr "アイテムのタイプ"
 
 #: forms/Main.php:39
 msgid "Use an export from Omeka CSV Report"
@@ -107,7 +109,7 @@ msgstr ""
 
 #: forms/Main.php:54 forms/Main.php:57
 msgid "Select Collection"
-msgstr "コレクションを選択"
+msgstr "コレクション"
 
 #: forms/Main.php:61
 msgid "Make All Items Public?"
@@ -297,39 +299,42 @@ msgid ""
 "    installed, or you created custom item type elements in Omeka.net, but "
 "have not yet created them here."
 msgstr ""
+"残念ながら、あなたのOmeka.netサイトに、このOmekaのインストールでは対応出来ない"
+"要素の出力があります。Doublin Core Extendedプラグインがインストールされていないか、"
+"あるいはOmeka.netで作ったカスタムのアイテムタイプが作成されていない可能性があります。"
 
 #: views/admin/index/check-omeka-csv.php:14
 msgid "Please correct the errors, then try your import again."
-msgstr ""
+msgstr "エラーを修正して再度インポートして下さい。"
 
 #: views/admin/index/index.php:7
 msgid "Step 1: Select File and Item Settings"
-msgstr ""
+msgstr "Step 1: ファイルの選択とアイテムの設定"
 
 #: views/admin/index/map-columns-form.php:9
 msgid "Column"
-msgstr ""
+msgstr "カラム"
 
 #: views/admin/index/map-columns-form.php:10
 msgid "Example from CSV File"
-msgstr ""
+msgstr "CSVファイルからの例"
 
 #: views/admin/index/map-columns-form.php:11
 msgid "Map To Element"
-msgstr ""
+msgstr "要素へのマップ"
 
 #: views/admin/index/map-columns-form.php:12
 msgid "Use HTML?"
-msgstr ""
+msgstr "HTMLを使用？"
 
 #: views/admin/index/map-columns-form.php:13
 msgid "Tags?"
-msgstr ""
+msgstr "タグ？"
 
 #: views/admin/index/map-columns-form.php:14
 msgid "Files?"
-msgstr ""
+msgstr "ファイル？"
 
 #: views/admin/index/map-columns.php:7
 msgid "Step 2: Map Columns To Elements, Tags, or Files"
-msgstr ""
+msgstr "Step 2: カラムと要素・タグ・ファイルとのマッピング"
