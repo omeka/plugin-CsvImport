@@ -57,7 +57,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
                   'class' => 'submit submit-medium'));
     }
 
-    protected function _getElementIdFromColumnName($columnName, $columnNameDelimiter=':')
+    protected function _getElementIdFromColumnName($columnName, $columnNameDelimiter = ':')
     {
         $element = $this->_getElementFromColumnName($columnName, $columnNameDelimiter);
         if ($element) {
@@ -74,7 +74,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
      * @param string $columnNameDelimiter The column name delimiter
      * @return Element|null The element from the column name
      */
-    protected function _getElementFromColumnName($columnName, $columnNameDelimiter=':')
+    protected function _getElementFromColumnName($columnName, $columnNameDelimiter = ':')
     {
         $element = null;
         // $columnNameParts is an array like array('Element Set Name', 'Element Name')
