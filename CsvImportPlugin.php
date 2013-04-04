@@ -71,6 +71,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     protected $_hooks = array('install', 
                               'uninstall',
                               'upgrade', 
+                              'initialize',
                               'admin_head', 
                               'define_acl');
 
@@ -155,6 +156,14 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             $sql = "UPDATE `{$db->prefix}csv_import_imports` SET `status` = ? WHERE `status` = ?";
             $db->query($sql, array('other_error', 'error'));
         }   
+    }
+    
+    /**
+     * Add the translations.
+     */
+    public function hookInitialize()
+    {
+        add_translation_source(dirname(__FILE__) . '/languages');
     }
     
     /**

@@ -1,0 +1,320 @@
+# Translation for the Csv Import plugin for Omeka.
+# Copyright (C) YEAR THE Omeka'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Omeka package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CsvImport\n"
+"Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
+"POT-Creation-Date: 2013-03-06 00:06+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: CsvImportPlugin.php:199
+msgid "Csv Import"
+msgstr ""
+
+#: controllers/IndexController.php:36
+msgid "Invalid form input. Please see errors below and try again."
+msgstr ""
+
+#: controllers/IndexController.php:41
+msgid "Error uploading file. Please try again."
+msgstr ""
+
+#: controllers/IndexController.php:51
+msgid "Your file is incorrectly formatted."
+msgstr ""
+
+#: controllers/IndexController.php:88
+msgid "Import settings expired. Please try again."
+msgstr ""
+
+#: controllers/IndexController.php:109
+msgid "Invalid form input. Please try again."
+msgstr ""
+
+#: controllers/IndexController.php:115
+msgid "Please map at least one column to an element, file, or tag."
+msgstr ""
+
+#: controllers/IndexController.php:129 controllers/IndexController.php:247
+msgid "Import started. Reload this page for status updates."
+msgstr ""
+
+#: controllers/IndexController.php:131 controllers/IndexController.php:249
+msgid "Import could not be started. Please check error logs for more details."
+msgstr ""
+
+#: controllers/IndexController.php:167
+#, php-format
+msgid ""
+"Invalid column names. Column names must either be one of the following %s, "
+"or have the following format: {ElementSetName}:{ElementName}"
+msgstr ""
+
+#: controllers/IndexController.php:183
+#, php-format
+msgid "Element \"%s\" is not found in element set \"%s\""
+msgstr ""
+
+#: controllers/IndexController.php:277
+msgid "Undo import started. Reload this page for status updates."
+msgstr ""
+
+#: controllers/IndexController.php:279
+msgid ""
+"Undo import could not be started. Please check error logs for more details."
+msgstr ""
+
+#: controllers/IndexController.php:299
+msgid "Cleared import from the history."
+msgstr ""
+
+#: controllers/IndexController.php:301
+msgid "Cannot clear import history."
+msgstr ""
+
+#: forms/Main.php:36 forms/Main.php:50
+msgid "Select Item Type"
+msgstr ""
+
+#: forms/Main.php:39
+msgid "Use an export from Omeka CSV Report"
+msgstr ""
+
+#: forms/Main.php:40
+msgid "Selecting this will override the options below."
+msgstr ""
+
+#: forms/Main.php:44
+msgid "Automap Column Names to Elements"
+msgstr ""
+
+#: forms/Main.php:45
+msgid ""
+"Automatically maps columns to elements based on their column names. The "
+"column name must be in the form: <br/> {ElementSetName}:{ElementName}"
+msgstr ""
+
+#: forms/Main.php:54 forms/Main.php:57
+msgid "Select Collection"
+msgstr ""
+
+#: forms/Main.php:61
+msgid "Make All Items Public?"
+msgstr ""
+
+#: forms/Main.php:64
+msgid "Feature All Items?"
+msgstr ""
+
+#: forms/Main.php:100
+msgid "comma"
+msgstr ""
+
+#: forms/Main.php:103
+msgid "semi-colon"
+msgstr ""
+
+#: forms/Main.php:106
+msgid "empty"
+msgstr ""
+
+#: forms/Main.php:120
+msgid "Choose Column Delimiter"
+msgstr ""
+
+#: forms/Main.php:121
+#, php-format
+msgid ""
+"A single character that will be used to separate columns in the file (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr ""
+
+#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+msgid "Column delimiter cannot be whitespace and must be one character long."
+msgstr ""
+
+#: forms/Main.php:157
+msgid "Choose File Delimiter"
+msgstr ""
+
+#: forms/Main.php:158
+#, php-format
+msgid ""
+"A single character that will be used to separate file paths or URLs within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be "
+"used as the file path or URL. Note that spaces, tabs, and other whitespace "
+"are not accepted."
+msgstr ""
+
+#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+msgid ""
+"File delimiter cannot be whitespace, and must be empty or one character long."
+msgstr ""
+
+#: forms/Main.php:196
+msgid "Choose Tag Delimiter"
+msgstr ""
+
+#: forms/Main.php:197
+#, php-format
+msgid ""
+"A single character that will be used to separate tags within a cell (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr ""
+
+#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+msgid "Tag delimiter cannot be whitespace and must be one character long."
+msgstr ""
+
+#: forms/Main.php:233
+msgid "Choose Element Delimiter"
+msgstr ""
+
+#: forms/Main.php:234
+#, php-format
+msgid ""
+"A single character that will be used to separate metadata elements within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be "
+"used as the element text. Note that spaces, tabs, and other whitespace are "
+"not accepted."
+msgstr ""
+
+#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+msgid ""
+"Element delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr ""
+
+#: forms/Main.php:291
+msgid "Upload CSV File"
+msgstr ""
+
+#: forms/Main.php:295
+#, php-format
+msgid "Maximum file size is %s."
+msgstr ""
+
+#: forms/Main.php:309
+#, php-format
+msgid ""
+"The file you have uploaded exceeds the maximum post size allowed by the "
+"server. Please upload a file smaller than %s."
+msgstr ""
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
+msgstr ""
+
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr ""
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr ""
+
+#: views/admin/index/browse.php:7 views/admin/index/browse.php:20
+msgid "Status"
+msgstr ""
+
+#: views/admin/index/browse.php:15
+msgid "Import Date"
+msgstr ""
+
+#: views/admin/index/browse.php:16
+msgid "CSV File"
+msgstr ""
+
+#: views/admin/index/browse.php:17
+msgid "Imported Items"
+msgstr ""
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Items"
+msgstr ""
+
+#: views/admin/index/browse.php:19
+msgid "Skipped Rows"
+msgstr ""
+
+#: views/admin/index/browse.php:21
+msgid "Action"
+msgstr ""
+
+#: views/admin/index/browse.php:50
+msgid "Undo Import"
+msgstr ""
+
+#: views/admin/index/browse.php:62
+msgid "Clear History"
+msgstr ""
+
+#: views/admin/index/browse.php:72
+msgid "You have no imports yet."
+msgstr ""
+
+#: views/admin/index/check-omeka-csv.php:2
+msgid "CSV Import Errors"
+msgstr ""
+
+#: views/admin/index/check-omeka-csv.php:7
+msgid ""
+"The following problems were found with your CSV file and Omeka installation."
+msgstr ""
+
+#: views/admin/index/check-omeka-csv.php:10
+msgid ""
+"Usually, these are the result of the elements in your Omeka.net site not "
+"having \n"
+"    corresponding elements in this installation of Omeka. Either the Dublin "
+"Core Extended plugin is not \n"
+"    installed, or you created custom item type elements in Omeka.net, but "
+"have not yet created them here."
+msgstr ""
+
+#: views/admin/index/check-omeka-csv.php:14
+msgid "Please correct the errors, then try your import again."
+msgstr ""
+
+#: views/admin/index/index.php:7
+msgid "Step 1: Select File and Item Settings"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:9
+msgid "Column"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:10
+msgid "Example from CSV File"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:11
+msgid "Map To Element"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:12
+msgid "Use HTML?"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:13
+msgid "Tags?"
+msgstr ""
+
+#: views/admin/index/map-columns-form.php:14
+msgid "Files?"
+msgstr ""
+
+#: views/admin/index/map-columns.php:7
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr ""
