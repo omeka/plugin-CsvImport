@@ -20,10 +20,10 @@ class CsvImport_RowIteratorTest extends CsvImport_Test_AppTestCase
     );
 
     private $_validFirstRow = array(
-        'title' => "Robinson Crusoe", 
-        'creator' => "Daniel Defoe", 
-        'description' => "A man survives on an island.", 
-        'tags' => "book, classic, island", 
+        'title' => "Robinson Crusoe",
+        'creator' => "Daniel Defoe",
+        'description' => "A man survives on an island.",
+        'tags' => "book, classic, island",
         'file' => "",
     );
 
@@ -50,7 +50,7 @@ class CsvImport_RowIteratorTest extends CsvImport_Test_AppTestCase
     public function testGetColumnNames()
     {
         $iterator = new CsvImport_RowIterator($this->validFilePath);
-        $this->assertEquals(array_keys($this->_validHeader), 
+        $this->assertEquals(array_keys($this->_validHeader),
             $iterator->getColumnNames());
     }
 

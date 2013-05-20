@@ -6,7 +6,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_Featured extends CsvImport_ColumnMap 
+class CsvImport_ColumnMap_Featured extends CsvImport_ColumnMap
 {
     /**
      * @param string $columnName
@@ -18,7 +18,7 @@ class CsvImport_ColumnMap_Featured extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to whether the row corresponding to an item is featured or not
+     * Map a row to whether the row corresponding to an item is featured or not.
      *
      * @param array $row The row to map
      * @param array $result

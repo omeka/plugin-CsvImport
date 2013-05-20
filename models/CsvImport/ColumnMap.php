@@ -29,7 +29,7 @@ abstract class CsvImport_ColumnMap
     }
 
     /**
-     * Returns the type of column map
+     * Returns the type of column map.
      *
      * @return string The type of column map
      */
@@ -44,7 +44,7 @@ abstract class CsvImport_ColumnMap
      *
      * @param array $row The row in the CSV file
      * @param array $result
-     * @return array An array value that can be parsed 
+     * @return array An array value that can be parsed
      * by insert_item() or insert_files_for_item()
      */
     abstract public function map($row, $result);

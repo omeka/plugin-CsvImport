@@ -1,0 +1,5 @@
+Special delimiters of file "test_special_delimiters.csv" are:
+* Column delimiter: tabulation
+* File delimiter: semi-colon
+* Tag delimiter: double space
+* Element delimiter: custom ^^ (used by Csv Report)
