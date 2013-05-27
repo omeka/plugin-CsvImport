@@ -584,6 +584,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     }
                     $rows->next();
             }
+            $this->skipped_row_count += $rows->getSkippedCount();
             return $this->complete();
         } catch (Omeka_Job_Worker_InterruptException $e) {
             // Interruptions usually indicate that we should resume from
