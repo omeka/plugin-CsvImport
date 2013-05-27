@@ -34,11 +34,12 @@ Omeka.CsvImport = {};
         jQuery.each(jQuery('select[class="map-element"]'), function() {
             $tr = jQuery(this).parent().parent();
             $label = jQuery($tr).find('strong:eq(0)').text();
-            $end = $label.indexOf("_");
+            $end = $label.lastIndexOf("_");
 
             if ($end != -1) {
                 $label = $label.substring(0, $end);
             }
+            $label = $label.replace(/ /g, '');
 
             jQuery.each(jQuery($tr).find('option'), function() {
                 $optionText = jQuery(this).text().replace(/ /g, '');
