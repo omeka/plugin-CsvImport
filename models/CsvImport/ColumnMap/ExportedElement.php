@@ -1,22 +1,24 @@
 <?php
 /**
- * CsvImport_ColumnMap_ExportedElement class - works with csv files exported from another Omeka
- * installation using CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of 
- * the result coming from map(). Also assumes all elements are HTML, and that they're already 
- * purified, which is only slightly more naughty that the usual import, which sets isHTML at 
- * the Element level, while in practice it is set on the ElementText (i.e., Item) level.
+ * CsvImport_ColumnMap_ExportedElement class
+ * Works with csv files exported from another Omeka installation using
+ * CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of the
+ * result coming from map(). Also assumes all elements are HTML, and that
+ * they're already purified, which is only slightly more naughty that the usual
+ * import, which sets isHTML at the Element level, while in practice it is set
+ * on the ElementText (i.e., Item) level.
  *
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package CsvImport
  */
-class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap 
+class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
 {
     const DEFAULT_COLUMN_NAME_DELIMITER = ':';
     const DEFAULT_ELEMENT_DELIMITER = '^^';
 
     private $_columnNameDelimiter;
-    private $_elementDelimiter;    
+    private $_elementDelimiter;
     private $_elementId;
     private $_isHtml;
 
@@ -30,7 +32,7 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         $this->_columnNameDelimiter = self::DEFAULT_COLUMN_NAME_DELIMITER;
         $this->_elementDelimiter = self::DEFAULT_ELEMENT_DELIMITER;
         $this->_isHtml = true;
-        
+
         $element = $this->_getElementFromColumnName();
         if ($element) {
             $this->_elementId = $element->id;
@@ -40,8 +42,8 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to an array that can be parsed by insert_item() or
+     * insert_files_for_item().
      *
      * @param array $row The row to map
      * @param array $result
@@ -54,13 +56,13 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         if ($this->_elementDelimiter == '') {
             $texts = array($text);
         } else {
-            $texts = explode($this->_elementDelimiter, $text);    
+            $texts = explode($this->_elementDelimiter, $text);
         }
 
         if ($this->_elementId) {
             foreach($texts as $text) {
-                $result[] = array('element_id' => $this->_elementId, 
-                                  'html' => $this->_isHtml ? 1 : 0, 
+                $result[] = array('element_id' => $this->_elementId,
+                                  'html' => $this->_isHtml ? 1 : 0,
                                   'text' => $text);
             }
         }
@@ -69,7 +71,7 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     }
 
     /**
-     * Return the element from the column name
+     * Return the element from the column name.
      *
      * @return Element|null The element from the column name
      */
@@ -91,7 +93,7 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     }
 
     /**
-     * Sets the mapping options
+     * Sets the mapping options.
      *
      * @param array $options
      */
@@ -102,9 +104,9 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         $this->_elementId = $options['elementId'];
         $this->_isHtml = $options['isHtml'];
     }
-    
+
     /**
-     * Return the element delimiter
+     * Return the element delimiter.
      *
      * @return string The element delimiter
      */
@@ -112,9 +114,9 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     {
         return $this->_elementDelimiter;
     }
-    
+
     /**
-     * Return the column name delimiter
+     * Return the column name delimiter.
      *
      * @return string The column name delimiter
      */
@@ -122,9 +124,9 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     {
         return $this->_columnNameDelimiter;
     }
-    
+
     /**
-     * Return the element id
+     * Return the element id.
      *
      * @return int The element id
      */
@@ -132,9 +134,9 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     {
         return $this->_elementId;
     }
-    
+
     /**
-     * Return whether the element texts are HTML 
+     * Return whether the element texts are HTML.
      *
      * @return bool Whether the element texts are HTML
      */

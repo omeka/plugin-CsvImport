@@ -1,5 +1,5 @@
-<?php 
-    echo head(array('title' => 'CSV Import', 'bodyclass' => 'primary', 
+<?php
+    echo head(array('title' => 'CSV Import', 'bodyclass' => 'primary',
         'content_class' => 'horizontal-nav'));
 ?>
 <?php echo common('csvimport-nav'); ?>
@@ -15,6 +15,6 @@ jQuery(document).ready(function () {
 });
 //]]>
 </script>
-<?php 
-    echo foot(); 
+<?php
+    echo foot();
 ?>

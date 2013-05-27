@@ -24,12 +24,12 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
         if ($tagDelimiter !== null) {
             $this->_tagDelimiter = $tagDelimiter;
         } else {
-            $this->_tagDelimiter = self::getDefaultTagDelimiter();            
+            $this->_tagDelimiter = self::getDefaultTagDelimiter();
         }
     }
 
     /**
-     * Map a row to an array of tags
+     * Map a row to an array of tags.
      *
      * @param array $row The row to map
      * @param array $result
@@ -40,7 +40,7 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
         if ($this->_tagDelimiter == '') {
             $rawTags = array($row[$this->_columnName]);
         } else {
-            $rawTags = explode($this->_tagDelimiter, $row[$this->_columnName]);            
+            $rawTags = explode($this->_tagDelimiter, $row[$this->_columnName]);
         }
         $trimmed = array_map('trim', $rawTags);
         $cleaned = array_diff($trimmed, array(''));
@@ -49,7 +49,7 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
     }
 
     /**
-     * Return the tag delimiter
+     * Return the tag delimiter.
      *
      * @return string The tag delimiter
      */
@@ -59,9 +59,9 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
     }
 
     /**
-     * Returns the default tag delimiter.  
-     * Uses the default tag delimiter specified in the options table 
-     * if available.
+     * Returns the default tag delimiter.
+     * Uses the default tag delimiter specified in the options table if
+     * available.
      *
      * @return string The default tag delimiter
      */
