@@ -8,7 +8,7 @@
  */
 class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
 {
-    const DEFAULT_FILE_DELIMTER_OPTION_NAME = 'csv_import_default_file_delimiter';
+    const FILE_DELIMITER_OPTION_NAME = 'csv_import_file_delimiter';
     const DEFAULT_FILE_DELIMITER = ',';
 
     private $_fileDelimiter;
@@ -17,7 +17,7 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
      * @param string $columnName
      * @param string $fileDelimiter
      */
-    public function __construct($columnName, $fileDelimiter=null)
+    public function __construct($columnName, $fileDelimiter = null)
     {
         parent::__construct($columnName);
         $this->_type = CsvImport_ColumnMap::TYPE_FILE;
@@ -72,7 +72,7 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
      */
     static public function getDefaultFileDelimiter()
     {
-        if (!($delimiter = get_option(self::DEFAULT_FILE_DELIMTER_OPTION_NAME))) {
+        if (!($delimiter = get_option(self::FILE_DELIMITER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_FILE_DELIMITER;
         }
         return $delimiter;

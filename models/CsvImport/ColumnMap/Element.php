@@ -8,7 +8,7 @@
  */
 class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
 {
-    const DEFAULT_ELEMENT_DELIMTER_OPTION_NAME = 'csv_import_default_element_delimiter';
+    const ELEMENT_DELIMITER_OPTION_NAME = 'csv_import_element_delimiter';
     const DEFAULT_ELEMENT_DELIMITER = '';
 
     private $_isHtml;
@@ -111,7 +111,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
      */
     static public function getDefaultElementDelimiter()
     {
-        if (!($delimiter = get_option(self::DEFAULT_ELEMENT_DELIMTER_OPTION_NAME))) {
+        if (!($delimiter = get_option(self::ELEMENT_DELIMITER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_ELEMENT_DELIMITER;
         }
         return $delimiter;

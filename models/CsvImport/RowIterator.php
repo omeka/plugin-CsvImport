@@ -8,7 +8,7 @@
  */
 class CsvImport_RowIterator implements SeekableIterator
 {
-    const DEFAULT_COLUMN_DELIMTER_OPTION_NAME = 'csv_import_default_column_delimiter';
+    const COLUMN_DELIMITER_OPTION_NAME = 'csv_import_column_delimiter';
     const DEFAULT_COLUMN_DELIMITER = ',';
 
     private $_filePath;
@@ -278,7 +278,7 @@ class CsvImport_RowIterator implements SeekableIterator
      */
     static public function getDefaultColumnDelimiter()
     {
-        if (!($delimiter = get_option(self::DEFAULT_COLUMN_DELIMTER_OPTION_NAME))) {
+        if (!($delimiter = get_option(self::COLUMN_DELIMITER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_COLUMN_DELIMITER;
         }
         return $delimiter;

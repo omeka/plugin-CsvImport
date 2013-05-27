@@ -8,7 +8,7 @@
  */
 class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
 {
-    const DEFAULT_TAG_DELIMTER_OPTION_NAME = 'csv_import_default_tag_delimiter';
+    const TAG_DELIMITER_OPTION_NAME = 'csv_import_tag_delimiter';
     const DEFAULT_TAG_DELIMITER = ',';
 
     private $_tagDelimiter;
@@ -67,7 +67,7 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
      */
     static public function getDefaultTagDelimiter()
     {
-        if (!($delimiter = get_option(self::DEFAULT_TAG_DELIMTER_OPTION_NAME))) {
+        if (!($delimiter = get_option(self::TAG_DELIMITER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_TAG_DELIMITER;
         }
         return $delimiter;
