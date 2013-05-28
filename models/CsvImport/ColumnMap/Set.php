@@ -11,15 +11,15 @@ class CsvImport_ColumnMap_Set
     private $_maps = array();
 
     /**
-     * @param array $maps The array of column mappings
-     */    
+     * @param array $maps The array of column mappings.
+     */
     public function __construct(array $maps)
     {
         $this->_maps = $maps;
     }
 
     /**
-     * Adds a column map to the set 
+     * Adds a column map to the set.
      *
      * @param CsvImport_ColumnMap $map The column map
      */
@@ -29,8 +29,9 @@ class CsvImport_ColumnMap_Set
     }
 
     /**
-     * Map a row to an associative array of mappings indexed by column mapping type, 
-     * and where each mapping can be parsed by insert_item() or insert_files_for_item().
+     * Map a row to an associative array of mappings indexed by column mapping
+     * type, and where each mapping can be parsed by insert_item() or
+     * insert_files_for_item().
      *
      * @param array $row The row to map
      * @return array The associative array of mappings
@@ -38,14 +39,14 @@ class CsvImport_ColumnMap_Set
     public function map(array $row)
     {
         $allResults = array(
-            CsvImport_ColumnMap::TYPE_FILE => array(),
+            CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
+            CsvImport_ColumnMap::TYPE_COLLECTION => null,
+            CsvImport_ColumnMap::TYPE_PUBLIC => null,
+            CsvImport_ColumnMap::TYPE_FEATURED => null,
             CsvImport_ColumnMap::TYPE_ELEMENT => array(),
             CsvImport_ColumnMap::TYPE_TAG => array(),
-            CsvImport_ColumnMap::TYPE_COLLECTION => null,
-            CsvImport_ColumnMap::TYPE_FEATURED => null,
-            CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
-            CsvImport_ColumnMap::TYPE_PUBLIC => null
-            
+            CsvImport_ColumnMap::TYPE_FILE => array(),
+            CsvImport_ColumnMap::TYPE_FILE_URL => null,
         );
         foreach ($this->_maps as $map) {
             $subset = $allResults[$map->getType()];

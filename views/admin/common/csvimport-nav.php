@@ -2,7 +2,7 @@
 <?php
     $navArray = array(
         array(
-            'label' => 'Import Items',
+            'label' => 'Import',
             'action' => 'index',
             'module' => 'csv-import',
         ),
