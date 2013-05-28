@@ -28,6 +28,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $original_filename;
     public $file_path;
     public $file_position = 0;
+
+    public $format;
     public $item_type_id;
     public $collection_id;
     public $owner_id;
@@ -36,6 +38,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $delimiter; // the column delimiter
     public $is_public;
     public $is_featured;
+    public $row_count = 0;
     public $skipped_row_count = 0;
     public $skipped_item_count = 0;
     public $status;
@@ -119,6 +122,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function setOriginalFilename($filename)
     {
         $this->original_filename = $filename;
+    }
+
+    /**
+     * Sets the format of the imported CSV file.
+     *
+     * @param int $format The format of the imported CSV File.
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
     }
 
     /**
@@ -321,6 +334,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function start()
     {
         $this->status = self::IN_PROGRESS;
+        $this->_countRows();
         $this->save();
         $this->_log("Started import.");
         $this->_importLoop($this->file_position);
@@ -554,6 +568,23 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
+     * Returns the number of rows in the file currently imported.
+     *
+     * @return int The number of rows of the file, valid or not.
+     */
+    protected function _countRows()
+    {
+        $rows = $this->getCsvFile()->getIterator();
+        $rows->rewind();
+        $rows->skipInvalidRows(true);
+        while ($rows->valid()) {
+            $rows->next();
+            $i++;
+        }
+        $this->row_count = $i + $rows->getSkippedCount();
+    }
+
+    /**
      * Runs the import loop.
      *
      * @param int $startAt A row number in the CSV file.
@@ -569,24 +600,46 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             if ($startAt) {
                 $rows->seek($startAt);
             }
+
             $rows->skipInvalidRows(true);
             $this->_log("Running item import loop. Memory usage: %memory%");
             while ($rows->valid()) {
-                    $row = $rows->current();
-                    $index = $rows->key();
-                    $this->skipped_row_count += $rows->getSkippedCount();
-                    if ($item = $this->_addItemFromRow($row)) {
-                        release_object($item);
-                    } else {
+                $row = $rows->current();
+                $index = $rows->key();
+                $this->skipped_row_count += $rows->getSkippedCount();
+                switch ($this->format) {
+                    case 'Csv Report':
+                    case 'Item':
+                        $item = $this->_addItemFromRow($row);
+                        if (!empty($item)) {
+                            release_object($item);
+                        }
+                        else {
+                            $this->skipped_item_count++;
+                        }
+                        break;
+
+                    case 'File':
+                        $file = $this->_addFileFromRow($row);
+                        if (!empty($file)) {
+                            release_object($file);
+                        }
+                        else {
+                            $this->skipped_item_count++;
+                        }
+                        break;
+
+                    default:
                         $this->skipped_item_count++;
-                    }
-                    $this->file_position = $this->getCsvFile()->getIterator()->tell();
-                    if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
-                        $this->_log("Completed importing batch of $this->_batchSize "
-                            . "items. Memory usage: %memory%");
-                        return $this->queue();
-                    }
-                    $rows->next();
+                }
+
+                $this->file_position = $this->getCsvFile()->getIterator()->tell();
+                if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
+                    $this->_log("Completed importing batch of $this->_batchSize "
+                        . "items. Memory usage: %memory%");
+                    return $this->queue();
+                }
+                $rows->next();
             }
             $this->skipped_row_count += $rows->getSkippedCount();
             return $this->complete();
@@ -663,12 +716,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Adds a new item based on a row string in the CSV file and returns it.
      *
      * @param string $row A row string in the CSV file
-     * @return Item|boolean The inserted item or false if an item could not be added.
+     * @return Item|boolean The inserted item or false if an item could not be
+     * added.
      */
     protected function _addItemFromRow($row)
     {
         $result = $this->getColumnMaps()->map($row);
-
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
             Builder_Item::IS_PUBLIC      => $this->is_public,
@@ -678,7 +731,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             Builder_Item::TAGS           => $tags,
         );
 
-        // If this is coming from CSV Report, bring in the itemmetadata coming from the report
+        // If this is coming from CSV Report, bring in the item metadata coming
+        // from the report
         if (!is_null($result[CsvImport_ColumnMap::TYPE_COLLECTION])) {
             $itemMetadata[Builder_Item::COLLECTION_ID] = $result[CsvImport_ColumnMap::TYPE_COLLECTION];
         }
@@ -693,6 +747,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
+        // Keep only non empty fields to avoid removing them (allow update).
+        $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
@@ -704,13 +760,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         foreach ($fileUrls as $url) {
             try {
                 $file = insert_files_for_item($item,
-                                              'Url',
-                                              $url,
-                                              array('ignore_invalid_files' => false));
+                    'Url', $url,
+                    array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Error occurred when attempting to ingest the "
-                     . "following URL as a file: '$url': "
-                     . $e->getMessage();
+                $msg = __("Error occurred when attempting to ingest '%s' as a file: %s.",
+                    $url, $e->getMessage());
                 $this->_log($msg, Zend_Log::ERR);
                 $item->delete();
                 return false;
@@ -724,6 +778,57 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
+     * Adds a new file based on a row string in the CSV file and returns it.
+     *
+     * @param string $row A row string in the CSV file
+     * @return File|boolean The inserted file or false if an file could not be
+     * added.
+     */
+    protected function _addFileFromRow($row)
+    {
+        $metadata = $this->getColumnMaps()->map($row);
+        $fileUrl = $metadata[CsvImport_ColumnMap::TYPE_FILE_URL];
+
+        $file = get_records('File', array('original_filename' => $fileUrl), 1);
+        if (!$file) {
+            $this->_log(__('File "%s" does not exist in the database.', $fileUrl)
+                . ' ' . __('No item associated with it was found.')
+                . ' ' . __('Add items first before importing file metadata.'));
+            return $file;
+        }
+        $file = $file[0];
+
+        $elementTexts = $metadata[CsvImport_ColumnMap::TYPE_ELEMENT];
+        // Keep only non empty fields to avoid removing them (allow update).
+        $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+
+        // Overwrite existing element text values.
+        foreach ($elementTexts as $key => $info) {
+            if ($info['element_id']) {
+                $file->deleteElementTextsbyElementId((array) $info['element_id']);
+            }
+        }
+        $file->addElementTextsByArray($elementTexts);
+
+        $file->save();
+        return $file;
+    }
+
+    /**
+     * Check if an element is an element without empty string .
+     *
+     * @param string $element
+     *   Element to check.
+     *
+     * @return boolean
+     *   True if the element is an element without empty string.
+     */
+    private function _removeEmptyElement($element) {
+        // Don't remove 0.
+        return (isset($element['text']) && $element['text'] !== '');
+    }
+
+    /**
      * Records that an item was successfully imported in the database.
      *
      * @param int $itemId The id of the item imported
@@ -731,8 +836,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function _recordImportedItemId($itemId)
     {
         $csvImportedItem = new CsvImport_ImportedItem();
-        $csvImportedItem->setArray(array('import_id' => $this->id,
-                                         'item_id' => $itemId));
+        $csvImportedItem->setArray(array(
+            'import_id' => $this->id,
+            'item_id' => $itemId,
+        ));
         $csvImportedItem->save();
         $this->_importedCount++;
     }

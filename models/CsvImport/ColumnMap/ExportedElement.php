@@ -60,10 +60,12 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         }
 
         if ($this->_elementId) {
-            foreach($texts as $text) {
-                $result[] = array('element_id' => $this->_elementId,
-                                  'html' => $this->_isHtml ? 1 : 0,
-                                  'text' => $text);
+            foreach ($texts as $text) {
+                $result[] = array(
+                    'element_id' => $this->_elementId,
+                    'html' => $this->_isHtml ? 1 : 0,
+                    'text' => $text,
+                );
             }
         }
 

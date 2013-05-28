@@ -1,7 +1,8 @@
 <?php
 /**
- * CsvImport_ColumnMap class - represents a mapping
- * from a column in a csv file to an item element, file, or tag
+ * CsvImport_ColumnMap class
+ * Represents a mapping from a column in a csv file to an item element, file, or
+ * tag.
  *
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
@@ -9,13 +10,15 @@
  */
 abstract class CsvImport_ColumnMap
 {
-    const TYPE_ELEMENT = 'Element';
-    const TYPE_TAG = 'Tag';
-    const TYPE_FILE = 'File';
+    const TYPE_FORMAT = 'Format';
+    const TYPE_ITEM_TYPE = 'ItemType';
     const TYPE_COLLECTION = 'Collection';
     const TYPE_PUBLIC = 'Public';
     const TYPE_FEATURED = 'Featured';
-    const TYPE_ITEM_TYPE = 'ItemType';
+    const TYPE_FILE = 'File';
+    const TYPE_TAG = 'Tag';
+    const TYPE_ELEMENT = 'Element';
+    const TYPE_FILE_URL = 'FileUrl';
 
     protected $_columnName;
     protected $_type;

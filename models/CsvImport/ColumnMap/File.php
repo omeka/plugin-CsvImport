@@ -29,8 +29,8 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
     }
 
     /**
-     * Map a row to an array that can be parsed by
-     * insert_item() or insert_files_for_item().
+     * Map a row to an array that can be parsed by insert_item() or
+     * insert_files_for_item().
      *
      * @param array $row The row to map
      * @param array $result

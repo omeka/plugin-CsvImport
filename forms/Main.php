@@ -24,25 +24,25 @@ class CsvImport_Form_Main extends Omeka_Form
         parent::init();
 
         $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
-        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
-        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
         $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
+        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
+        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
 
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post');
 
         $this->_addFileElement();
 
-        $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => __('Use an export from Omeka CSV Report'),
-            'description'=> __('Selecting this will override the options below.'))
-        );
-
-        $this->addElement('checkbox', 'automap_columns_names_to_elements', array(
-            'label' => __('Automap column names to elements'),
-            'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
-            'value' => true)
-        );
+        $this->addElement('radio', 'format', array(
+            // 'label' => __('Import type'),
+            'description'=> __('Choose the type of record (the format of your file) you want to import.'),
+            'multiOptions' => array(
+                'Csv Report' => __('Export from Omeka CSV Report'),
+                'Item' => __('Items'),
+                'File' => __('Files metadata'),
+            ),
+            'required' => TRUE,
+        ));
 
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select item type')) + $values;
@@ -66,10 +66,17 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Feature all items?'),
         ));
 
+        $this->addElement('checkbox', 'automap_columns', array(
+            'label' => __('Automap column names to elements'),
+            'description'=> __('Automatically maps columns to elements based on their column names.')
+                . ' ' . __('The column name must be in the form: {ElementSetName}:{ElementName}'),
+            'value' => get_option('csv_import_automap_columns'),
+        ));
+
         $this->_addColumnDelimiterElement();
-        $this->_addFileDelimiterElement();
-        $this->_addTagDelimiterElement();
         $this->_addElementDelimiterElement();
+        $this->_addTagDelimiterElement();
+        $this->_addFileDelimiterElement();
 
         $this->applyOmekaStyles();
         $this->setAutoApplyOmekaStyles(false);

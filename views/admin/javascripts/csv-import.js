@@ -61,17 +61,29 @@ Omeka.CsvImport = {};
     };
 
     /**
-     * Disable most options if Import from Csv Report is checked
+     * Enable/disable options according to selected format.
      */
     Omeka.CsvImport.updateImportOptions = function () {
-        // we need to test whether the checkbox is checked
-        // because fields will all be displayed if the form fails validation
-        var fields = $('div.field').has('#automap_columns_names_to_elements, #item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter, #element_delimiter, #tag_delimiter, #file_delimiter');
-        if ($('#omeka_csv_export').is(':checked')) {
-          fields.slideUp();
+        var fieldsCsvReport = $('div.field').has('#elements_are_html');
+        var fieldsCsvReportNo = $('div.field').has('#item_type_id, #collection_id, #automap_columns, #items_are_public, #items_are_featured, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
+        var fieldsItem = $('div.field').has('#item_type_id, #collection_id, #automap_columns, #items_are_public, #items_are_featured, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
+        var fieldsItemNo = $('div.field').has('#elements_are_html');
+        var fieldsFile = $('div.field').has('#automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter');
+        var fieldsFileNo = $('div.field').has('#elements_are_html, #item_type_id, #collection_id, #items_are_public, #items_are_featured, #file_delimiter_name, #file_delimiter');
+        if ($('#format-CsvReport').is(':checked')) {
+            fieldsCsvReport.slideDown();
+            fieldsCsvReportNo.slideUp();
+        } else if ($('#format-Item').is(':checked')) {
+            fieldsItem.slideDown();
+            fieldsItemNo.slideUp();
+        } else if ($('#format-File').is(':checked')) {
+            fieldsFile.slideDown();
+            fieldsFileNo.slideUp();
         } else {
-          fields.slideDown();
-        }
+            fieldsCsvReport.slideDown();
+            fieldsItem.slideDown();
+            fieldsFile.slideDown();
+        };
     };
 
 })(jQuery);

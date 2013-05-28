@@ -91,6 +91,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER,
         CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER,
         CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER,
+        'csv_import_automap_columns' => TRUE,
     );
 
     /**
@@ -100,17 +101,19 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $db = $this->_db;
 
-        // create csv imports table
+        // Create csv imports table.
         $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
            `id` int(10) unsigned NOT NULL auto_increment,
            `item_type_id` int(10) unsigned NOT NULL,
            `collection_id` int(10) unsigned NOT NULL,
+           `format` varchar(255) collate utf8_unicode_ci NOT NULL,
            `owner_id` int unsigned NOT NULL,
            `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
            `original_filename` text collate utf8_unicode_ci NOT NULL,
            `file_path` text collate utf8_unicode_ci NOT NULL,
            `file_position` bigint unsigned NOT NULL,
            `status` varchar(255) collate utf8_unicode_ci,
+           `row_count` int(10) unsigned NOT NULL,
            `skipped_row_count` int(10) unsigned NOT NULL,
            `skipped_item_count` int(10) unsigned NOT NULL,
            `is_public` tinyint(1) default '0',
@@ -168,6 +171,44 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
+            set_option('csv_import_automap_columns', $this->_options['csv_import_automap_columns']);
+        }
+
+        if (version_compare($oldVersion, '2.1', '<=')
+                || (substr($oldVersion, -5) != '-full')
+            ) {
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'record_type_id'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (!empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    CHANGE `record_type_id` `format` varchar(255) collate utf8_unicode_ci NOT NULL AFTER `collection_id`
+                ";
+                $db->query($sql);
+            }
+
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'format'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `format` varchar(255) collate utf8_unicode_ci NOT NULL AFTER `collection_id`
+                ";
+                $db->query($sql);
+            }
+
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'row_count'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `row_count` int(10) unsigned NOT NULL AFTER `status`
+                ";
+                $db->query($sql);
+            }
         }
     }
 
