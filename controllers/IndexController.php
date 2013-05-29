@@ -91,6 +91,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
+        set_option('csv_import_html_elements', $this->session->elementsAreHtml);
+
         if ($this->session->format == 'Csv Report') {
             $this->_helper->redirector->goto('check-omeka-csv');
         }
@@ -229,8 +231,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     {
         // Specify the export format's file and tag delimiters.
         // Do not allow the user to specify it.
-        $fileDelimiter = ',';
         $tagDelimiter = ',';
+        $fileDelimiter = ',';
+        // Nevertheless, user can choose to import all elements as html or as
+        // raw text.
+        $isHtml = (boolean) $this->session->elementsAreHtml;
 
         $headings = $this->session->columnNames;
         $columnMaps = array();
@@ -258,7 +263,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     $columnMaps[] = new CsvImport_ColumnMap_Tag($heading, $tagDelimiter);
                     break;
                 default:
-                    $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
+                    $elementMap = new CsvImport_ColumnMap_ExportedElement($heading);
+                    $options = array(
+                        'columnNameDelimiter' => $elementMap::DEFAULT_COLUMN_NAME_DELIMITER,
+                        'elementDelimiter' => $elementMap::DEFAULT_ELEMENT_DELIMITER,
+                        'isHtml' => $isHtml,
+                    );
+                    $elementMap->setOptions($options);
+                    $columnMaps[] = $elementMap;
                     break;
             }
         }
@@ -377,11 +389,12 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     protected function _sessionIsValid()
     {
         $requiredKeys = array(
-            'itemTypeId',
             'format',
+            'itemTypeId',
+            'collectionId',
             'itemsArePublic',
             'itemsAreFeatured',
-            'collectionId',
+            'elementsAreHtml',
             'ownerId',
         );
         foreach ($requiredKeys as $key) {

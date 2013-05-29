@@ -3,7 +3,7 @@
  * CsvImport_ColumnMap_ExportedElement class
  * Works with csv files exported from another Omeka installation using
  * CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of the
- * result coming from map(). Also assumes all elements are HTML, and that
+ * result coming from map(). Also assumes all elements are, or not, HTML and that
  * they're already purified, which is only slightly more naughty that the usual
  * import, which sets isHTML at the Element level, while in practice it is set
  * on the ElementText (i.e., Item) level.
@@ -51,8 +51,13 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
      */
     public function map($row, $result)
     {
-        $filter = new Omeka_Filter_HtmlPurifier();
-        $text = $filter->filter($row[$this->_columnName]);
+        if ($this->_isHtml) {
+            $filter = new Omeka_Filter_HtmlPurifier();
+            $text = $filter->filter($row[$this->_columnName]);
+        } else {
+            $text = $row[$this->_columnName];
+        }
+
         if ($this->_elementDelimiter == '') {
             $texts = array($text);
         } else {
@@ -101,10 +106,18 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
      */
     public function setOptions($options)
     {
-        $this->_columnNameDelimiter = $options['columnNameDelimiter'];
-        $this->_elementDelimiter = $options['elementDelimiter'];
-        $this->_elementId = $options['elementId'];
-        $this->_isHtml = $options['isHtml'];
+        if (isset($options['columnNameDelimiter'])) {
+            $this->_columnNameDelimiter = $options['columnNameDelimiter'];
+        }
+        if (isset($options['elementDelimiter'])) {
+            $this->_elementDelimiter = $options['elementDelimiter'];
+        }
+        if (isset($options['elementId'])) {
+            $this->_elementId = $options['elementId'];
+        }
+        if (isset($options['isHtml'])) {
+            $this->_isHtml = (boolean) $options['isHtml'];
+        }
     }
 
     /**

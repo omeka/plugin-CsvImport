@@ -66,6 +66,12 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Feature all items?'),
         ));
 
+        $this->addElement('checkbox', 'elements_are_html', array(
+            'label' => __('All imported elements are html?'),
+            'description' => 'This checkbox allows to set default format of all imported elements as raw text or html.',
+            'value' => get_option('csv_import_html_elements'),
+        ));
+
         $this->addElement('checkbox', 'automap_columns', array(
             'label' => __('Automap column names to elements'),
             'description'=> __('Automatically maps columns to elements based on their column names.')
@@ -82,8 +88,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->setAutoApplyOmekaStyles(false);
 
         $submit = $this->createElement(
-            'submit',
-            'submit',
+            'submit', 'submit',
             array('label' => __('Next'),
                 'class' => 'submit submit-medium'));
 
