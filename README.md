@@ -15,7 +15,7 @@ This plugin is a fork of the original [Csv Import] plugin that allows:
 
 * use of tabulation as a separator,
 * import of metadata of files,
-* import of files one by one to avoid overloading server.
+* import of files one by one to avoid to overload the server.
 
 The similar tool [Xml Import] can be useful too, depending on your types of
 data.
@@ -28,6 +28,52 @@ Uncompress files and rename plugin folder "CsvImport".
 
 Then install it like any other Omeka plugin and follow the config instructions.
 
+Set the proper settings in config.ini like so:
+
+```
+plugins.CsvImport.columnDelimiter = ","
+plugins.CsvImport.memoryLimit = "128M"
+plugins.CsvImport.requiredExtension = "txt"
+plugins.CsvImport.requiredMimeType = "text/csv"
+plugins.CsvImport.maxFileSize = "10M"
+plugins.CsvImport.fileDestination = "/tmp"
+plugins.CsvImport.batchSize = "1000"
+```
+
+All of the above settings are optional.  If not given, CsvImport uses the
+following default values:
+
+```
+memoryLimit = current script limit
+requiredExtension = "txt" or "csv"
+requiredMimeType = "text/csv"
+maxFileSize = current system upload limit
+fileDestination = current system temporary dir (via sys_get_temp_dir())
+batchSize = 0 (no batching)
+```
+
+Set a high memory limit to avoid memory allocation issues with imports.
+Examples include 128M, 1G, and -1. This will set PHP's memory_limit setting
+directly, see PHP's documentation for more info on formatting this number. Be
+advised that many web hosts set a maximum memory limit, so this setting may be
+ignored if it exceeds the maximum allowable limit. Check with your web host for
+more information.
+
+Note that 'maxFileSize' will not affect 'post_max_size' or 'upload_max_filesize'
+as is set in 'php.ini'. Having a maxFileSize that exceeds either will still
+result in errors that prevent the file upload.
+
+'batchSize': Setting for advanced users.  If you find that your long-running
+imports are using too much memory or otherwise hogging system resources, set
+this value to split your import into multiple jobs based on the number of CSV
+rows to process per job.
+
+For example, if you have a CSV with 150000 rows, setting a batchSize of 5000
+would cause the import to be split up over 30 separate jobs.
+Note that these jobs run sequentially based on the results of prior jobs,
+meaning that the import cannot be parallelized.  The first job will import
+5000 rows and then spawn the next job, and so on until the import is completed.
+
 
 Examples
 --------
@@ -38,15 +84,13 @@ Two examples of csv files are available in the csv_files folder (standard [Csv I
 non Dublin Core tags.
 * `test_automap_columns_to_elements.csv`: the same list with some Dublin Core
 attributes in order to automap the columns with the Omeka fields.
-* `test_automap_columns_to_elements.csv`: the same list with some Dublin Core
-attributes in order to automap the columns with the Omeka fields.
 
 To try them, you just need to check `Item metadata`, to use the default
 delimiters `,` and, for the second file, to check option `Automap column`. Note
 that even you don't use the Automap option, the plugin will try to get matching
 columns if field names are the same in your file and in the drop-down list.
 
-Two other files are available with [Csv Import Full]:
+Three other files are available with [Csv Import Full]:
 
 * `test_special_delimiters.csv`: a file to try any delimiters. Special
 delimiters of this file are:
@@ -54,16 +98,23 @@ delimiters of this file are:
     - Element delimiter: custom ^^ (used by Csv Report)
     - Tag delimiter: double space
     - File delimiter: semi-colon
-* `test_files_metadata.csv`: a file to used to import metadata of files. To try
-it, you should to import items before with any of previous csv files, and check
+* `test_files_metadata.csv`: a file used to import metadata of files. To try it,
+you should to import items before with any of previous csv files, and check
 `File metadata` in the first form and `Filename` in the first row of the second
 form.
+* `test_mixed_records.csv`: a file used to show how to import metadata of item
+and files simultaneously, and to import files one by one to avoid server
+overloading. To try it, you should check `Mixed records` in the form and choose
+`tabulation` as column delimiter, `#` as element delimiter and `;` as tag
+delimiter. Note that in the csv file, file rows should always be after the item
+to which they are attached.
 
 _Warning_
 Depending of your environment and database, if you imports items with encoded
 urls, they should be decoded when your import files. For example, you can import
-an item with the file "Edmond_Dant%C3%A8s.JPG", but you may import your file
-metadata with the filename "Edmond_Dantès.JPG".
+an item with the file "Edmond_Dant%C3%A8s.jpg", but you may import your file
+metadata with the filename "Edmond_Dantès.jpg". Furthermore, filenames may be or
+not case sensitive.
 
 
 Status page
@@ -78,8 +129,9 @@ overwritten.
 The column "Skipped rows" means that some imported lines were non complete or
 with too many columns, so you need to check your import file.
 
-The column "Skipped record" means that an item or a file can't be created,
-usually because of a bad url or a bad formatted row.
+The column "Skipped records" means that an item or a file can't be created,
+usually because of a bad url or a bad formatted row. You can check `error.log`
+for information.
 
 
 Warning
@@ -132,6 +184,7 @@ Csv Import Full (forked plugin):
 
 This plugin has been forked for [University of Iowa Libraries] and upgraded for
 [École des Ponts ParisTech] and [Pop Up Archive].
+The fork of this plugin has been upgraded for Omeka 2.0 for [Mines ParisTech].
 
 
 Copyright
@@ -159,4 +212,5 @@ Csv Import Full (forked plugin):
 [saverkamp]: https://github.com/saverkamp "saverkamp"
 [University of Iowa Libraries]: http://www.lib.uiowa.edu
 [École des Ponts ParisTech]: http://bibliotheque.enpc.fr "École des Ponts ParisTech / ENPC"
-[Pop Up Archive]: http://popuparchive.org/
+[Pop Up Archive]: http://popuparchive.org
+[Mines ParisTech]: http://bib.mines-paristech.fr "Mines ParisTech / ENSMP"

@@ -1,10 +1,10 @@
 <?php
 /**
- * CsvImport_ColumnMap_Format class
+ * CsvImport_ColumnMap_SourceItemId class
  *
  * @package CsvImport
  */
-class CsvImport_ColumnMap_Format extends CsvImport_ColumnMap
+class CsvImport_ColumnMap_SourceItemId extends CsvImport_ColumnMap
 {
     /**
      * @param string $columnName
@@ -12,15 +12,15 @@ class CsvImport_ColumnMap_Format extends CsvImport_ColumnMap
     public function __construct($columnName)
     {
         parent::__construct($columnName);
-        $this->_type = CsvImport_ColumnMap::TYPE_FORMAT;
+        $this->_type = CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID;
     }
 
     /**
-     * Map a row to whether the row corresponding to an item or a file or all.
+     * Map a row to the source item id of a record.
      *
      * @param array $row The row to map
      * @param array $result
-     * @return string Whether the row corresponding to an item, a file or all.
+     * @return string Source item id of the record.
      */
     public function map($row, $result)
     {

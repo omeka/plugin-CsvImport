@@ -11,18 +11,19 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
     const ELEMENT_DELIMITER_OPTION_NAME = 'csv_import_element_delimiter';
     const DEFAULT_ELEMENT_DELIMITER = '';
 
-    private $_isHtml;
-    private $_elementId;
     private $_elementDelimiter;
+    private $_elementId;
+    private $_isHtml;
 
     /**
      * @param string $columnName
      * @param string $elementDelimiter
      */
-    public function __construct($columnName, $elementDelimiter=null)
+    public function __construct($columnName, $elementDelimiter = null)
     {
         parent::__construct($columnName);
         $this->_type = CsvImport_ColumnMap::TYPE_ELEMENT;
+
         if ($elementDelimiter !== null) {
             $this->_elementDelimiter = $elementDelimiter;
         } else {
@@ -46,11 +47,13 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
         } else {
             $text = $row[$this->_columnName];
         }
+
         if ($this->_elementDelimiter == '') {
             $texts = array($text);
         } else {
             $texts = explode($this->_elementDelimiter, $text);
         }
+
         foreach($texts as $text) {
             $result[] = array(
                 'element_id' => $this->_elementId,
@@ -58,6 +61,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
                 'text' => $text,
             );
         }
+
         return $result;
     }
 
@@ -69,7 +73,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
     public function setOptions($options)
     {
         $this->_elementId = $options['elementId'];
-        $this->_isHtml = (boolean)$options['isHtml'];
+        $this->_isHtml = (boolean) $options['isHtml'];
     }
 
     /**

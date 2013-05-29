@@ -17,7 +17,7 @@ class CsvImport_ColumnMap_Tag extends CsvImport_ColumnMap
      * @param string $columnName
      * @param string $tagDelimiter
      */
-    public function __construct($columnName, $tagDelimiter=null)
+    public function __construct($columnName, $tagDelimiter = null)
     {
         parent::__construct($columnName);
         $this->_type = CsvImport_ColumnMap::TYPE_TAG;

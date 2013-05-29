@@ -10,9 +10,9 @@
 class CsvImport_Form_Main extends Omeka_Form
 {
     private $_columnDelimiter;
-    private $_fileDelimiter;
-    private $_tagDelimiter;
     private $_elementDelimiter;
+    private $_tagDelimiter;
+    private $_fileDelimiter;
     private $_fileDestinationDir;
     private $_maxFileSize;
 
@@ -37,9 +37,10 @@ class CsvImport_Form_Main extends Omeka_Form
             // 'label' => __('Import type'),
             'description'=> __('Choose the type of record (the format of your file) you want to import.'),
             'multiOptions' => array(
-                'Csv Report' => __('Export from Omeka CSV Report'),
+                'Report' => __('Export from Omeka CSV Report'),
                 'Item' => __('Items'),
                 'File' => __('Files metadata'),
+                'Mix' => __('Mixed records'),
             ),
             'required' => TRUE,
         ));
@@ -133,7 +134,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
-            'description' => __("Maximum file size is %s.", $size->toString())
+            'description' => __("Maximum file size is %s.", $size->toString()),
         ));
         $this->csv_file->addFilter($filter);
     }
@@ -149,9 +150,9 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         $delimitersList = CsvImport_IndexController::getDelimitersList();
 
-        return in_array($delimiter, $delimitersList) ?
-            array_search($delimiter, $delimitersList) :
-            $delimiter;
+        return in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : $delimiter;
     }
 
     /**
@@ -176,19 +177,19 @@ class CsvImport_Form_Main extends Omeka_Form
         $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
 
         $delimitersList = CsvImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList) ?
-            array_search($delimiter, $delimitersList) :
-            'custom';
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
 
         // Two elements are needed to select the delimiter.
-        // First, a list for special characters.
+        // First, a list for special characters (one character).
         $values = $this->_getDelimitersMenu();
-        unset($values['empty']);
         unset($values['double space']);
+        unset($values['empty']);
         $this->addElement('select', 'column_delimiter_name', array(
             'label' => __('Choose column delimiter'),
-            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText)
-                . '<br />' . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field with a single character."),
+            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field with a single character."),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
         ));
@@ -214,26 +215,26 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the file delimiter element to the form.
+     * Add the element delimiter element to the form.
      */
-    protected function _addFileDelimiterElement()
+    protected function _addElementDelimiterElement()
     {
-        $delimiter = $this->_fileDelimiter;
+        $delimiter = $this->_elementDelimiter;
         $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
 
         $delimitersList = CsvImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList) ?
-            array_search($delimiter, $delimitersList) :
-            'custom';
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
 
         // Two elements are needed to select the delimiter.
         // First, a list for special characters.
         $values = $this->_getDelimitersMenu();
-        $this->addElement('select', 'file_delimiter_name', array(
-            'label' => __('Choose file delimiter'),
-            'description' => __('This delimiter will be used to separate file paths or URLs within a cell (the previously used "%s" by default).', $humanDelimiterText)
-                . '<br />' . __('If the delimiter is empty, then the whole text will be used as the file path or URL.')
-                . '<br />' . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
+        $this->addElement('select', 'element_delimiter_name', array(
+            'label' => __('Choose element delimiter'),
+            'description' => __('This delimiter will be used to separate metadata elements within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
+                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
@@ -241,7 +242,7 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
         // Second, a field to let user chooses a custom delimiter.
         // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
-        $this->addElement('text', 'file_delimiter', array(
+        $this->addElement('text', 'element_delimiter', array(
             'value' => $delimiter,
             'required' => false,
             'size' => '40',
@@ -257,18 +258,18 @@ class CsvImport_Form_Main extends Omeka_Form
         $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
 
         $delimitersList = CsvImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList) ?
-            array_search($delimiter, $delimitersList) :
-            'custom';
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
 
         // Two elements are needed to select the delimiter.
         // First, a list for special characters.
         $values = $this->_getDelimitersMenu();
         $this->addElement('select', 'tag_delimiter_name', array(
             'label' => __('Choose tag delimiter'),
-            'description' => __('This delimiter will be used to separate tags within a cell (the previously used "%s" by default).', $humanDelimiterText)
-                . '<br />' . __('If the delimiter is empty, then the whole text will be used.')
-                . '<br />' . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
+            'description' => __('This delimiter will be used to separate tags within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
+                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
@@ -284,26 +285,26 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the element delimiter element to the form.
+     * Add the file delimiter element to the form.
      */
-    protected function _addElementDelimiterElement()
+    protected function _addFileDelimiterElement()
     {
-        $delimiter = $this->_elementDelimiter;
+        $delimiter = $this->_fileDelimiter;
         $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
 
         $delimitersList = CsvImport_IndexController::getDelimitersList();
-        $delimiterCurrent = in_array($delimiter, $delimitersList) ?
-            array_search($delimiter, $delimitersList) :
-            'custom';
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
 
         // Two elements are needed to select the delimiter.
         // First, a list for special characters.
         $values = $this->_getDelimitersMenu();
-        $this->addElement('select', 'element_delimiter_name', array(
-            'label' => __('Choose element delimiter'),
-            'description' => __('This delimiter will be used to separate metadata elements within a cell (the previously used "%s" by default).', $humanDelimiterText)
-                . '<br />' . __('If the delimiter is empty, then the whole text will be used.')
-                . '<br />' . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
+        $this->addElement('select', 'file_delimiter_name', array(
+            'label' => __('Choose file delimiter'),
+            'description' => __('This delimiter will be used to separate file paths or URLs within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used as the file path or URL.') . '<br />'
+                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
@@ -311,7 +312,7 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
         // Second, a field to let user chooses a custom delimiter.
         // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
-        $this->addElement('text', 'element_delimiter', array(
+        $this->addElement('text', 'file_delimiter', array(
             'value' => $delimiter,
             'required' => false,
             'size' => '40',
@@ -361,13 +362,13 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Set the file delimiter for the form.
+     * Set the element delimiter for the form.
      *
-     * @param string $delimiter The file delimiter
+     * @param string $delimiter The element delimiter
      */
-    public function setFileDelimiter($delimiter)
+    public function setElementDelimiter($delimiter)
     {
-        $this->_fileDelimiter = $delimiter;
+        $this->_elementDelimiter = $delimiter;
     }
 
     /**
@@ -381,13 +382,13 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Set the element delimiter for the form.
+     * Set the file delimiter for the form.
      *
-     * @param string $delimiter The element delimiter
+     * @param string $delimiter The file delimiter
      */
-    public function setElementDelimiter($delimiter)
+    public function setFileDelimiter($delimiter)
     {
-        $this->_elementDelimiter = $delimiter;
+        $this->_fileDelimiter = $delimiter;
     }
 
     /**

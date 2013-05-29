@@ -55,12 +55,14 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $rowSubForm->addElement('checkbox', 'html');
             // If import type is File, add checkbox for file url only because
             // files can't get tags and we just need the url.
-            if ($this->_format == 'File') {
-                $rowSubForm->addElement('checkbox', 'file_url');
-            }
-            else {
-                $rowSubForm->addElement('checkbox', 'tags');
-                $rowSubForm->addElement('checkbox', 'file');
+            switch ($this->_format) {
+                case 'Item':
+                    $rowSubForm->addElement('checkbox', 'tags');
+                    $rowSubForm->addElement('checkbox', 'file');
+                    break;
+                case 'File':
+                    $rowSubForm->addElement('checkbox', 'file_url');
+                    break;
             }
 
             $this->_setSubFormDecorators($rowSubForm);
@@ -342,14 +344,16 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $elementIds = $this->_getMappedElementId($index);
         $isHtml = $this->_getRowValue($index, 'html');
         foreach($elementIds as $elementId) {
-            // Make sure to skip empty mappings
+            // Make sure to skip empty mappings.
             if (!$elementId) {
                 continue;
             }
 
             $elementMap = new CsvImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
-            $elementMap->setOptions(array('elementId' => $elementId,
-                                         'isHtml' => $isHtml));
+            $elementMap->setOptions(array(
+                'elementId' => $elementId,
+                'isHtml' => $isHtml,
+            ));
             $columnMap[] = $elementMap;
         }
 

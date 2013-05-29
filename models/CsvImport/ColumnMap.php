@@ -10,14 +10,14 @@
  */
 abstract class CsvImport_ColumnMap
 {
-    const TYPE_FORMAT = 'Format';
+    const TYPE_SOURCE_ITEM_ID = 'SourceItemId';
     const TYPE_ITEM_TYPE = 'ItemType';
     const TYPE_COLLECTION = 'Collection';
     const TYPE_PUBLIC = 'Public';
     const TYPE_FEATURED = 'Featured';
-    const TYPE_FILE = 'File';
-    const TYPE_TAG = 'Tag';
     const TYPE_ELEMENT = 'Element';
+    const TYPE_TAG = 'Tag';
+    const TYPE_FILE = 'File';
     const TYPE_FILE_URL = 'FileUrl';
 
     protected $_columnName;

@@ -18,7 +18,7 @@
                 $browseHeadings[__('Row count')] = 'row_count';
                 $browseHeadings[__('Skipped rows')] = 'skipped_row_count';
                 $browseHeadings[__('Imported items')] = null;
-                $browseHeadings[__('Skipped record')] = 'skipped_item_count';
+                $browseHeadings[__('Skipped records')] = 'skipped_item_count';
                 $browseHeadings[__('Status')] = 'status';
                 $browseHeadings[__('Action')] = null;
                 echo browse_sort_links($browseHeadings, array('link_tag' => 'th scope="col"', 'list_tag' => ''));
@@ -33,9 +33,10 @@
                 <td><?php echo html_escape(format_date($csvImport->added, Zend_Date::DATETIME_SHORT)); ?></td>
                 <td><?php echo html_escape($csvImport->original_filename); ?></td>
                 <td><?php switch ($csvImport->format) {
-                    case 'Csv Report': echo __('Csv Report'); break;
+                    case 'Report': echo __('Csv Report'); break;
                     case 'Item': echo __('Items'); break;
                     case 'File': echo __('Files metadata'); break;
+                    case 'Mix': echo __('Mixed records'); break;
                     // Imports made with the standard plugin.
                     default: echo __('Unknown'); break;
                 } ?></td>

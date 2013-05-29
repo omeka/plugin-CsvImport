@@ -39,6 +39,7 @@ class CsvImport_ColumnMap_Set
     public function map(array $row)
     {
         $allResults = array(
+            CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID => null,
             CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
             CsvImport_ColumnMap::TYPE_COLLECTION => null,
             CsvImport_ColumnMap::TYPE_PUBLIC => null,
