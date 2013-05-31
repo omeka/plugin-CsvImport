@@ -60,7 +60,7 @@ class CsvImport_File implements IteratorAggregate
     {
         if (!$this->_columnExamples) {
             throw new LogicException("CSV file must be validated before "
-                . "retrieving list of column examples.");
+                . "retrieving the list of column examples.");
         }
         return $this->_columnExamples;
     }

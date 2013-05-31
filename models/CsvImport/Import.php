@@ -611,7 +611,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $this->skipped_row_count += $rows->getSkippedCount();
 
                 switch ($this->format) {
-                    case 'Csv Report':
+                    case 'Report':
                     case 'Item':
                         $record = $this->_addItemFromRow($row);
                         break;
@@ -732,10 +732,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
-            Builder_Item::IS_PUBLIC      => $this->is_public,
-            Builder_Item::IS_FEATURED    => $this->is_featured,
             Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
             Builder_Item::COLLECTION_ID  => $this->collection_id,
+            Builder_Item::IS_PUBLIC      => $this->is_public,
+            Builder_Item::IS_FEATURED    => $this->is_featured,
             Builder_Item::TAGS           => $tags,
         );
 
@@ -757,6 +757,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
         // Keep only non empty fields to avoid removing them (allow update).
         $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+        // Trim metadata to avoid spaces.
+        $elementTexts = $this->_trimElementTexts($elementTexts);
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
@@ -898,6 +900,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $elementTexts = $map[CsvImport_ColumnMap::TYPE_ELEMENT];
         // Keep only non empty fields to avoid removing them (allow update).
         $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+        // Trim metadata to avoid spaces.
+        $elementTexts = $this->_trimElementTexts($elementTexts);
 
         // Overwrite existing element text values.
         foreach ($elementTexts as $key => $info) {
@@ -924,6 +928,25 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         // Don't remove 0.
         return (isset($element['text']) && $element['text'] !== '');
+    }
+
+    /**
+     * Check if an element is an element without empty string .
+     *
+     * @param string $element
+     *   Element to check.
+     *
+     * @return array
+     *   Array of trimed element textsz.
+     */
+    private function _trimElementTexts($elementTexts)
+    {
+        foreach ($elementTexts as &$element) {
+            if (isset($element['text'])) {
+                $element['text'] = trim($element['text']);
+            }
+        }
+        return $elementTexts;
     }
 
     /**

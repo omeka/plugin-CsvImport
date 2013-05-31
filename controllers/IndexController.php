@@ -175,9 +175,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $skipColumns = array(
             'itemType',
             'collection',
-            'tags',
             'public',
             'featured',
+            'tags',
             'file',
         );
         $this->_checkCsv($skipColumns);
@@ -192,13 +192,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     {
         $skipColumns = array(
             'sourceItemId',
+            'fileUrl',
             'itemType',
             'collection',
-            'tags',
             'public',
             'featured',
+            'tags',
             'file',
-            'fileUrl',
         );
         $this->_checkCsv($skipColumns);
     }
@@ -209,6 +209,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     protected function _checkCsv(array $skipColumns = array())
     {
+        if (empty($this->session->columnNames)) {
+            $this->_helper->redirector->goto('index');
+        }
+
         $elementTable = get_db()->getTable('Element');
 
         $skipColumnsWrapped = array();
@@ -217,16 +221,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         $skipColumnsText = '( ' . implode(',  ', $skipColumnsWrapped) . ' )';
 
-        if (empty($this->session->columnNames)) {
-            $this->_helper->redirector->goto('index');
-        }
-
         $hasError = false;
         foreach ($this->session->columnNames as $columnName){
             if (!in_array($columnName, $skipColumns)) {
                 $data = explode(':', $columnName);
                 if (count($data) != 2) {
-                    $this->_helper->flashMessenger(__('Invalid column names. Column names must either be one of the following %s, or have the following format: {ElementSetName}:{ElementName}.', $skipColumnsText), 'error');
+                    $msg = __('Invalid column name: "%s".', $columnName)
+                        . ' ' . __('Column names must either be one of the following %s, or have the following format: {ElementSetName}:{ElementName}.', $skipColumnsText);
+                    $this->_helper->flashMessenger($msg, 'error');
                     $hasError = true;
                     break;
                 }
@@ -242,8 +244,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     $elementName = $data[1];
                     $element = $elementTable->findByElementSetNameAndElementName($elementSetName, $elementName);
                     if (empty($element)) {
-                        $this->_helper->flashMessenger(__('Element "%s" is not found in element set "%s".', array($elementName, $elementSetName)), 'error');
-                         $hasError = true;
+                        $msg = __('Element "%s" is not found in element set "%s".', $elementName, $elementSetName);
+                        $this->_helper->flashMessenger($msg, 'error');
+                        $hasError = true;
                     }
                 }
             }

@@ -37,7 +37,7 @@ class CsvImport_Form_Main extends Omeka_Form
             // 'label' => __('Import type'),
             'description'=> __('Choose the type of record (the format of your file) you want to import.'),
             'multiOptions' => array(
-                'Report' => __('Export from Omeka CSV Report'),
+                'Report' => __('Omeka CSV Report'),
                 'Item' => __('Items'),
                 'File' => __('Files metadata'),
                 'Mix' => __('Mixed records'),
@@ -188,8 +188,7 @@ class CsvImport_Form_Main extends Omeka_Form
         unset($values['empty']);
         $this->addElement('select', 'column_delimiter_name', array(
             'label' => __('Choose column delimiter'),
-            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
-                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field with a single character."),
+            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
         ));
@@ -234,7 +233,6 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose element delimiter'),
             'description' => __('This delimiter will be used to separate metadata elements within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
                 . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
-                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
@@ -269,7 +267,6 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose tag delimiter'),
             'description' => __('This delimiter will be used to separate tags within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
                 . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
-                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,
@@ -304,7 +301,6 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Choose file delimiter'),
             'description' => __('This delimiter will be used to separate file paths or URLs within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
                 . __('If the delimiter is empty, then the whole text will be used as the file path or URL.') . '<br />'
-                . __("If you want a specific one, choose 'Custom' in the drop-down list and fill the text field.")
                 . ' ' . __('To use more than one character is allowed.'),
             'multiOptions' => $values,
             'value' => $delimiterCurrent,

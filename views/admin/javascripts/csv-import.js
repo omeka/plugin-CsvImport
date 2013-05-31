@@ -72,6 +72,7 @@ Omeka.CsvImport = {};
         var fieldsFileNo = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #elements_are_html, #file_delimiter_name, #file_delimiter');
         var fieldsMix = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #elements_are_html, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
         var fieldsMixNo = $('div.field').has('#automap_columns');
+        var fieldsAll = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #elements_are_html, #automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
         if ($('#format-Report').is(':checked')) {
             fieldsReport.slideDown();
             fieldsReportNo.slideUp();
@@ -85,11 +86,71 @@ Omeka.CsvImport = {};
             fieldsMix.slideDown();
             fieldsMixNo.slideUp();
         } else {
-            fieldsReport.slideDown();
-            fieldsItem.slideDown();
-            fieldsFile.slideDown();
-            fieldsMix.slideDown();
+            fieldsAll.slideUp();
         };
+    };
+
+    /**
+     * Enable/disable element delimiter field.
+     */
+    Omeka.CsvImport.updateColumnDelimiterField = function () {
+        var fieldSelect = $('#column_delimiter_name');
+        var fieldCustom = $('#column_delimiter');
+        if (fieldSelect.val() == 'custom') {
+            fieldCustom.show();
+        } else {
+            fieldCustom.hide();
+        };
+    };
+
+    /**
+     * Enable/disable element delimiter field.
+     */
+    Omeka.CsvImport.updateElementDelimiterField = function () {
+        var fieldSelect = $('#element_delimiter_name');
+        var fieldCustom = $('#element_delimiter');
+        if (fieldSelect.val() == 'custom') {
+            fieldCustom.show();
+        } else {
+            fieldCustom.hide();
+        };
+    };
+
+    /**
+     * Enable/disable element delimiter field.
+     */
+    Omeka.CsvImport.updateTagDelimiterField = function () {
+        var fieldSelect = $('#tag_delimiter_name');
+        var fieldCustom = $('#tag_delimiter');
+        if (fieldSelect.val() == 'custom') {
+            fieldCustom.show();
+        } else {
+            fieldCustom.hide();
+        };
+    };
+
+    /**
+     * Enable/disable element delimiter field.
+     */
+    Omeka.CsvImport.updateFileDelimiterField = function () {
+        var fieldSelect = $('#file_delimiter_name');
+        var fieldCustom = $('#file_delimiter');
+        if (fieldSelect.val() == 'custom') {
+            fieldCustom.show();
+        } else {
+            fieldCustom.hide();
+        };
+    };
+
+    /**
+     * Enable/disable options after loading.
+     */
+    Omeka.CsvImport.updateOnLoad = function () {
+        Omeka.CsvImport.updateImportOptions();
+        Omeka.CsvImport.updateColumnDelimiterField();
+        Omeka.CsvImport.updateElementDelimiterField();
+        Omeka.CsvImport.updateTagDelimiterField();
+        Omeka.CsvImport.updateFileDelimiterField();
     };
 
 })(jQuery);

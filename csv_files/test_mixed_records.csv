@@ -1,5 +1,5 @@
 sourceItemId	itemType	fileUrl	Dublin Core:Title	Dublin Core:Creator	Dublin Core:Date	Dublin Core:Description	Dublin Core:Rights	tags	Item Type Metadata:Birth Date	Item Type Metadata:Death Date
-KafProc	"Text"		"Der Proceß# English: The Trial"	"Kafka, Franz"	1925	"A man prosecuted by a inaccessible authority."		"book; classic; Czechoslovak Republic"		
+KafProc	"Text"		"Der Proceß# English: The Trial"	"Kafka, Franz"	1925	"A man seeks an inaccessible authority."		"book; classic; Czechoslovak Republic"		
 KafProc		"https://upload.wikimedia.org/wikipedia/en/f/f9/TrialKafka.jpg"	"Franz Kafka : Der Prozess"		1925	"Front cover art for the book 1st edition"	"Verlag Die Schmiede, Berlin, 1925"			
 KafMan	"Person"		"Franz Kafka"					"writer; absurdism"	"3 July 1883"	"3 June 1924"
 KafMan		"https://upload.wikimedia.org/wikipedia/commons/7/7d/Kafka_portrait.jpg"	"Franz Kafka : portrait"	"Atelier Jacobi: Sigismund Jacobi (1860–1935)"	1906		"public domain"			
