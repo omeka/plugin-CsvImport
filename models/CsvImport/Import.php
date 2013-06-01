@@ -871,7 +871,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $files = get_records('File', array('original_filename' => $fileUrl), 1);
-        if (empty($file)) {
+        if (empty($files)) {
             $msg = __('File "%s" does not exist in the database.', $fileUrl)
                 . ' ' . __('No item associated with it was found.')
                 . ' ' . __('Add items first before importing file metadata.');
