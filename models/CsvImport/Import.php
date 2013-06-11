@@ -909,6 +909,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $file->deleteElementTextsbyElementId((array) $info['element_id']);
             }
         }
+        // To reset keys is needed to avoid bug when there is no DC Title.
+        $elementTexts = array_values($elementTexts);
+
         $file->addElementTextsByArray($elementTexts);
 
         $file->save();
