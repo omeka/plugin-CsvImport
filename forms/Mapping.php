@@ -24,10 +24,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
     {
         parent::init();
         $this->setAttrib('id', 'csvimport-mapping');
-        $this->setMethod('post'); 
+        $this->setMethod('post');
 
         $elementsByElementSetName = $this->_getElementPairs($this->_itemTypeId);
-        $elementsByElementSetName = array('' => 'Select Below') 
+        $elementsByElementSetName = array('' => 'Select Below')
                                   + $elementsByElementSetName;
         foreach ($this->_columnNames as $index => $colName) {
             $rowSubForm = new Zend_Form_SubForm();
@@ -43,7 +43,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
             if ($this->_automapColumnNamesToElements) {
                 $selectElement->setValue($this->_getElementIdFromColumnName($colName));
             }
-            
+
             $rowSubForm->addElement($selectElement);
             $rowSubForm->addElement('checkbox', 'html');
             $rowSubForm->addElement('checkbox', 'tags');
@@ -57,7 +57,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
                   'class' => 'submit submit-medium'));
     }
 
-    protected function _getElementIdFromColumnName($columnName, $columnNameDelimiter=':')
+    protected function _getElementIdFromColumnName($columnName, $columnNameDelimiter = ':')
     {
         $element = $this->_getElementFromColumnName($columnName, $columnNameDelimiter);
         if ($element) {
@@ -66,15 +66,15 @@ class CsvImport_Form_Mapping extends Omeka_Form
             return null;
         }
     }
-    
+
     /**
-     * Return the element from the column name
+     * Return the element from the column name.
      *
      * @param string $columnName The name of the column
      * @param string $columnNameDelimiter The column name delimiter
      * @return Element|null The element from the column name
      */
-    protected function _getElementFromColumnName($columnName, $columnNameDelimiter=':')
+    protected function _getElementFromColumnName($columnName, $columnNameDelimiter = ':')
     {
         $element = null;
         // $columnNameParts is an array like array('Element Set Name', 'Element Name')
@@ -90,7 +90,6 @@ class CsvImport_Form_Mapping extends Omeka_Form
         }
         return $element;
     }
-
 
     /**
      * Load the default decorators.
@@ -109,8 +108,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the column names
-     * 
+     * Set the column names.
+     *
      * @param array $columnNames The array of column names (which are strings)
      */
     public function setColumnNames($columnNames)
@@ -119,9 +118,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the column examples
-     * 
-     * @param array $columnExamples The array of column examples (which are strings)
+     * Set the column examples.
+     *
+     * @param array $columnExamples The array of column examples (which are
+     * strings)
      */
     public function setColumnExamples($columnExamples)
     {
@@ -129,8 +129,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the column examples
-     * 
+     * Set the column examples.
+     *
      * @param int $itemTypeId The id of the item type
      */
     public function setItemTypeId($itemTypeId)
@@ -139,8 +139,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the element delimiter
-     * 
+     * Set the element delimiter.
+     *
      * @param int $elementDelimiter The element delimiter
      */
     public function setElementDelimiter($elementDelimiter)
@@ -149,8 +149,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the file delimiter
-     * 
+     * Set the file delimiter.
+     *
      * @param int $fileDelimiter The file delimiter
      */
     public function setFileDelimiter($fileDelimiter)
@@ -159,18 +159,18 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Set the tag delimiter
-     * 
+     * Set the tag delimiter.
+     *
      * @param int $tagDelimiter The tag delimiter
      */
     public function setTagDelimiter($tagDelimiter)
     {
         $this->_tagDelimiter = $tagDelimiter;
     }
-    
+
     /**
-     * Set whether or not to automap column names to elements
-     * 
+     * Set whether or not to automap column names to elements.
+     *
      * @param boolean $flag Whether or not to automap column names to elements
      */
     public function setAutomapColumnNamesToElements($flag)
@@ -179,9 +179,9 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-    * Returns array of column maps
+    * Returns array of column maps.
     *
-    * @return array The array of column maps   
+    * @return array The array of column maps
     */
     public function getColumnMaps()
     {
@@ -199,10 +199,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-    * Returns whether a subform row contains a tag mapping
+    * Returns whether a subform row contains a tag mapping.
     *
     * @param int $index The subform row index
-    * @return bool Whether the subform row contains a tag mapping    
+    * @return bool Whether the subform row contains a tag mapping
     */
     protected function _isTagMapped($index)
     {
@@ -210,10 +210,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-    * Returns whether a subform row contains a file mapping
+    * Returns whether a subform row contains a file mapping.
     *
     * @param int $index The subform row index
-    * @return bool Whether a subform row contains a file mapping    
+    * @return bool Whether a subform row contains a file mapping
     */
     protected function _isFileMapped($index)
     {
@@ -221,10 +221,10 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-    * Returns the element id mapped to the subform row
+    * Returns the element id mapped to the subform row.
     *
     * @param int $index The subform row index
-    * @return mixed The element id mapped to the subform row   
+    * @return mixed The element id mapped to the subform row
     */
     protected function _getMappedElementId($index)
     {
@@ -232,11 +232,11 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-    * Returns a row element value
+    * Returns a row element value.
     *
     * @param int $index The subform row index
     * @param string $elementName The element name in the row
-    * @return mixed The row element value     
+    * @return mixed The row element value
     */
     protected function _getRowValue($index, $elementName)
     {
@@ -246,7 +246,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
     /**
     * Adds decorators to a subform.
     *
-    * @param Zend_Form_SubForm $subForm The subform  
+    * @param Zend_Form_SubForm $subForm The subform
     */
     protected function _setSubFormDecorators($subForm)
     {
@@ -268,8 +268,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
     /**
      * Get the mappings from one column in the CSV file.
      *
-     * Some columns can have multiple mappings; these are represented
-     * as an array of maps.
+     * Some columns can have multiple mappings; these are represented as an
+     * array of maps.
      *
      * @param int $index The subform row index
      * @param string $columnName The name of the CSV file column
@@ -294,7 +294,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
             if (!$elementId) {
                 continue;
             }
-            
+
             $elementMap = new CsvImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
             $elementMap->setOptions(array('elementId' => $elementId,
                                          'isHtml' => $isHtml));
@@ -303,12 +303,12 @@ class CsvImport_Form_Mapping extends Omeka_Form
 
         return $columnMap;
     }
-    
+
     /**
-    * Returns element selection array for an item type or Dublin Core. 
-    * This is used for selecting elements in form dropdowns
+    * Returns element selection array for an item type or Dublin Core.
+    * This is used for selecting elements in form dropdowns.
     *
-    * @param int|null $itemTypeId The id of the item type.  
+    * @param int|null $itemTypeId The id of the item type.
     * If null, then it only includes Dublin Core elements
     * @return array
     */

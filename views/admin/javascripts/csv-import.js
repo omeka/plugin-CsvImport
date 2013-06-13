@@ -47,5 +47,5 @@ Omeka.CsvImport = {};
           fields.slideDown();
         }
     };
-         
+
 })(jQuery);
