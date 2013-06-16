@@ -1,5 +1,5 @@
-CSV Import Full (plugin for Omeka)
-==================================
+CSV Import (plugin for Omeka)
+=============================
 
 
 Summary
@@ -10,12 +10,6 @@ separated values) file, and then map the CSV column data to multiple elements,
 files, and/or tags. Each row in the file represents metadata for a single item.
 This plugin is useful for exporting data from one database and importing that
 data into an Omeka site.
-
-This plugin is a fork of the original [Csv Import] plugin that allows:
-
-* use of tabulation as a separator,
-* import of metadata of files,
-* import of files one by one to avoid to overload the server.
 
 The similar tool [Xml Import] can be useful too, depending on your types of
 data.
@@ -78,7 +72,7 @@ meaning that the import cannot be parallelized.  The first job will import
 Examples
 --------
 
-Two examples of csv files are available in the csv_files folder (standard [Csv Import]):
+Five examples of csv files are available in the csv_files folder:
 
 * `test.csv`: a basic list of three books with images of Wikipedia, with
 non Dublin Core tags.
@@ -89,8 +83,6 @@ To try them, you just need to check `Item metadata`, to use the default
 delimiters `,` and, for the second file, to check option `Automap column`. Note
 that even you don't use the Automap option, the plugin will try to get matching
 columns if field names are the same in your file and in the drop-down list.
-
-Three other files are available with [Csv Import Full]:
 
 * `test_special_delimiters.csv`: a file to try any delimiters. Special
 delimiters of this file are:
@@ -111,7 +103,7 @@ to which they are attached.
 
 _Warning_
 Depending of your environment and database, if you imports items with encoded
-urls, they should be decoded when your import files. For example, you can import
+urls, they should be decoded when you import files. For example, you can import
 an item with the file "Edmond_Dant%C3%A8s.jpg", but you may import your file
 metadata with the filename "Edmond_Dantès.jpg". Furthermore, filenames may be or
 not case sensitive.
@@ -139,13 +131,14 @@ Warning
 
 Use it at your own risk.
 
-It's always recommended to backup your database so you can roll back if needed.
+It's always recommended to backup your files and database so you can roll back
+if needed.
 
 
 Troubleshooting
 ---------------
 
-See online [Csv Import issues] (original plugin) and [Csv Import Full issues].
+See online [Csv Import issues] and [GitHub Csv Import issues].
 
 
 License
@@ -172,42 +165,30 @@ Contact
 -------
 
 Current maintainers:
+* [Center for History & New Media]
 
-Csv Import (original plugin):
-
-* Center for History and New Media (see [CHNM])
-
-Csv Import Full (forked plugin):
-
-* Daniel Berthereau (see [Daniel-KM])
-* Shawn Averkamp (see [saverkamp], for the version 1.3.4)
-
-This plugin has been forked for [University of Iowa Libraries] and upgraded for
-[École des Ponts ParisTech] and [Pop Up Archive].
-The fork of this plugin has been upgraded for Omeka 2.0 for [Mines ParisTech].
+This plugin has been built by [Center for History & New Media]. Next, the
+release 1.3.4 has been forked for [University of Iowa Libraries] and upgraded
+for [École des Ponts ParisTech] and [Pop Up Archive]. The fork of this plugin
+has been upgraded for Omeka 2.0 for [Mines ParisTech] and integrated into
+mainstream.
 
 
 Copyright
 ---------
 
-Csv Import (original plugin):
-
-* Copyright Center for History and New Media, 2012
-
-Csv Import Full (forked plugin):
-
+* Copyright Center for History and New Media, 2008-2013
 * Copyright Daniel Berthereau, 2012-2013
 * Copyright Shawn Averkamp, 2012
 
 
 [Omeka]: https://omeka.org "Omeka.org"
 [Csv Import]: https://github.com/omeka/plugin-CsvImport "Omeka plugin Csv Import"
-[Csv Import Full]: https://github.com/Daniel-KM/CsvImport "GitHub Csv Import Full"
 [Xml Import]: https://github.com/Daniel-KM/XmlImport "GitHub XmlImport"
-[Csv Import issues]: https://github.com/omeka/plugin-CsvImport/Issues "GitHub Csv Import"
-[Csv Import Full issues]: https://github.com/Daniel-KM/CsvImport/Issues "GitHub Csv Import Full"
+[Csv Import issues]: http://omeka.org/forums/forum/plugins
+[GitHub Csv Import issues]: https://github.com/omeka/plugin-CsvImport/Issues "GitHub Csv Import"
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html "GNU/GPL v3"
-[CHNM]: https://github.com/omeka "Center for History and New Media"
+[Center for History & New Media]: http://chnm.gmu.edu
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
 [saverkamp]: https://github.com/saverkamp "saverkamp"
 [University of Iowa Libraries]: http://www.lib.uiowa.edu

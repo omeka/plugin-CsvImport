@@ -91,7 +91,7 @@ Omeka.CsvImport = {};
     };
 
     /**
-     * Enable/disable element delimiter field.
+     * Enable/disable column delimiter field.
      */
     Omeka.CsvImport.updateColumnDelimiterField = function () {
         var fieldSelect = $('#column_delimiter_name');
@@ -117,7 +117,7 @@ Omeka.CsvImport = {};
     };
 
     /**
-     * Enable/disable element delimiter field.
+     * Enable/disable tag delimiter field.
      */
     Omeka.CsvImport.updateTagDelimiterField = function () {
         var fieldSelect = $('#tag_delimiter_name');
@@ -130,7 +130,7 @@ Omeka.CsvImport = {};
     };
 
     /**
-     * Enable/disable element delimiter field.
+     * Enable/disable file delimiter field.
      */
     Omeka.CsvImport.updateFileDelimiterField = function () {
         var fieldSelect = $('#file_delimiter_name');
@@ -152,5 +152,4 @@ Omeka.CsvImport = {};
         Omeka.CsvImport.updateTagDelimiterField();
         Omeka.CsvImport.updateFileDelimiterField();
     };
-
 })(jQuery);

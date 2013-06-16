@@ -35,7 +35,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $owner_id;
     public $added;
 
-    public $delimiter; // the column delimiter
+    public $delimiter;
     public $is_public;
     public $is_featured;
     public $row_count = 0;
@@ -62,46 +62,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     private $_columnMaps;
 
     /**
-     * Sets whether the imported items are public.
+     * Sets the status of the import.
      *
-     * @param mixed $flag A boolean representation
+     * @param string The status of the import
      */
-    public function setItemsArePublic($flag)
+    public function setStatus($status)
     {
-        $booleanFilter = new Omeka_Filter_Boolean;
-        $this->is_public = $booleanFilter->filter($flag);
-    }
-
-    /**
-     * Sets whether the imported items are featured.
-     *
-     * @param mixed $flag A boolean representation
-     */
-    public function setItemsAreFeatured($flag)
-    {
-        $booleanFilter = new Omeka_Filter_Boolean;
-        $this->is_featured = $booleanFilter->filter($flag);
-    }
-
-    /**
-     * Sets the collection id of the collection to which the imported items
-     * belong.
-     *
-     * @param int $id The collection id
-     */
-    public function setCollectionId($id)
-    {
-        $this->collection_id = (int)$id;
-    }
-
-    /**
-     * Sets the column delimiter in the imported CSV file.
-     *
-     * @param string The column delimiter of the imported CSV file
-     */
-    public function setColumnDelimiter($delimiter)
-    {
-        $this->delimiter = $delimiter;
+        $this->status = (string)$status;
     }
 
     /**
@@ -145,13 +112,46 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Sets the status of the import.
+     * Sets the collection id of the collection to which the imported items
+     * belong.
      *
-     * @param string The status of the import
+     * @param int $id The collection id
      */
-    public function setStatus($status)
+    public function setCollectionId($id)
     {
-        $this->status = (string)$status;
+        $this->collection_id = (int)$id;
+    }
+
+    /**
+     * Sets whether the imported items are public.
+     *
+     * @param mixed $flag A boolean representation
+     */
+    public function setItemsArePublic($flag)
+    {
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->is_public = $booleanFilter->filter($flag);
+    }
+
+    /**
+     * Sets whether the imported items are featured.
+     *
+     * @param mixed $flag A boolean representation
+     */
+    public function setItemsAreFeatured($flag)
+    {
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->is_featured = $booleanFilter->filter($flag);
+    }
+
+    /**
+     * Sets the column delimiter in the imported CSV file.
+     *
+     * @param string The column delimiter of the imported CSV file
+     */
+    public function setColumnDelimiter($delimiter)
+    {
+        $this->delimiter = $delimiter;
     }
 
     /**
@@ -934,13 +934,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Check if an element is an element without empty string .
+     * Check if an element is an element without empty string.
      *
      * @param string $element
      *   Element to check.
      *
      * @return array
-     *   Array of trimed element textsz.
+     *   Array of trimed element texts.
      */
     private function _trimElementTexts($elementTexts)
     {

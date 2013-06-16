@@ -215,10 +215,10 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     }
 
     /**
-    * Configure admin theme header.
-    *
-    * @param array $args
-    */
+     * Configure admin theme header.
+     *
+     * @param array $args
+     */
     public function hookAdminHead($args)
     {
         $request = Zend_Controller_Front::getInstance()->getRequest();
@@ -240,7 +240,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             'label' => __('Csv Import'),
             'uri' => url('csv-import'),
             'resource' => 'CsvImport_Index',
-            'privilege' => 'index'
+            'privilege' => 'index',
         );
         return $nav;
     }

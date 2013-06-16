@@ -36,7 +36,8 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         $element = $this->_getElementFromColumnName();
         if ($element) {
             $this->_elementId = $element->id;
-        } else {
+        }
+        else {
             $this->_elementId = null;
         }
     }
@@ -54,13 +55,15 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         if ($this->_isHtml) {
             $filter = new Omeka_Filter_HtmlPurifier();
             $text = $filter->filter($row[$this->_columnName]);
-        } else {
+        }
+        else {
             $text = $row[$this->_columnName];
         }
 
         if ($this->_elementDelimiter == '') {
             $texts = array($text);
-        } else {
+        }
+        else {
             $texts = explode($this->_elementDelimiter, $text);
         }
 

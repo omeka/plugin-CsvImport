@@ -77,17 +77,17 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         $elementDelimiterName = $form->getValue('element_delimiter_name');
-        $this->session->elementDelimiter = isset($delimitersList[$elementDelimiterName]) ?
-            $delimitersList[$elementDelimiterName] :
-            $form->getValue('element_delimiter');
+        $this->session->elementDelimiter = isset($delimitersList[$elementDelimiterName])
+            ? $delimitersList[$elementDelimiterName]
+            : $form->getValue('element_delimiter');
         $tagDelimiterName = $form->getValue('tag_delimiter_name');
-        $this->session->tagDelimiter = isset($delimitersList[$tagDelimiterName]) ?
-            $delimitersList[$tagDelimiterName] :
-            $form->getValue('tag_delimiter');
+        $this->session->tagDelimiter = isset($delimitersList[$tagDelimiterName])
+            ? $delimitersList[$tagDelimiterName]
+            : $form->getValue('tag_delimiter');
         $fileDelimiterName = $form->getValue('file_delimiter_name');
-        $this->session->fileDelimiter = isset($delimitersList[$fileDelimiterName]) ?
-            $delimitersList[$fileDelimiterName] :
-            $form->getValue('file_delimiter');
+        $this->session->fileDelimiter = isset($delimitersList[$fileDelimiterName])
+            ? $delimitersList[$fileDelimiterName]
+            : $form->getValue('file_delimiter');
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
@@ -353,7 +353,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         if ($csvImport->queue()) {
             $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
-        } else {
+        }
+        else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
         }
         $this->session->unsetAll();
@@ -362,7 +363,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
     /**
      * Browse the imports.
-     *
      */
     public function browseAction()
     {
@@ -375,7 +375,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
     /**
      * Undo the import.
-     *
      */
     public function undoImportAction()
     {
@@ -392,7 +391,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
     /**
      * Clear the import history.
-     *
      */
     public function clearHistoryAction()
     {
@@ -425,10 +423,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-      * Returns the plugin configuration.
-      *
-      * @return array
-      */
+     * Returns the plugin configuration.
+     *
+     * @return array
+     */
     protected function _getPluginConfig()
     {
         if (!$this->_pluginConfig) {
@@ -474,7 +472,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      * @param CsvImport_Import $csvImport The import object
      * @param string $method The method name to run in the CsvImport_Import object
      */
-    protected function _dispatchImportTask($csvImport, $method=null)
+    protected function _dispatchImportTask($csvImport, $method = null)
     {
         if ($method === null) {
             $method = CsvImport_ImportTask::METHOD_START;
@@ -508,14 +506,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     public static function getDelimitersList()
     {
         return array(
-            'comma'      => ',',
-            'semi-colon' => ';',
-            'pipe'       => '|',
-            'tabulation' => "\t",
+            'comma'        => ',',
+            'semi-colon'   => ';',
+            'pipe'         => '|',
+            'tabulation'   => "\t",
             'carriage return' => "\r",
-            'space'      => ' ',
+            'space'        => ' ',
             'double space' => '  ',
-            'empty'      => '',
+            'empty'        => '',
         );
     }
 }

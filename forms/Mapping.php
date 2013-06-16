@@ -31,9 +31,9 @@ class CsvImport_Form_Mapping extends Omeka_Form
 
         // When importing metadata for files, display all elements sets (except
         // if user chooses one) because files can belong to any type of item.
-        $elementsByElementSetName = ($this->_format == 'File') ?
-            $this->_getElementPairsForFiles() :
-            $this->_getElementPairs($this->_itemTypeId);
+        $elementsByElementSetName = ($this->_format == 'File')
+            ? $this->_getElementPairsForFiles()
+            : $this->_getElementPairs($this->_itemTypeId);
         $elementsByElementSetName = array('' => 'Select Below')
                                   + $elementsByElementSetName;
 
@@ -44,7 +44,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
                 array(
                     'class' => 'map-element',
                     'multiOptions' => $elementsByElementSetName,
-                    'multiple' => false // see ZF-8452
+                    'multiple' => false, // see ZF-8452
             ));
             $selectElement->setIsArray(true);
             if ($this->_automapColumns) {
@@ -72,7 +72,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $this->addElement('submit',
             'submit',
             array(
-                'label' => __('Import CSV File'),
+                'label' => __('Import CSV file'),
                 'class' => 'submit submit-medium',
         ));
     }
@@ -82,7 +82,8 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $element = $this->_getElementFromColumnName($columnName, $columnNameDelimiter);
         if ($element) {
             return $element->id;
-        } else {
+        }
+        else {
             return null;
         }
     }

@@ -93,7 +93,6 @@ class CsvImport_Form_Main extends Omeka_Form
             array('label' => __('Next'),
                 'class' => 'submit submit-medium'));
 
-
         $submit->setDecorators(
             array('ViewHelper',
                 array('HtmlTag',
