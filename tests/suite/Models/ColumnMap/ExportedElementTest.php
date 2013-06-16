@@ -18,7 +18,7 @@ class CsvImport_ColumnMap_ExportedElementTest extends CsvImport_Test_AppTestCase
         $this->assertEquals(CsvImport_ColumnMap::TYPE_ELEMENT, $map->getType());
         $this->assertEquals($element->id, $map->getElementId());
         $this->assertTrue($map->isHtml());
-        
+
         $elementDelimiter = '^^';
         $this->assertEquals($elementDelimiter, CsvImport_ColumnMap_ExportedElement::DEFAULT_ELEMENT_DELIMITER);
     }
@@ -29,10 +29,10 @@ class CsvImport_ColumnMap_ExportedElementTest extends CsvImport_Test_AppTestCase
         $element = get_db()->getTable('Element')
                            ->findByElementSetNameAndElementName('Dublin Core', 'Title');
         $isHtml = true;
-        
+
         $elementDelimiter = '^^';
         $this->assertEquals($elementDelimiter, CsvImport_ColumnMap_ExportedElement::DEFAULT_ELEMENT_DELIMITER);
-        
+
         $beforeElementArray = array('a','B','c D ');
         $afterElementArray = array(
             array(
@@ -52,11 +52,11 @@ class CsvImport_ColumnMap_ExportedElementTest extends CsvImport_Test_AppTestCase
             )
         );
         $elementString = implode($elementDelimiter, $beforeElementArray);
-        
+
         $row = array($columnName => $elementString);
-        
+
         $map = new CsvImport_ColumnMap_ExportedElement($columnName);
-        
+
         $this->assertInstanceOf('CsvImport_ColumnMap_ExportedElement', $map);
         $this->assertEquals($afterElementArray, $map->map($row, array()));
     }

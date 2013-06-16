@@ -17,14 +17,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     public function init()
     {
         $this->session = new Zend_Session_Namespace('CsvImport');
-        $this->_helper->db->setDefaultModelName('CsvImport_Import');        
+        $this->_helper->db->setDefaultModelName('CsvImport_Import');
     }
 
     /**
      * Configure a new import.
      */
     public function indexAction()
-    {        
+    {
         $form = $this->_getMainForm();
         $this->view->form = $form;
 
@@ -43,44 +43,74 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         $filePath = $form->csv_file->getFileName();
-        $columnDelimiter = $form->getValue('column_delimiter');
-                
+        $delimitersList = self::getDelimitersList();
+        $columnDelimiterName = $form->getValue('column_delimiter_name');
+        $columnDelimiter = isset($delimitersList[$columnDelimiterName])
+            ? $delimitersList[$columnDelimiterName]
+            : $form->getValue('column_delimiter');
+
         $file = new CsvImport_File($filePath, $columnDelimiter);
-        
+
         if (!$file->parse()) {
-            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.') . ' ' . $file->getErrorString(), 'error');
+            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.')
+                . ' ' . $file->getErrorString(), 'error');
             return;
         }
 
         $this->session->setExpirationHops(2);
         $this->session->originalFilename = $_FILES['csv_file']['name'];
         $this->session->filePath = $filePath;
-        
+        $this->session->format = $form->getValue('format');
+        $this->session->itemTypeId = $form->getValue('item_type_id');
+        $this->session->collectionId = $form->getValue('collection_id');
+        $this->session->itemsArePublic = $form->getValue('items_are_public');
+        $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
+        $this->session->elementsAreHtml = $form->getValue('elements_are_html');
+        $this->session->automapColumns = $form->getValue('automap_columns');
         $this->session->columnDelimiter = $columnDelimiter;
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
-        
-        $this->session->fileDelimiter = $form->getValue('file_delimiter');
-        $this->session->tagDelimiter = $form->getValue('tag_delimiter');
-        $this->session->elementDelimiter = $form->getValue('element_delimiter');
-        $this->session->itemTypeId = $form->getValue('item_type_id');
-        $this->session->itemsArePublic = $form->getValue('items_are_public');
-        $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
-        $this->session->collectionId = $form->getValue('collection_id');
-        
-        $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
+        // A bug appears when examples contain UTF-8 characters like 'ГЧ„чŁ'.
+        // The bug is only here, not during import of characters into database.
+        foreach ($this->session->columnExamples as &$value) {
+            $value = iconv('ISO-8859-15', 'UTF-8', @iconv('UTF-8', 'ISO-8859-15' . '//IGNORE', $value));
+        }
+
+        $elementDelimiterName = $form->getValue('element_delimiter_name');
+        $this->session->elementDelimiter = isset($delimitersList[$elementDelimiterName])
+            ? $delimitersList[$elementDelimiterName]
+            : $form->getValue('element_delimiter');
+        $tagDelimiterName = $form->getValue('tag_delimiter_name');
+        $this->session->tagDelimiter = isset($delimitersList[$tagDelimiterName])
+            ? $delimitersList[$tagDelimiterName]
+            : $form->getValue('tag_delimiter');
+        $fileDelimiterName = $form->getValue('file_delimiter_name');
+        $this->session->fileDelimiter = isset($delimitersList[$fileDelimiterName])
+            ? $delimitersList[$fileDelimiterName]
+            : $form->getValue('file_delimiter');
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
-        if ($form->getValue('omeka_csv_export')) {
-            $this->_helper->redirector->goto('check-omeka-csv');
-        }
+        // All is valid, so we save settings.
+        set_option('csv_import_html_elements', $this->session->elementsAreHtml);
+        set_option('csv_import_automap_columns', $this->session->automapColumns);
+        set_option(CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
+        set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
+        set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
+        set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);
 
-        $this->_helper->redirector->goto('map-columns');
+        switch ($this->session->format) {
+            case 'Report':
+                $this->_helper->redirector->goto('check-omeka-csv');
+            case 'Mix':
+                $this->_helper->redirector->goto('check-mix-csv');
+            default:
+                $this->_helper->redirector->goto('map-columns');
+        }
     }
-    
+
     /**
-     * Map the columns for an import
+     * Map the columns for an import.
      */
     public function mapColumnsAction()
     {
@@ -92,17 +122,18 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
         require_once CSV_IMPORT_DIRECTORY . '/forms/Mapping.php';
         $form = new CsvImport_Form_Mapping(array(
+            'format' => $this->session->format,
             'itemTypeId' => $this->session->itemTypeId,
+            'automapColumns' => $this->session->automapColumns,
             'columnNames' => $this->session->columnNames,
             'columnExamples' => $this->session->columnExamples,
-            'fileDelimiter' => $this->session->fileDelimiter,
-            'tagDelimiter' => $this->session->tagDelimiter,
             'elementDelimiter' => $this->session->elementDelimiter,
-            'automapColumnNamesToElements' => $this->session->automapColumnNamesToElements
+            'tagDelimiter' => $this->session->tagDelimiter,
+            'fileDelimiter' => $this->session->fileDelimiter,
         ));
         $this->view->form = $form;
-                
-        if (!$this->getRequest()->isPost()) {            
+
+        if (!$this->getRequest()->isPost()) {
             return;
         }
         if (!$form->isValid($this->getRequest()->getPost())) {
@@ -114,63 +145,96 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         if (count($columnMaps) == 0) {
             $this->_helper->flashMessenger(__('Please map at least one column to an element, file, or tag.'), 'error');
             return;
-        }        
-        
-        $csvImport = new CsvImport_Import();        
+        }
+
+        $csvImport = new CsvImport_Import();
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
             if (method_exists($csvImport, $setMethod)) {
                 $csvImport->$setMethod($value);
             }
         }
+
         $csvImport->setColumnMaps($columnMaps);
-        if ($csvImport->queue()) {    
+        if ($csvImport->queue()) {
             $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
         }
-        
+
         $this->session->unsetAll();
         $this->_helper->redirector->goto('browse');
     }
-    
+
     /**
-     * For import of Omeka.net CSV. 
-     * Check if all needed Elements are present.
+     * For import of Omeka.net CSV.
      */
     public function checkOmekaCsvAction()
     {
+        $skipColumns = array(
+            'itemType',
+            'collection',
+            'public',
+            'featured',
+            'tags',
+            'file',
+        );
+        $this->_checkCsv($skipColumns);
+    }
+
+    /**
+     * For import with mixed records. Similar to Csv Report, but allows to
+     * import files one by one, to import metadata of files and to choose
+     * default values and delimiters.
+     */
+    public function checkMixCsvAction()
+    {
+        $skipColumns = array(
+            'sourceItemId',
+            'fileUrl',
+            'itemType',
+            'collection',
+            'public',
+            'featured',
+            'tags',
+            'file',
+        );
+        $this->_checkCsv($skipColumns);
+    }
+
+    /**
+     * For direct import of a file from Omeka.net or with mixed records.
+     * Check if all needed Elements are present.
+     */
+    protected function _checkCsv(array $skipColumns = array())
+    {
+        if (empty($this->session->columnNames)) {
+            $this->_helper->redirector->goto('index');
+        }
+
         $elementTable = get_db()->getTable('Element');
-        $skipColumns = array('itemType', 
-                             'collection',
-                             'tags',
-                             'public',
-                             'featured',
-                             'file');
-        
+
         $skipColumnsWrapped = array();
-        foreach($skipColumns as $skipColumn) {
+        foreach ($skipColumns as $skipColumn) {
             $skipColumnsWrapped[] = "'" . $skipColumn . "'";
         }
         $skipColumnsText = '( ' . implode(',  ', $skipColumnsWrapped) . ' )';
-    
-        if (empty($this->session->columnNames)) {
-            $this->_helper->redirector->goto('index');   
-        }
-        
-        $hasError = false;        
+
+        $hasError = false;
         foreach ($this->session->columnNames as $columnName){
             if (!in_array($columnName, $skipColumns)) {
                 $data = explode(':', $columnName);
                 if (count($data) != 2) {
-                    $this->_helper->flashMessenger(__('Invalid column names. Column names must either be one of the following %s, or have the following format: {ElementSetName}:{ElementName}', $skipColumnsText), 'error');
+                    $msg = __('Invalid column name: "%s".', $columnName)
+                        . ' ' . __('Column names must either be one of the following %s, or have the following format: {ElementSetName}:{ElementName}.', $skipColumnsText);
+                    $this->_helper->flashMessenger($msg, 'error');
                     $hasError = true;
                     break;
                 }
             }
         }
-        
+
         if (!$hasError) {
             foreach ($this->session->columnNames as $columnName){
                 if (!in_array($columnName, $skipColumns)) {
@@ -179,44 +243,60 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     $elementSetName = $data[0];
                     $elementName = $data[1];
                     $element = $elementTable->findByElementSetNameAndElementName($elementSetName, $elementName);
-                    if (empty($element)) {                    
-                        $this->_helper->flashMessenger(__('Element "%s" is not found in element set "%s"', array($elementName, $elementSetName)), 'error');
-                         $hasError = true;
-                    }                                
-                }            
+                    if (empty($element)) {
+                        $msg = __('Element "%s" is not found in element set "%s".', $elementName, $elementSetName);
+                        $this->_helper->flashMessenger($msg, 'error');
+                        $hasError = true;
+                    }
+                }
             }
         }
-        
-        if (!$hasError) {
-            $this->_helper->redirector->goto('omeka-csv');
+
+        if ($hasError) {
+            $this->_helper->redirector->goto('index');
         }
+
+        $this->_helper->redirector->goto('omeka-csv');
     }
-    
+
     /**
-     * Create and queue a new import from Omeka.net
+     * Create and queue a new import from Omeka.net or with mixed records.
      */
     public function omekaCsvAction()
     {
-        // specify the export format's file and tag delimiters
-        // do not allow the user to specify it
-        $fileDelimiter = ',';
-        $tagDelimiter = ',';    
-        
+        // Specify the export format's file and tag delimiters.
+        switch ($this->session->format) {
+            case 'Report':
+                // Do not allow the user to specify it.
+                $tagDelimiter = ',';
+                $fileDelimiter = ',';
+                // Nevertheless, user can choose to import all elements as html
+                // or as raw text.
+                $isHtml = (boolean) $this->session->elementsAreHtml;
+                break;
+            case 'Mix':
+                $elementDelimiter = $this->session->elementDelimiter;
+                $tagDelimiter = $this->session->tagDelimiter;
+                $fileDelimiter = $this->session->fileDelimiter;
+                $isHtml = (boolean) $this->session->elementsAreHtml;
+                break;
+            default:
+                $this->_helper->flashMessenger(__('Invalid call.'), 'error');
+                $this->_helper->redirector->goto('index');
+        }
+
         $headings = $this->session->columnNames;
         $columnMaps = array();
         foreach ($headings as $heading) {
             switch ($heading) {
-                case 'collection':
-                    $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
+                case 'sourceItemId':
+                    $columnMaps[] = new CsvImport_ColumnMap_SourceItemId($heading);
                     break;
                 case 'itemType':
                     $columnMaps[] = new CsvImport_ColumnMap_ItemType($heading);
                     break;
-                case 'file':
-                    $columnMaps[] = new CsvImport_ColumnMap_File($heading, $fileDelimiter);
-                    break;
-                case 'tags':
-                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading, $tagDelimiter);
+                case 'collection':
+                    $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
                     break;
                 case 'public':
                     $columnMaps[] = new CsvImport_ColumnMap_Public($heading);
@@ -224,17 +304,45 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                 case 'featured':
                     $columnMaps[] = new CsvImport_ColumnMap_Featured($heading);
                     break;
+                case 'fileUrl':
+                    $columnMaps[] = new CsvImport_ColumnMap_FileUrl($heading);
+                    break;
+                case 'file':
+                    $columnMaps[] = new CsvImport_ColumnMap_File($heading, $fileDelimiter);
+                    break;
+                case 'tags':
+                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading, $tagDelimiter);
+                    break;
                 default:
-                    $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
+                    switch ($this->session->format) {
+                        case 'Report':
+                            $elementMap = new CsvImport_ColumnMap_ExportedElement($heading);
+                            $options = array(
+                                'columnNameDelimiter' => $elementMap::DEFAULT_COLUMN_NAME_DELIMITER,
+                                'elementDelimiter' => $elementMap::DEFAULT_ELEMENT_DELIMITER,
+                                'isHtml' => $isHtml,
+                            );
+                            break;
+                        case 'Mix':
+                            $elementMap = new CsvImport_ColumnMap_MixElement($heading, $elementDelimiter);
+                            $options = array(
+                                'columnNameDelimiter' => $elementMap::DEFAULT_COLUMN_NAME_DELIMITER,
+                                'elementDelimiter' => $elementDelimiter,
+                                'isHtml' => $isHtml,
+                            );
+                            break;
+                    }
+                    $elementMap->setOptions($options);
+                    $columnMaps[] = $elementMap;
                     break;
             }
         }
         $csvImport = new CsvImport_Import();
-        
-        //this is the clever way that mapColumns action sets the values passed along from indexAction
-        //many will be irrelevant here, since CsvImport allows variable itemTypes and Collection
-        
-        //@TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually
+        // This is the clever way that mapColumns action sets the values passed
+        // along from indexAction. Many will be irrelevant here, since CsvImport
+        // allows variable itemTypes and Collection
+
+        // @TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
             if (method_exists($csvImport, $setMethod)) {
@@ -242,19 +350,19 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             }
         }
         $csvImport->setColumnMaps($columnMaps);
-        if ($csvImport->queue()) {    
+        if ($csvImport->queue()) {
             $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
-        } else {
+        }
+        else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
         }
         $this->session->unsetAll();
         $this->_helper->redirector->goto('browse');
     }
-    
+
     /**
      * Browse the imports.
-     * 
      */
     public function browseAction()
     {
@@ -264,37 +372,35 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         parent::browseAction();
     }
-    
+
     /**
-     * Undo the import
-     * 
+     * Undo the import.
      */
     public function undoImportAction()
     {
         $csvImport = $this->_helper->db->findById();
         if ($csvImport->queueUndo()) {
-            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_UNDO);                                                                   
+            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_UNDO);
             $this->_helper->flashMessenger(__('Undo import started. Reload this page for status updates.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Undo import could not be started. Please check error logs for more details.'), 'error');
         }
-        
+
         $this->_helper->redirector->goto('browse');
     }
-    
+
     /**
      * Clear the import history.
-     * 
      */
     public function clearHistoryAction()
     {
         $csvImport = $this->_helper->db->findById();
-        $importedItemCount = $csvImport->getImportedItemCount(); 
-        
-        if ($csvImport->isUndone() || 
-            $csvImport->isUndoImportError() || 
-            $csvImport->isOtherError() ||
-            ($csvImport->isImportError() && $importedItemCount == 0)) {
+        $importedItemCount = $csvImport->getImportedItemCount();
+
+        if ($csvImport->isUndone()
+            || $csvImport->isUndoImportError()
+            || $csvImport->isOtherError()
+            || ($csvImport->isImportError() && $importedItemCount == 0)) {
             $csvImport->delete();
             $this->_helper->flashMessenger(__('Cleared import from the history.'), 'success');
         } else {
@@ -302,10 +408,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         $this->_helper->redirector->goto('browse');
     }
-    
+
     /**
      * Get the main Csv Import form.
-     * 
+     *
      * @return CsvImport_Form_Main
      */
     protected function _getMainForm()
@@ -317,10 +423,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-      * Returns the plugin configuration
-      * 
-      * @return array
-      */
+     * Returns the plugin configuration.
+     *
+     * @return array
+     */
     protected function _getPluginConfig()
     {
         if (!$this->_pluginConfig) {
@@ -335,19 +441,23 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         return $this->_pluginConfig;
     }
-    
+
     /**
-     * Returns whether the session is valid
-     * 
+     * Returns whether the session is valid.
+     *
      * @return boolean
      */
     protected function _sessionIsValid()
     {
-        $requiredKeys = array('itemsArePublic', 
-                              'itemsAreFeatured',
-                              'collectionId', 
-                              'itemTypeId', 
-                              'ownerId');
+        $requiredKeys = array(
+            'format',
+            'itemTypeId',
+            'collectionId',
+            'itemsArePublic',
+            'itemsAreFeatured',
+            'elementsAreHtml',
+            'ownerId',
+        );
         foreach ($requiredKeys as $key) {
             if (!isset($this->session->$key)) {
                 return false;
@@ -355,27 +465,27 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         return true;
     }
-    
+
     /**
      * Dispatch an import task.
      *
      * @param CsvImport_Import $csvImport The import object
      * @param string $method The method name to run in the CsvImport_Import object
-     */    
-    protected function _dispatchImportTask($csvImport, $method=null) 
-    {        
+     */
+    protected function _dispatchImportTask($csvImport, $method = null)
+    {
         if ($method === null) {
             $method = CsvImport_ImportTask::METHOD_START;
         }
         $csvConfig = $this->_getPluginConfig();
-        
+
         $options = array(
             'importId' => $csvImport->id,
             'memoryLimit' => @$csvConfig['memoryLimit'],
             'batchSize' => @$csvConfig['batchSize'],
             'method' => $method,
-        );        
-        
+        );
+
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
         $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
         $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
@@ -385,6 +495,25 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                 'batchSize' => @$csvConfig['batchSize'],
                 'method' => $method,
             )
+        );
+    }
+
+    /**
+     * Return the list of standard delimiters.
+     *
+     * @return array The list of standard delimiters.
+     */
+    public static function getDelimitersList()
+    {
+        return array(
+            'comma'        => ',',
+            'semi-colon'   => ';',
+            'pipe'         => '|',
+            'tabulation'   => "\t",
+            'carriage return' => "\r",
+            'space'        => ' ',
+            'double space' => '  ',
+            'empty'        => '',
         );
     }
 }

@@ -7,8 +7,8 @@
 }
 
 .csv-import-column-map {
-    border-top:2px solid #D7D5C4; 
-    padding-top:10px;    
+    border-top:2px solid #D7D5C4;
+    padding-top:10px;
 }
 
 #csvimport span.add-element {
@@ -20,7 +20,6 @@
 table#column-mappings div.inputs {
     width: auto;
 }
-
 
 /* id=section-nav changed to class=section-nav to enable it to work with
  * Zend_Navigation.
@@ -41,6 +40,7 @@ table#column-mappings div.inputs {
     text-decoration: none;
     width: 126px;
 }
+
 /* Duplicate of "li.current" definition.  Zend_Navigation uses "active" for class
  * instead of current.
  */

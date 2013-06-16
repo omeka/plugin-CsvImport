@@ -1,21 +1,17 @@
 <?php
 /**
- * CsvImport_ColumnMap_ExportedElement class
- * Works with csv files exported from another Omeka installation using
- * CSV Report.  Differs from CsvImport_ColumnMap_Element in the structure of the
- * result coming from map(). Also assumes all elements are, or not, HTML and that
- * they're already purified, which is only slightly more naughty that the usual
- * import, which sets isHTML at the Element level, while in practice it is set
- * on the ElementText (i.e., Item) level.
+ * CsvImport_ColumnMap_MixElement class
  *
- * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
- * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
+ * A merge of the classes CsvImport_ColumnMap_ExportedElement and
+ * CsvImport_ColumnMap_Element.
+ *
  * @package CsvImport
  */
-class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
+class CsvImport_ColumnMap_MixElement extends CsvImport_ColumnMap
 {
     const DEFAULT_COLUMN_NAME_DELIMITER = ':';
-    const DEFAULT_ELEMENT_DELIMITER = '^^';
+    const ELEMENT_DELIMITER_OPTION_NAME = 'csv_import_element_delimiter';
+    const DEFAULT_ELEMENT_DELIMITER = "\r";
 
     private $_columnNameDelimiter;
     private $_elementDelimiter;
@@ -24,22 +20,25 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
 
     /**
      * @param string $columnName
+     * @param string $elementDelimiter
      */
-    public function __construct($columnName)
+    public function __construct($columnName, $elementDelimiter = null)
     {
         parent::__construct($columnName);
         $this->_type = CsvImport_ColumnMap::TYPE_ELEMENT;
         $this->_columnNameDelimiter = self::DEFAULT_COLUMN_NAME_DELIMITER;
-        $this->_elementDelimiter = self::DEFAULT_ELEMENT_DELIMITER;
-        $this->_isHtml = true;
+
+        $this->_elementDelimiter = ($elementDelimiter !== null)
+            ? $elementDelimiter
+            : self::getDefaultElementDelimiter();
 
         $element = $this->_getElementFromColumnName();
-        if ($element) {
-            $this->_elementId = $element->id;
-        }
-        else {
-            $this->_elementId = null;
-        }
+
+        $this->_elementId = !empty($element)
+            ? $element->id
+            : null;
+
+        $this->_isHtml = true;
     }
 
     /**
@@ -55,17 +54,13 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         if ($this->_isHtml) {
             $filter = new Omeka_Filter_HtmlPurifier();
             $text = $filter->filter($row[$this->_columnName]);
-        }
-        else {
+        } else {
             $text = $row[$this->_columnName];
         }
 
-        if ($this->_elementDelimiter == '') {
-            $texts = array($text);
-        }
-        else {
-            $texts = explode($this->_elementDelimiter, $text);
-        }
+        $texts = ($this->_elementDelimiter == '')
+            ? array($text)
+            : explode($this->_elementDelimiter, $text);
 
         if ($this->_elementId) {
             foreach ($texts as $text) {
@@ -92,8 +87,8 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
         if (strlen($this->_columnNameDelimiter) > 0) {
             if ($columnNameParts = explode($this->_columnNameDelimiter, $this->_columnName)) {
                 if (count($columnNameParts) == 2) {
-                    $elementSetName = $columnNameParts[0];
-                    $elementName = $columnNameParts[1];
+                    $elementSetName = trim($columnNameParts[0]);
+                    $elementName = trim($columnNameParts[1]);
                     $element = get_db()->getTable('Element')
                                        ->findByElementSetNameAndElementName($elementSetName, $elementName);
                 }
@@ -161,5 +156,20 @@ class CsvImport_ColumnMap_ExportedElement extends CsvImport_ColumnMap
     public function isHtml()
     {
         return $this->_isHtml;
+    }
+
+    /**
+     * Returns the default element delimiter.
+     * Uses the default element delimiter specified in the options table if
+     * available.
+     *
+     * @return string The default element delimiter
+     */
+    static public function getDefaultElementDelimiter()
+    {
+        if (!($delimiter = get_option(self::ELEMENT_DELIMITER_OPTION_NAME))) {
+            $delimiter = self::DEFAULT_ELEMENT_DELIMITER;
+        }
+        return $delimiter;
     }
 }
