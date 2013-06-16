@@ -42,6 +42,8 @@ Omeka.CsvImport = {};
         var fieldsReportNo = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
         var fieldsItem = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
         var fieldsItemNo = $('div.field').has('#elements_are_html');
+        var fieldsFile = $('div.field').has('#automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter');
+        var fieldsFileNo = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #elements_are_html, #file_delimiter_name, #file_delimiter');
         var fieldsAll = $('div.field').has('#item_type_id, #collection_id, #items_are_public, #items_are_featured, #elements_are_html, #automap_columns, #column_delimiter_name, #column_delimiter, #element_delimiter_name, #element_delimiter, #tag_delimiter_name, #tag_delimiter, #file_delimiter_name, #file_delimiter');
         if ($('#format-Report').is(':checked')) {
             fieldsReport.slideDown();
@@ -49,6 +51,9 @@ Omeka.CsvImport = {};
         } else if ($('#format-Item').is(':checked')) {
             fieldsItem.slideDown();
             fieldsItemNo.slideUp();
+        } else if ($('#format-File').is(':checked')) {
+            fieldsFile.slideDown();
+            fieldsFileNo.slideUp();
         } else {
             fieldsAll.slideUp();
         };

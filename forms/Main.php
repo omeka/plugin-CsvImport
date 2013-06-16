@@ -39,6 +39,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'multiOptions' => array(
                 'Report' => __('Omeka CSV Report'),
                 'Item' => __('Items'),
+                'File' => __('Files metadata'),
             ),
             'required' => TRUE,
         ));

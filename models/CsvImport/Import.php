@@ -21,28 +21,31 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     const IMPORT_ERROR = 'import_error';
     const UNDO_IMPORT_ERROR = 'undo_import_error';
     const OTHER_ERROR = 'other_error';
-    
+
     const STOPPED = 'stopped';
     const PAUSED = 'paused';
 
     public $original_filename;
     public $file_path;
     public $file_position = 0;
+
+    public $format;
     public $item_type_id;
     public $collection_id;
     public $owner_id;
     public $added;
 
-    public $delimiter; // the column delimiter
+    public $delimiter;
     public $is_public;
     public $is_featured;
+    public $row_count = 0;
     public $skipped_row_count = 0;
     public $skipped_item_count = 0;
     public $status;
     public $serialized_column_maps;
 
     private $_csvFile;
-    private $_isOmekaExport;
+    private $_isHtml;
     private $_importedCount = 0;
 
     /**
@@ -59,7 +62,68 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     private $_columnMaps;
 
     /**
-     * Sets whether the imported items are public
+     * Sets the status of the import.
+     *
+     * @param string The status of the import
+     */
+    public function setStatus($status)
+    {
+        $this->status = (string)$status;
+    }
+
+    /**
+     * Sets the file path of the imported CSV file.
+     *
+     * @param string The file path of the imported CSV file
+     */
+    public function setFilePath($path)
+    {
+        $this->file_path = $path;
+    }
+
+    /**
+     * Sets the original filename of the imported CSV file.
+     *
+     * @param string The original filename of the imported CSV file
+     */
+    public function setOriginalFilename($filename)
+    {
+        $this->original_filename = $filename;
+    }
+
+    /**
+     * Sets the format of the imported CSV file.
+     *
+     * @param int $format The format of the imported CSV File.
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    /**
+     * Sets the item type id of the item type of every imported item.
+     *
+     * @param int $id The item type id
+     */
+    public function setItemTypeId($id)
+    {
+        $this->item_type_id = (int)$id;
+    }
+
+    /**
+     * Sets the collection id of the collection to which the imported items
+     * belong.
+     *
+     * @param int $id The collection id
+     */
+    public function setCollectionId($id)
+    {
+        $this->collection_id = (int)$id;
+    }
+
+    /**
+     * Sets whether the imported items are public.
      *
      * @param mixed $flag A boolean representation
      */
@@ -70,7 +134,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Sets whether the imported items are featured
+     * Sets whether the imported items are featured.
      *
      * @param mixed $flag A boolean representation
      */
@@ -81,17 +145,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Sets the collection id of the collection to which the imported items belong
-     *
-     * @param int $id The collection id
-     */
-    public function setCollectionId($id)
-    {
-        $this->collection_id = (int)$id;
-    }
-
-    /**
-     * Sets the column delimiter in the imported CSV file
+     * Sets the column delimiter in the imported CSV file.
      *
      * @param string The column delimiter of the imported CSV file
      */
@@ -101,47 +155,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Sets the file path of the imported CSV file
-     *
-     * @param string The file path of the imported CSV file
-     */
-    public function setFilePath($path)
-    {
-        $this->file_path = $path;
-    }
-    
-    /**
-     * Sets the original filename of the imported CSV file
-     *
-     * @param string The original filename of the imported CSV file
-     */
-    public function setOriginalFilename($filename)
-    {
-        $this->original_filename = $filename;
-    }
-
-    /**
-     * Sets the item type id of the item type of every imported item
-     *
-     * @param int $id The item type id
-     */
-    public function setItemTypeId($id)
-    {
-        $this->item_type_id = (int)$id;
-    }
-
-    /**
-     * Sets the status of the import 
-     *
-     * @param string The status of the import
-     */
-    public function setStatus($status)
-    {
-        $this->status = (string)$status;
-    }
-
-    /**
-     * Sets the user id of the owner of the imported items
+     * Sets the user id of the owner of the imported items.
      *
      * @param int $id The user id of the owner of the imported items
      */
@@ -151,17 +165,17 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Sets whether the import is an Omeka export
+     * Sets whether the import is raw text or html.
      *
      * @param mixed $flag A boolean representation
      */
-    public function setIsOmekaExport($flag)
+    public function setIsHtml($flag)
     {
-        $this->_isOmekaExport = $flag;
+        $this->_isHtml = $flag;
     }
 
     /**
-     * Sets the column maps for the import
+     * Sets the column maps for the import.
      *
      * @param CsvImport_ColumnMap_Set|array $maps The set of column maps
      * @throws InvalidArgumentException
@@ -187,7 +201,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * imports from running.  When used in conjunction with Omeka_Job and
      * resume(), this can be used to spawn multiple sequential jobs for a given
      * import.
-     * 
+     *
      * @param int $size
      */
     public function setBatchSize($size)
@@ -197,6 +211,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
     /**
      * Executes before the record is deleted.
+     *
      * @param array $args
      */
     protected function beforeSave($args)
@@ -215,19 +230,19 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether there is an error
+     * Returns whether there is an error.
      *
      * @return boolean Whether there is an error
      */
     public function isError()
     {
-        return $this->isImportError() || 
+        return $this->isImportError() ||
                $this->isUndoImportError() ||
                $this->isOtherError();
     }
-    
+
     /**
-     * Returns whether there is an error with the import process
+     * Returns whether there is an error with the import process.
      *
      * @return boolean Whether there is an error with the import process
      */
@@ -235,9 +250,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         return $this->status == self::IMPORT_ERROR;
     }
-    
+
     /**
-     * Returns whether there is an error with the undo import process
+     * Returns whether there is an error with the undo import process.
      *
      * @return boolean Whether there is an error with the undo import process
      */
@@ -247,9 +262,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether there is an error that is neither related to an import nor undo import process
+     * Returns whether there is an error that is neither related to an import
+     * nor undo import process.
      *
-     * @return boolean Whether there is an error that is neither related to an import nor undo import process
+     * @return boolean Whether there is an error that is neither related to an
+     * import nor undo import process
      */
     public function isOtherError()
     {
@@ -257,7 +274,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the import is stopped
+     * Returns whether the import is stopped.
      *
      * @return boolean Whether the import is stopped
      */
@@ -267,7 +284,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the import is queued
+     * Returns whether the import is queued.
      *
      * @return boolean Whether the import is queued
      */
@@ -277,7 +294,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the undo import is queued
+     * Returns whether the undo import is queued.
      *
      * @return boolean Whether the undo import is queued
      */
@@ -287,7 +304,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the import is completed
+     * Returns whether the import is completed.
      *
      * @return boolean Whether the import is completed
      */
@@ -297,7 +314,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns whether the import is undone
+     * Returns whether the import is undone.
      *
      * @return boolean Whether the import is undone
      */
@@ -308,17 +325,18 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
     /**
      * Imports the CSV file.  This function can only be run once.
-     * To import the same csv file, you will have to
-     * create another instance of CsvImport_Import and run start
-     * Sets import status to self::IN_PROGRESS
+     * To import the same csv file, you will have to create another instance of
+     * CsvImport_Import and run start.
+     * Sets import status to self::IN_PROGRESS.
      *
      * @return boolean Whether the import was successful
      */
     public function start()
     {
         $this->status = self::IN_PROGRESS;
+        $this->_countRows();
         $this->save();
-        $this->_log("Started import.");        
+        $this->_log("Started import.");
         $this->_importLoop($this->file_position);
         return !$this->isError();
     }
@@ -327,7 +345,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Completes the import.
      * Sets import status to self::COMPLETED
      *
-     * @return boolean Whether the import was successfully completed 
+     * @return boolean Whether the import was successfully completed
      */
     public function complete()
     {
@@ -341,12 +359,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             . "$this->skipped_row_count rows).");
         return true;
     }
-    
+
     /**
      * Completes the undo import.
      * Sets import status to self::COMPLETED_UNDO
      *
-     * @return boolean Whether the undo import was successfully completed 
+     * @return boolean Whether the undo import was successfully completed
      */
     public function completeUndo()
     {
@@ -364,7 +382,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Resumes the import.
      * Sets import status to self::IN_PROGRESS
      *
-     * @return boolean Whether the import was successful after it was resumed 
+     * @return boolean Whether the import was successful after it was resumed
      */
     public function resume()
     {
@@ -372,9 +390,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot resume an import or undo import that has not been queued.");
             return false;
         }
-        
+
         $undoImport = $this->isQueuedUndo();
-        
+
         if ($this->isQueued()) {
             $this->status = self::IN_PROGRESS;
             $this->save();
@@ -386,27 +404,27 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Resumed undo import.");
             $this->_undoImportLoop();
         }
-        
+
         return !$this->isError();
     }
 
     /**
-     * Stops the import or undo import. 
+     * Stops the import or undo import.
      * Sets import status to self::STOPPED
-     * 
-     * @return boolean Whether the import or undo import was stopped due to an error 
+     *
+     * @return boolean Whether the import or undo import was stopped due to an error
      */
     public function stop()
     {
-        // If the import or undo import loops were prematurely stopped while in progress,
-        // then there is an error, otherwise there is no error, i.e. the import 
-        // or undo import was completed
+        // If the import or undo import loops were prematurely stopped while in
+        // progress, then there is an error, otherwise there is no error, i.e.
+        // the import or undo import was completed
         if ($this->status != self::IN_PROGRESS and
             $this->status != self::IN_PROGRESS_UNDO) {
             return false; // no error
         }
-        
-        // The import or undo import loop was prematurely stopped 
+
+        // The import or undo import loop was prematurely stopped
         $logMsg = "Stopped import or undo import due to error";
         if ($error = error_get_last()) {
             $logMsg .= ": " . $error['message'];
@@ -420,10 +438,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Queue the import. 
+     * Queue the import.
      * Sets import status to self::QUEUED
-     * 
-     * @return boolean Whether the import was successfully queued 
+     *
+     * @return boolean Whether the import was successfully queued
      */
     public function queue()
     {
@@ -431,33 +449,33 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot queue an import that has an error.");
             return false;
         }
-        
+
         if ($this->isStopped()) {
             $this->_log("Cannot queue an import that has been stopped.");
             return false;
         }
-        
+
         if ($this->isCompleted()) {
             $this->_log("Cannot queue an import that has been completed.");
             return false;
         }
-        
+
         if ($this->isUndone()) {
             $this->_log("Cannot queue an import that has been undone.");
             return false;
         }
-        
+
         $this->status = self::QUEUED;
         $this->save();
         $this->_log("Queued import.");
         return true;
     }
-    
+
     /**
-     * Queue the undo import. 
+     * Queue the undo import.
      * Sets import status to self::QUEUED_UNDO
-     * 
-     * @return boolean Whether the undo import was successfully queued 
+     *
+     * @return boolean Whether the undo import was successfully queued
      */
     public function queueUndo()
     {
@@ -465,46 +483,46 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot queue an undo import that has an undo import error.");
             return false;
         }
-        
+
         if ($this->isOtherError()) {
             $this->_log("Cannot queue an undo import that has an error.");
             return false;
         }
-        
+
         if ($this->isStopped()) {
             $this->_log("Cannot queue an undo import that has been stopped.");
             return false;
         }
-        
+
         if ($this->isUndone()) {
             $this->_log("Cannot queue an undo import that has been undone.");
             return false;
         }
-        
+
         $this->status = self::QUEUED_UNDO;
         $this->save();
         $this->_log("Queued undo import.");
         return true;
     }
-    
+
     /**
-     * Undo the import. 
+     * Undo the import.
      * Sets import status to self::IN_PROGRESS_UNDO and then self::COMPLETED_UNDO
-     * 
-     * @return boolean Whether the import was successfully undone 
+     *
+     * @return boolean Whether the import was successfully undone
      */
     public function undo()
     {
         $this->status = self::IN_PROGRESS_UNDO;
         $this->save();
-        $this->_log("Started undo import.");        
+        $this->_log("Started undo import.");
         $this->_undoImportLoop();
         return !$this->isError();
     }
 
     /**
-     * Returns the CsvImport_File object for the import
-     * 
+     * Returns the CsvImport_File object for the import.
+     *
      * @return CsvImport_File
      */
     public function getCsvFile()
@@ -516,8 +534,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns the set of column maps for the import
-     * 
+     * Returns the set of column maps for the import.
+     *
      * @throws UnexpectedValueException
      * @return CsvImport_ColumnMap_Set The set of column maps for the import
      */
@@ -536,9 +554,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Returns the number of items currently imported.  If a user undoes an import,
-     * this number decreases to the number of items left to remove.
-     * 
+     * Returns the number of items currently imported.  If a user undoes an
+     * import, this number decreases to the number of items left to remove.
+     *
      * @return int The number of items imported minus the number of items undone
      */
     public function getImportedItemCount()
@@ -550,39 +568,74 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Runs the import loop
-     * 
+     * Returns the number of rows in the file currently imported.
+     *
+     * @return int The number of rows of the file, valid or not.
+     */
+    protected function _countRows()
+    {
+        $rows = $this->getCsvFile()->getIterator();
+        $rows->rewind();
+        $rows->skipInvalidRows(true);
+        $valid_row_count = 0;
+        while ($rows->valid()) {
+            $rows->next();
+            $valid_row_count++;
+        }
+        $this->row_count = $valid_row_count + $rows->getSkippedCount();
+    }
+
+    /**
+     * Runs the import loop.
+     *
      * @param int $startAt A row number in the CSV file.
      * @throws Exception
      * @return boolean Whether the import loop was successfully run
      */
     protected function _importLoop($startAt = null)
     {
-        try {        
+        try {
             register_shutdown_function(array($this, 'stop'));
             $rows = $this->getCsvFile()->getIterator();
             $rows->rewind();
             if ($startAt) {
                 $rows->seek($startAt);
             }
+
             $rows->skipInvalidRows(true);
-            $this->_log("Running item import loop. Memory usage: %memory%");
+            $this->_log("Running item import loop at %time%.");
+            $this->_log("Memory usage: %memory%.");
             while ($rows->valid()) {
-                    $row = $rows->current();
-                    $index = $rows->key();
-                    $this->skipped_row_count += $rows->getSkippedCount();
-                    if ($item = $this->_addItemFromRow($row)) {
-                        release_object($item);
-                    } else {
-                        $this->skipped_item_count++;
-                    }
-                    $this->file_position = $this->getCsvFile()->getIterator()->tell();
-                    if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
-                        $this->_log("Completed importing batch of $this->_batchSize "
-                            . "items. Memory usage: %memory%");
-                        return $this->queue();
-                    }
-                    $rows->next();
+                $row = $rows->current();
+                $index = $rows->key();
+                $this->skipped_row_count += $rows->getSkippedCount();
+
+                switch ($this->format) {
+                    case 'Report':
+                    case 'Item':
+                        $record = $this->_addItemFromRow($row);
+                        break;
+                    case 'File':
+                        $record = $this->_addFileMetadataFromRow($row);
+                        break;
+                    default:
+                        $record = null;
+                }
+
+                if (empty($record)) {
+                    $this->skipped_item_count++;
+                }
+                else {
+                    release_object($record);
+                }
+
+                $this->file_position = $this->getCsvFile()->getIterator()->tell();
+                if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
+                    $this->_log("Completed importing batch of $this->_batchSize items at %time%.");
+                    $this->_log("Memory usage: %memory%.");
+                    return $this->queue();
+                }
+                $rows->next();
             }
             $this->skipped_row_count += $rows->getSkippedCount();
             return $this->complete();
@@ -597,10 +650,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             throw $e;
         }
     }
-    
+
     /**
-     * Runs the undo import loop
-     * 
+     * Runs the undo import loop.
+     *
      * @throws Exception
      * @return boolean Whether the undo import loop was successfully run
      */
@@ -631,10 +684,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     $deletedItemIds[] = $itemId;
                     $deletedItemCount++;
                     if ($batchSize > 0 && $deletedItemCount == $batchSize) {
-                        $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                        $inClause = 'IN (' . join(', ', $deletedItemIds) . ')';
                         $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
-                        $this->_log("Completed undoing the import of a batch of $batchSize "
-                            . "items. Memory usage: %memory%");
+                        $this->_log("Completed undoing the import of a batch of $batchSize items.");
+                        $this->_log("Memory usage: %memory%.");
                         return $this->queueUndo();
                     }
                 }
@@ -643,7 +696,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return $this->completeUndo();
         } catch (Omeka_Job_Worker_InterruptException $e) {
             if ($db && $deletedItemIds) {
-                $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                $inClause = 'IN (' . join(', ', $deletedItemIds) . ')';
                 $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
             }
             return $this->queueUndo();
@@ -654,27 +707,36 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             throw $e;
         }
     }
-    
+
     /**
      * Adds a new item based on a row string in the CSV file and returns it.
-     * 
+     *
      * @param string $row A row string in the CSV file
-     * @return Item|boolean The inserted item or false if an item could not be added.
+     * @return Item|boolean The inserted item or false if an item could not be
+     * added.
      */
     protected function _addItemFromRow($row)
-    {        
+    {
         $result = $this->getColumnMaps()->map($row);
-        
+
+        $sourceItemId = isset($result[CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID])
+            ? $result[CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID]
+            : '';
+
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
-            Builder_Item::IS_PUBLIC      => $this->is_public,
-            Builder_Item::IS_FEATURED    => $this->is_featured,
             Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
             Builder_Item::COLLECTION_ID  => $this->collection_id,
+            Builder_Item::IS_PUBLIC      => $this->is_public,
+            Builder_Item::IS_FEATURED    => $this->is_featured,
             Builder_Item::TAGS           => $tags,
         );
-        
-        // If this is coming from CSV Report, bring in the itemmetadata coming from the report
+
+        // If this is coming from CSV Report or from mixed records, bring in the
+        // item metadata coming from the file.
+        if (!empty($result[CsvImport_ColumnMap::TYPE_ITEM_TYPE])) {
+            $itemMetadata[Builder_Item::ITEM_TYPE_NAME] = $result[CsvImport_ColumnMap::TYPE_ITEM_TYPE];
+        }
         if (!is_null($result[CsvImport_ColumnMap::TYPE_COLLECTION])) {
             $itemMetadata[Builder_Item::COLLECTION_ID] = $result[CsvImport_ColumnMap::TYPE_COLLECTION];
         }
@@ -684,11 +746,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         if (!is_null($result[CsvImport_ColumnMap::TYPE_FEATURED])) {
             $itemMetadata[Builder_Item::IS_FEATURED] = $result[CsvImport_ColumnMap::TYPE_FEATURED];
         }
-        if (!empty($result[CsvImport_ColumnMap::TYPE_ITEM_TYPE])) {
-            $itemMetadata[Builder_Item::ITEM_TYPE_NAME] = $result[CsvImport_ColumnMap::TYPE_ITEM_TYPE];
-        }
 
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
+        // Keep only non empty fields to avoid removing them (allow update).
+        $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+        // Trim metadata to avoid spaces.
+        $elementTexts = $this->_trimElementTexts($elementTexts);
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
@@ -699,45 +762,147 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
         foreach ($fileUrls as $url) {
             try {
-                $file = insert_files_for_item($item,
-                                              'Url', 
-                                              $url,
-                                              array('ignore_invalid_files' => false));
+                $files = insert_files_for_item($item,
+                    'Url', $url,
+                    array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Error occurred when attempting to ingest the "
-                     . "following URL as a file: '$url': "
-                     . $e->getMessage();
+                $msg = __("Error occurred when attempting to ingest '%s' as a file:", $url)
+                    . ' ' . $e->getMessage();
                 $this->_log($msg, Zend_Log::ERR);
                 $item->delete();
                 return false;
             }
-            release_object($file);
+            release_object($files);
         }
 
         // Makes it easy to unimport the item later.
-        $this->_recordImportedItemId($item->id);
+        $this->_recordImportedItemId($item->id, $sourceItemId);
         return $item;
     }
 
     /**
-     * Records that an item was successfully imported in the database
-     * 
-     * @param int $itemId The id of the item imported
+     * Adds file metadata based on a row string in the CSV file and returns it.
+     *
+     * @param string $row A row string in the CSV file
+     * @return File|boolean The inserted file or false if metadata can't be
+     * added.
      */
-    protected function _recordImportedItemId($itemId)
+    protected function _addFileMetadataFromRow($row)
+    {
+        $result = $this->getColumnMaps()->map($row);
+
+        $fileUrl = $result[CsvImport_ColumnMap::TYPE_FILE_URL];
+        if (empty($fileUrl)) {
+            $msg = __('You should give the path or the url of the file to import.');
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+
+        $files = get_records('File', array('original_filename' => $fileUrl), 1);
+        if (empty($files)) {
+            $msg = __('File "%s" does not exist in the database.', $fileUrl)
+                . ' ' . __('No item associated with it was found.')
+                . ' ' . __('Add items first before importing file metadata.');
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+        $file = $files[0];
+
+        // Update file with new metadata.
+        $this->_addFileMetadata($file, $result);
+        return $file;
+    }
+
+    /**
+     * Adds metadata to an existing file.
+     *
+     * @param File $file An existing and checked file object
+     * @param array $map A mapped row
+     *
+     * @return File|boolean The inserted file or false if metadata can't be
+     * added.
+     */
+    protected function _addFileMetadata($file, $map)
+    {
+        // Import metadata.
+        $elementTexts = $map[CsvImport_ColumnMap::TYPE_ELEMENT];
+        // Keep only non empty fields to avoid removing them (allow update).
+        $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+        // Trim metadata to avoid spaces.
+        $elementTexts = $this->_trimElementTexts($elementTexts);
+
+        // Overwrite existing element text values.
+        foreach ($elementTexts as $key => $info) {
+            if ($info['element_id']) {
+                $file->deleteElementTextsbyElementId((array) $info['element_id']);
+            }
+        }
+        // To reset keys is needed to avoid bug when there is no DC Title.
+        $elementTexts = array_values($elementTexts);
+
+        $file->addElementTextsByArray($elementTexts);
+
+        $file->save();
+        return $file;
+    }
+
+    /**
+     * Check if an element is an element without empty string .
+     *
+     * @param string $element
+     *   Element to check.
+     *
+     * @return boolean
+     *   True if the element is an element without empty string.
+     */
+    private function _removeEmptyElement($element)
+    {
+        // Don't remove 0.
+        return (isset($element['text']) && $element['text'] !== '');
+    }
+
+    /**
+     * Check if an element is an element without empty string.
+     *
+     * @param string $element
+     *   Element to check.
+     *
+     * @return array
+     *   Array of trimed element texts.
+     */
+    private function _trimElementTexts($elementTexts)
+    {
+        foreach ($elementTexts as &$element) {
+            if (isset($element['text'])) {
+                $element['text'] = trim($element['text']);
+            }
+        }
+        return $elementTexts;
+    }
+
+    /**
+     * Records that an item was successfully imported in the database.
+     *
+     * @param int $itemId The id of the item imported
+     * @param string $sourceItemId The source item id of the item imported
+     */
+    protected function _recordImportedItemId($itemId, $sourceItemId)
     {
         $csvImportedItem = new CsvImport_ImportedItem();
-        $csvImportedItem->setArray(array('import_id' => $this->id, 
-                                         'item_id' => $itemId));
+        $csvImportedItem->setArray(array(
+            'item_id' => $itemId,
+            'source_item_id' => $sourceItemId,
+            'import_id' => $this->id,
+        ));
         $csvImportedItem->save();
         $this->_importedCount++;
     }
 
     /**
-     * Log an import message
+     * Log an import message.
      * Every message will log a timestamp and the item id.
      * Messages that have %memory% will include a memory usage information.
-     * 
+     *
      * @param string $msg The message to log
      * @param int $priority The priority of the message
      */

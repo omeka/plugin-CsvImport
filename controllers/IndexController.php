@@ -48,7 +48,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $file = new CsvImport_File($filePath, $columnDelimiter);
 
         if (!$file->parse()) {
-            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.') . ' ' . $file->getErrorString(), 'error');
+            $this->_helper->flashMessenger(__('Your file is incorrectly formatted.')
+                . ' ' . $file->getErrorString(), 'error');
             return;
         }
 
