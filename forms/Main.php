@@ -22,26 +22,26 @@ class CsvImport_Form_Main extends Omeka_Form
     public function init()
     {
         parent::init();
-        
+
         $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
         $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
         $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
         $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
-        
+
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post');
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select Item Type')) + $values;
-        
+
         $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => __('Use an export from Omeka CSV Report'), 
+            'label' => __('Use an export from Omeka CSV Report'),
             'description'=> __('Selecting this will override the options below.'))
         );
-        
+
         $this->addElement('checkbox', 'automap_columns_names_to_elements', array(
-            'label' => __('Automap Column Names to Elements'), 
+            'label' => __('Automap Column Names to Elements'),
             'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
             'value' => true)
         );
@@ -64,30 +64,36 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Feature All Items?'),
         ));
 
+        $this->addElement('checkbox', 'elements_are_html', array(
+            'label' => __('All imported elements are html?'),
+            'description' => 'This checkbox allows to set default format of all imported elements as raw text or html.',
+            'value' => get_option('csv_import_html_elements'),
+        ));
+
         $this->_addColumnDelimiterElement();
         $this->_addTagDelimiterElement();
         $this->_addFileDelimiterElement();
         $this->_addElementDelimiterElement();
-        
+
         $this->applyOmekaStyles();
         $this->setAutoApplyOmekaStyles(false);
-        
-        $submit = $this->createElement('submit', 
-                                       'submit', 
+
+        $submit = $this->createElement('submit',
+                                       'submit',
                                        array('label' => __('Next'),
                                              'class' => 'submit submit-medium'));
-            
-        
+
+
         $submit->setDecorators(array('ViewHelper',
-                                      array('HtmlTag', 
-                                            array('tag' => 'div', 
+                                      array('HtmlTag',
+                                            array('tag' => 'div',
                                                   'class' => 'csvimportnext'))));
-                                            
+
         $this->addElement($submit);
     }
 
     /**
-     * Return the human readable word for a delimiter
+     * Return the human readable word for a delimiter.
      *
      * @param string $delimiter The delimiter
      * @return string The human readable word for the delimiter
@@ -110,7 +116,7 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the column delimiter element to the form
+     * Add the column delimiter element to the form.
      */
     protected function _addColumnDelimiterElement()
     {
@@ -147,10 +153,10 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the file delimiter element to the form
+     * Add the file delimiter element to the form.
      */
     protected function _addFileDelimiterElement()
-    {        
+    {
         $delimiter = $this->_fileDelimiter;
         $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
         $this->addElement('text', 'file_delimiter', array(
@@ -162,7 +168,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => false,
             'size' => '1',
             'validators' => array(
-                
+
                 array('validator' => 'NotEmpty',
                       'breakChainOnFailure' => true,
                       'options' => array('type' => 'space', 'messages' => array(
@@ -170,7 +176,7 @@ class CsvImport_Form_Main extends Omeka_Form
                                 __('File delimiter cannot be whitespace, and must be empty or one character long.'),
                       )),
                 ),
-                
+
                 array('validator' => 'StringLength', 'options' => array(
                     'min' => 0,
                     'max' => 1,
@@ -186,8 +192,8 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the tag delimiter element to the form
-     */    
+     * Add the tag delimiter element to the form.
+     */
     protected function _addTagDelimiterElement()
     {
         $delimiter = $this->_tagDelimiter;
@@ -223,7 +229,7 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the element delimiter element to the form
+     * Add the element delimiter element to the form.
      */
     protected function _addElementDelimiterElement()
     {
@@ -238,7 +244,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => false,
             'size' => '1',
             'validators' => array(
-                
+
                 array('validator' => 'NotEmpty',
                       'breakChainOnFailure' => true,
                       'options' => array('type' => 'space', 'messages' => array(
@@ -246,7 +252,7 @@ class CsvImport_Form_Main extends Omeka_Form
                                 __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
                       )),
                 ),
-                
+
                 array('validator' => 'StringLength', 'options' => array(
                     'min' => 0,
                     'max' => 1,
@@ -262,7 +268,7 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Add the file element to the form
+     * Add the file element to the form.
      */
     protected function _addFileElement()
     {
@@ -298,7 +304,7 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Validate the form post
+     * Validate the form post.
      */
     public function isValid($post)
     {
@@ -339,7 +345,7 @@ class CsvImport_Form_Main extends Omeka_Form
      * Set the tag delimiter for the form.
      *
      * @param string $delimiter The tag delimiter
-     */    
+     */
     public function setTagDelimiter($delimiter)
     {
         $this->_tagDelimiter = $delimiter;
@@ -349,7 +355,7 @@ class CsvImport_Form_Main extends Omeka_Form
      * Set the element delimiter for the form.
      *
      * @param string $delimiter The element delimiter
-     */    
+     */
     public function setElementDelimiter($delimiter)
     {
         $this->_elementDelimiter = $delimiter;
@@ -374,14 +380,14 @@ class CsvImport_Form_Main extends Omeka_Form
      *
      * If this is set but it exceeds the aforementioned php setting, the size
      * will be reduced to that lower setting.
-     * 
+     *
      * @param string|null $size The maximum file size
      */
     public function setMaxFileSize($size = null)
     {
         $postMaxSize = $this->_getBinarySize(ini_get('post_max_size'));
         $fileMaxSize = $this->_getBinarySize(ini_get('upload_max_filesize'));
-        
+
         // Start with the max size as the lower of the two php ini settings.
         $strictMaxSize = $postMaxSize->compare($fileMaxSize) > 0
                         ? $fileMaxSize
@@ -400,21 +406,21 @@ class CsvImport_Form_Main extends Omeka_Form
         if ($size === null) {
             $maxSize = $this->_maxFileSize;
         } else {
-            $maxSize = $this->_getBinarySize($size);            
+            $maxSize = $this->_getBinarySize($size);
         }
-        
-        if ($maxSize === false || 
-            $maxSize === null || 
+
+        if ($maxSize === false ||
+            $maxSize === null ||
             $maxSize->compare($strictMaxSize) > 0) {
             $maxSize = $strictMaxSize;
         }
-        
+
         $this->_maxFileSize = $maxSize;
     }
 
     /**
-     * Return the max file size
-     * 
+     * Return the max file size.
+     *
      * @return string The max file size
      */
     public function getMaxFileSize()
@@ -426,8 +432,8 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Return the binary size measure
-     * 
+     * Return the binary size measure.
+     *
      * @return Zend_Measure_Binary The binary size
      */
     protected function _getBinarySize($size)
@@ -435,7 +441,7 @@ class CsvImport_Form_Main extends Omeka_Form
         if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
             return false;
         }
-        
+
         $sizeType = Zend_Measure_Binary::BYTE;
 
         $sizeTypes = array(

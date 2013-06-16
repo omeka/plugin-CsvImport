@@ -69,11 +69,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
         $this->session->collectionId = $form->getValue('collection_id');
 
+        $this->session->elementsAreHtml = $form->getValue('elements_are_html');
         $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
         // All is valid, so we save settings.
+        set_option('csv_import_html_elements', $this->session->elementsAreHtml);
         set_option(CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
         set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
         set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
@@ -204,10 +206,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     public function omekaCsvAction()
     {
-        // specify the export format's file and tag delimiters
-        // do not allow the user to specify it
+        // Specify the export format's file and tag delimiters.
+        // Do not allow the user to specify it
         $fileDelimiter = ',';
         $tagDelimiter = ',';
+        // Nevertheless, user can choose to import all elements as html
+        // or as raw text.
+        $isHtml = (boolean) $this->session->elementsAreHtml;
 
         $headings = $this->session->columnNames;
         $columnMaps = array();
@@ -233,15 +238,24 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     break;
                 default:
                     $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
+                    $elementMap = new CsvImport_ColumnMap_ExportedElement($heading);
+                    $options = array(
+                        'columnNameDelimiter' => $elementMap::DEFAULT_COLUMN_NAME_DELIMITER,
+                        'elementDelimiter' => $elementMap::DEFAULT_ELEMENT_DELIMITER,
+                        'isHtml' => $isHtml,
+                    );
+                    $elementMap->setOptions($options);
+                    $columnMaps[] = $elementMap;
                     break;
             }
         }
         $csvImport = new CsvImport_Import();
 
-        //this is the clever way that mapColumns action sets the values passed along from indexAction
-        //many will be irrelevant here, since CsvImport allows variable itemTypes and Collection
+        // This is the clever way that mapColumns action sets the values passed
+        // along from indexAction many will be irrelevant here, since CsvImport
+        // allows variable itemTypes and Collection
 
-        //@TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually
+        // @TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually.
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
             if (method_exists($csvImport, $setMethod)) {
@@ -321,7 +335,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-      * Returns the plugin configuration
+      * Returns the plugin configuration.
       *
       * @return array
       */
@@ -347,11 +361,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     protected function _sessionIsValid()
     {
-        $requiredKeys = array('itemsArePublic',
-                              'itemsAreFeatured',
-                              'collectionId',
-                              'itemTypeId',
-                              'ownerId');
+        $requiredKeys = array(
+            'itemTypeId',
+            'collectionId',
+            'itemsArePublic',
+            'itemsAreFeatured',
+            'elementsAreHtml',
+            'ownerId',
+        );
         foreach ($requiredKeys as $key) {
             if (!isset($this->session->$key)) {
                 return false;
