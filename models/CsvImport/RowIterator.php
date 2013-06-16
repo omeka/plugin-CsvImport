@@ -8,9 +8,9 @@
  */
 class CsvImport_RowIterator implements SeekableIterator
 {
-    const DEFAULT_COLUMN_DELIMTER_OPTION_NAME = 'csv_import_default_column_delimiter';
+    const COLUMN_DELIMITER_OPTION_NAME = 'csv_import_column_delimiter';
     const DEFAULT_COLUMN_DELIMITER = ',';
-    
+
     private $_filePath;
     private $_handle;
     private $_currentRow;
@@ -26,7 +26,7 @@ class CsvImport_RowIterator implements SeekableIterator
      * @param string $filePath
      * @param string $columnDelimiter  The column delimiter
      */
-    public function __construct($filePath, $columnDelimiter = null) 
+    public function __construct($filePath, $columnDelimiter = null)
     {
         $this->_filePath = $filePath;
         if ($columnDelimiter !== null) {
@@ -35,9 +35,9 @@ class CsvImport_RowIterator implements SeekableIterator
             $this->_columnDelimiter = self::getDefaultColumnDelimiter();
         }
     }
-    
+
     /**
-     * Returns the column delimiter.  
+     * Returns the column delimiter.
      *
      * @return string The column delimiter
      */
@@ -45,10 +45,10 @@ class CsvImport_RowIterator implements SeekableIterator
     {
         return $this->_columnDelimiter;
     }
-    
+
     /**
      * Rewind the Iterator to the first element.
-     * Similar to the reset() function for arrays in PHP
+     * Similar to the reset() function for arrays in PHP.
      *
      * @throws CsvImport_DuplicateColumnException
      */
@@ -75,7 +75,7 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * Return the current element.
-     * Similar to the current() function for arrays in PHP
+     * Similar to the current() function for arrays in PHP.
      *
      * @return mixed current element
      */
@@ -86,7 +86,7 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * Return the identifying key of the current element.
-     * Similar to the key() function for arrays in PHP
+     * Similar to the key() function for arrays in PHP.
      *
      * @return scalar
      */
@@ -97,7 +97,7 @@ class CsvImport_RowIterator implements SeekableIterator
 
     /**
      * Move forward to next element.
-     * Similar to the next() function for arrays in PHP
+     * Similar to the next() function for arrays in PHP.
      *
      * @throws Exception
      */
@@ -131,7 +131,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns current position of the file pointer
+     * Returns current position of the file pointer.
      *
      * @return int The current position of the filer pointer
      */
@@ -141,7 +141,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Move to the next row in the file
+     * Move to the next row in the file.
      */
     protected function _moveNext()
     {
@@ -150,7 +150,7 @@ class CsvImport_RowIterator implements SeekableIterator
         } else {
             $this->_currentRow = array();
         }
-        
+
         if (!$this->_currentRow) {
             fclose($this->_handle);
             $this->_valid = false;
@@ -159,7 +159,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns whether the current file position is valid
+     * Returns whether the current file position is valid.
      *
      * @return boolean
      */
@@ -175,7 +175,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns array of column names
+     * Returns array of column names.
      *
      * @return array
      */
@@ -188,13 +188,13 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns the number of rows that were skipped since the last time 
-     * the function was called.
+     * Returns the number of rows that were skipped since the last time the
+     * function was called.
      *
-     * Skipped count is reset to 0 after each call to getSkippedCount(). This 
+     * Skipped count is reset to 0 after each call to getSkippedCount(). This
      * makes it easier to aggregate the number over multiple job runs.
      *
-     * @return int The number of rows skipped since last time function was called 
+     * @return int The number of rows skipped since last time function was called
      */
     public function getSkippedCount()
     {
@@ -204,7 +204,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Sets whether to skip invalid rows
+     * Sets whether to skip invalid rows.
      *
      * @param boolean $flag
      */
@@ -212,9 +212,9 @@ class CsvImport_RowIterator implements SeekableIterator
     {
         $this->_skipInvalidRows = (boolean)$flag;
     }
-    
+
     /**
-     * Formats a row
+     * Formats a row.
      *
      * @throws LogicException
      * @throws CsvImport_MissingColumnException
@@ -233,7 +233,7 @@ class CsvImport_RowIterator implements SeekableIterator
                 . "'$printable' does not have the required {$this->_colCount} "
                 . "rows.");
         }
-        for ($i = 0; $i < $this->_colCount; $i++) 
+        for ($i = 0; $i < $this->_colCount; $i++)
         {
             $formattedRow[$this->_colNames[$i]] = $row[$i];
         }
@@ -241,7 +241,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns a file handle for the CSV file
+     * Returns a file handle for the CSV file.
      *
      * @return resource The file handle
      */
@@ -255,7 +255,7 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns the next row in the CSV file
+     * Returns the next row in the CSV file.
      *
      * @return array The row
      */
@@ -268,17 +268,17 @@ class CsvImport_RowIterator implements SeekableIterator
             return $row;
         }
     }
-    
+
     /**
-     * Returns the default column delimiter.  
-     * Uses the default column delimiter specified in the options table 
-     * if available.
+     * Returns the default column delimiter.
+     * Uses the default column delimiter specified in the options table if
+     * available.
      *
      * @return string The default column delimiter
      */
     static public function getDefaultColumnDelimiter()
     {
-        if (!($delimiter = get_option(self::DEFAULT_COLUMN_DELIMTER_OPTION_NAME))) {
+        if (!($delimiter = get_option(self::COLUMN_DELIMITER_OPTION_NAME))) {
             $delimiter = self::DEFAULT_COLUMN_DELIMITER;
         }
         return $delimiter;
