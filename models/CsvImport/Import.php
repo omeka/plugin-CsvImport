@@ -618,6 +618,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     case 'File':
                         $record = $this->_addFileMetadataFromRow($row);
                         break;
+                    case 'Mix':
+                        $result = $this->getColumnMaps()->map($row);
+                        $record = (isset($result[CsvImport_ColumnMap::TYPE_FILE_URL])
+                                && !empty($result[CsvImport_ColumnMap::TYPE_FILE_URL]))
+                            ? $this->_addFileFromRow($row)
+                            : $this->_addItemFromRow($row);
+                        break;
                     default:
                         $record = null;
                 }
@@ -778,6 +785,71 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         // Makes it easy to unimport the item later.
         $this->_recordImportedItemId($item->id, $sourceItemId);
         return $item;
+    }
+
+    /**
+     * Adds a new file and add metadata based on a row string in the CSV file
+     * and returns it.
+     *
+     * @param string $row A row string in the CSV file
+     * @return File|boolean The inserted file or false if the file could not be
+     * added.
+     */
+    protected function _addFileFromRow($row)
+    {
+        $result = $this->getColumnMaps()->map($row);
+
+        // Check if the file url is present.
+        $fileUrl = $result[CsvImport_ColumnMap::TYPE_FILE_URL];
+        if (empty($fileUrl)) {
+            $msg = __('You should give the path or the url of the file to import.');
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+
+        // Check if the source item id is present.
+        if (!isset($result[CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID])
+                || empty($result[CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID])
+            ) {
+            $msg = __('No indication of the source item to which attach filename.', $fileUrl);
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+
+        // Looking for the item id.
+        $sourceItemId = $result[CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID];
+        $csvImportedItem = get_db()->getTable('CsvImport_ImportedItem')->findBy(array(
+            'source_item_id' => $sourceItemId,
+            'import_id' => $this->id,
+        ), 1);
+        if (empty($csvImportedItem)) {
+            $msg = __('No item with the source item id "%s" does exist in the database.', $sourceItemId)
+                . ' ' . __('File rows should always be imported after the item to which they are attached.');
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+        $item = get_record_by_id('Item', $csvImportedItem[0]->item_id);
+
+        // Import the file and attach it to item.
+        try {
+            $files = insert_files_for_item($item,
+                'Url', $fileUrl,
+                array('ignore_invalid_files' => false));
+        } catch (Omeka_File_Ingest_InvalidException $e) {
+            $msg = __("Error occurred when attempting to ingest '%s' as a file:", $fileUrl)
+                . ' ' . $e->getMessage();
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+        // Need to release file in order to update all current data, because
+        // $file->save() is not enough.
+        $file_id = $files[0]->id;
+        release_object($files);
+        $file = get_record_by_id('File', $file_id);
+
+        // Update file with new metadata.
+        $this->_addFileMetadata($file, $result);
+        return $file;
     }
 
     /**

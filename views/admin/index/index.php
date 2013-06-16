@@ -13,6 +13,7 @@ jQuery(document).ready(function () {
     jQuery('#format-Report').click(Omeka.CsvImport.updateImportOptions);
     jQuery('#format-Item').click(Omeka.CsvImport.updateImportOptions);
     jQuery('#format-File').click(Omeka.CsvImport.updateImportOptions);
+    jQuery('#format-Mix').click(Omeka.CsvImport.updateImportOptions);
     Omeka.CsvImport.updateOnLoad(); // Need this to reset invalid forms.
 });
 //]]>

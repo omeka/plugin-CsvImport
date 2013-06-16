@@ -36,6 +36,7 @@
                     case 'Report': echo __('Csv Report'); break;
                     case 'Item': echo __('Items'); break;
                     case 'File': echo __('Files metadata'); break;
+                    case 'Mix': echo __('Mixed records'); break;
                     // Imports made with the standard plugin.
                     default: echo __('Unknown'); break;
                 } ?></td>
