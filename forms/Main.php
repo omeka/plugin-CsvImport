@@ -33,10 +33,17 @@ class CsvImport_Form_Main extends Omeka_Form
 
         $this->_addFileElement();
 
-        $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => __('Use an export from Omeka CSV Report'),
-            'description'=> __('Selecting this will override the options below.'))
-        );
+        $this->addElement('radio', 'format', array(
+            // 'label' => __('Import type'),
+            'description'=> __('Choose the type of record (the format of your file) you want to import.'),
+            'multiOptions' => array(
+                'Report' => __('Omeka CSV Report'),
+                'Item' => __('Items'),
+                'File' => __('Files metadata'),
+                'Mix' => __('Mixed records'),
+            ),
+            'required' => TRUE,
+        ));
 
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select item type')) + $values;

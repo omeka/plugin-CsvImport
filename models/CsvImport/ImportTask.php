@@ -11,7 +11,7 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     const QUEUE_NAME = 'csv_import_imports';
     const METHOD_START = 'start';
     const METHOD_UNDO = 'undo';
-    
+
     private $_importId;
     private $_method;
     private $_memoryLimit;
@@ -24,7 +24,7 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     }
 
     /**
-     * Performs the import task 
+     * Performs the import task.
      */
     public function perform()
     {
@@ -33,16 +33,16 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
         }
         if (!($import = $this->_getImport())) {
             return;
-        }    
+        }
 
         $import->setBatchSize($this->_batchSize);
         call_user_func(array($import, $this->_method));
-        
+
         if ($import->isQueued() || $import->isQueuedUndo()) {
             $this->_dispatcher->setQueueName(self::QUEUE_NAME);
-            $this->_dispatcher->sendLongRunning(__CLASS__, 
+            $this->_dispatcher->sendLongRunning(__CLASS__,
                 array(
-                    'importId' => $import->id, 
+                    'importId' => $import->id,
                     'memoryLimit' => $this->_memoryLimit,
                     'method' => 'resume',
                     'batchSize' => $this->_batchSize,
@@ -53,7 +53,7 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
 
     /**
      * Set the number of items to create before pausing the import.
-     * 
+     *
      * @param int $size
      */
     public function setBatchSize($size)
@@ -62,8 +62,8 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     }
 
     /**
-     * Set the memory limit for the task
-     * 
+     * Set the memory limit for the task.
+     *
      * @param string $limit
      */
     public function setMemoryLimit($limit)
@@ -72,8 +72,8 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     }
 
     /**
-     * Set the import id for the task
-     * 
+     * Set the import id for the task.
+     *
      * @param int $id
      */
     public function setImportId($id)
@@ -82,8 +82,8 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     }
 
     /**
-     * Set the method name of the import object to be run by the task
-     * 
+     * Set the method name of the import object to be run by the task.
+     *
      * @param string $name
      */
     public function setMethod($name)
@@ -92,8 +92,8 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
     }
 
     /**
-     * Returns the import of the import task
-     * 
+     * Returns the import of the import task.
+     *
      * @return CsvImport_Import The import of the import task
      */
     protected function _getImport()

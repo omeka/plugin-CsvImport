@@ -1,59 +1,11 @@
 <?php
 /**
-* CsvImportPlugin class - represents the Csv Import plugin
-*
-* Configuring the plugin:  Set the proper settings in config.ini
-* like so:
-*
-* <code>
-* plugins.CsvImport.columnDelimiter = ","
-* plugins.CsvImport.memoryLimit = "128M"
-* plugins.CsvImport.requiredExtension = "txt"
-* plugins.CsvImport.requiredMimeType = "text/csv"
-* plugins.CsvImport.maxFileSize = "10M"
-* plugins.CsvImport.fileDestination = "/tmp"
-* plugins.CsvImport.batchSize = "1000"
-* </code>
-*
-* All of the above settings are optional.  If not given, CsvImport uses the
-* following default values:
-*
-* memoryLimit = current script limit
-* requiredExtension = "txt" or "csv"
-* requiredMimeType = "text/csv"
-* maxFileSize = current system upload limit
-* fileDestination = current system temporary dir (via sys_get_temp_dir())
-* batchSize = 0 (no batching)
-*
-*
-* Set a high memory limit to avoid memory allocation issues with imports.
-* Examples include 128M, 1G, and -1.  This will set PHP's memory_limit setting
-* directly, see PHP's documentation for more info on formatting this number.
-* Be advised that many web hosts set a maximum memory limit, so this setting
-* may be ignored if it exceeds the maximum allowable limit. Check with your web
-* host for more information.
-*
-* Note that 'maxFileSize' will not affect post_max_size or upload_max_filesize
-* as is set in php.ini.  Having a maxFileSize that exceeds either
-* will still result in errors that prevent the file upload.
-*
-* batchSize: Setting for advanced users.  If you find that your long-running
-* imports are using too much memory or otherwise hogging system resources,
-* set this value to split your import into multiple jobs based on the
-* number of CSV rows to process per job.
-*
-* For example, if you have a CSV with 150000 rows, setting a batchSize
-* of 5000 would cause the import to be split up over 30 separate jobs.
-* Note that these jobs run sequentially based on the results of prior
-* jobs, meaning that the import cannot be parallelized.  The first job
-* will import 5000 rows and then spawn the next job, and so on until
-* the import is completed.
-*
-*
-* @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
-* @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
-* @package CsvImport
-*/
+ * CsvImportPlugin class - represents the Csv Import plugin
+ *
+ * @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
+ * @package CsvImport
+ */
 
 defined('CSV_IMPORT_DIRECTORY') or define('CSV_IMPORT_DIRECTORY', dirname(__FILE__));
 
@@ -80,9 +32,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     /**
      * @var array Filters for the plugin.
      */
-    protected $_filters = array(
-        'admin_navigation_main',
-    );
+    protected $_filters = array('admin_navigation_main');
 
     /**
      * @var array Options and their default values.
@@ -105,35 +55,38 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     {
         $db = $this->_db;
 
-        // create csv imports table
+        // Create csv imports table.
         $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
-           `id` int(10) unsigned NOT NULL auto_increment,
-           `item_type_id` int(10) unsigned NOT NULL,
-           `collection_id` int(10) unsigned NOT NULL,
-           `owner_id` int unsigned NOT NULL,
-           `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
-           `original_filename` text collate utf8_unicode_ci NOT NULL,
-           `file_path` text collate utf8_unicode_ci NOT NULL,
-           `file_position` bigint unsigned NOT NULL,
-           `status` varchar(255) collate utf8_unicode_ci,
-           `skipped_row_count` int(10) unsigned NOT NULL,
-           `skipped_item_count` int(10) unsigned NOT NULL,
-           `is_public` tinyint(1) default '0',
-           `is_featured` tinyint(1) default '0',
-           `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
-           `added` timestamp NOT NULL default '0000-00-00 00:00:00',
-           PRIMARY KEY  (`id`)
-           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+            `id` int(10) unsigned NOT NULL auto_increment,
+            `item_type_id` int(10) unsigned NOT NULL,
+            `collection_id` int(10) unsigned NOT NULL,
+            `format` varchar(255) collate utf8_unicode_ci NOT NULL,
+            `owner_id` int unsigned NOT NULL,
+            `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
+            `original_filename` text collate utf8_unicode_ci NOT NULL,
+            `file_path` text collate utf8_unicode_ci NOT NULL,
+            `file_position` bigint unsigned NOT NULL,
+            `status` varchar(255) collate utf8_unicode_ci,
+            `row_count` int(10) unsigned NOT NULL,
+            `skipped_row_count` int(10) unsigned NOT NULL,
+            `skipped_item_count` int(10) unsigned NOT NULL,
+            `is_public` tinyint(1) default '0',
+            `is_featured` tinyint(1) default '0',
+            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
+            `added` timestamp NOT NULL default '0000-00-00 00:00:00',
+            PRIMARY KEY  (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
         // create csv imported items table
         $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imported_items` (
-          `id` int(10) unsigned NOT NULL auto_increment,
-          `item_id` int(10) unsigned NOT NULL,
-          `import_id` int(10) unsigned NOT NULL,
-          PRIMARY KEY  (`id`),
-          KEY (`import_id`),
-          UNIQUE (`item_id`)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+            `id` int(10) unsigned NOT NULL auto_increment,
+            `item_id` int(10) unsigned NOT NULL,
+            `source_item_id` varchar(255) collate utf8_unicode_ci,
+            `import_id` int(10) unsigned NOT NULL,
+            PRIMARY KEY  (`id`),
+            KEY `source_item_id_import_id` (`source_item_id`, `import_id`),
+            KEY (`import_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
         $this->_installOptions();
     }
@@ -175,6 +128,63 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
+        }
+
+        if (version_compare($oldVersion, '2.1', '<=')) {
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'record_type_id'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (!empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    CHANGE `record_type_id` `format` varchar(255) collate utf8_unicode_ci NOT NULL AFTER `collection_id`
+                ";
+                $db->query($sql);
+            }
+
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'format'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `format` varchar(255) collate utf8_unicode_ci NOT NULL AFTER `collection_id`
+                ";
+                $db->query($sql);
+            }
+
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'row_count'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `row_count` int(10) unsigned NOT NULL AFTER `status`
+                ";
+                $db->query($sql);
+            }
+
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imported_items` LIKE 'source_item_id'";
+            $result = $db->query($sql);
+            $result = $result->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imported_items`
+                    ADD `source_item_id` varchar(255) collate utf8_unicode_ci NOT NULL AFTER `item_id`
+                ";
+                $db->query($sql);
+            }
+
+            // Update index. Item id is no more unique, because CsvImport should
+            // be able to update records.
+            $sql = "
+                ALTER TABLE `{$db->prefix}csv_import_imported_items`
+                DROP INDEX `item_id`,
+                ADD INDEX (`item_id`),
+                DROP INDEX `source_item_id_import_id`,
+                ADD INDEX `source_item_id_import_id` (`source_item_id`, `import_id`)
+            ";
+            $db->query($sql);
         }
     }
 

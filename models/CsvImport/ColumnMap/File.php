@@ -23,7 +23,8 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
         $this->_type = CsvImport_ColumnMap::TYPE_FILE;
         if ($fileDelimiter !== null) {
             $this->_fileDelimiter = $fileDelimiter;
-        } else {
+        }
+        else {
             $this->_fileDelimiter = self::getDefaultFileDelimiter();
         }
     }
@@ -42,7 +43,8 @@ class CsvImport_ColumnMap_File extends CsvImport_ColumnMap
         if ($urlString) {
             if ($this->_fileDelimiter == '') {
                 $rawUrls = array($urlString);
-            } else {
+            }
+            else {
                 $rawUrls = explode($this->_fileDelimiter, $urlString);
             }
             $trimmedUrls = array_map('trim', $rawUrls);
