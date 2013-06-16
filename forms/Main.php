@@ -40,12 +40,6 @@ class CsvImport_Form_Main extends Omeka_Form
             'description'=> __('Selecting this will override the options below.'))
         );
 
-        $this->addElement('checkbox', 'automap_columns_names_to_elements', array(
-            'label' => __('Automap Column Names to Elements'),
-            'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
-            'value' => true)
-        );
-
         $this->addElement('select', 'item_type_id', array(
             'label' => __('Select Item Type'),
             'multiOptions' => $values,
@@ -68,6 +62,12 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('All imported elements are html?'),
             'description' => 'This checkbox allows to set default format of all imported elements as raw text or html.',
             'value' => get_option('csv_import_html_elements'),
+        ));
+
+        $this->addElement('checkbox', 'automap_columns', array(
+            'label' => __('Automap Column Names to Elements'),
+            'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
+            'value' => true,
         ));
 
         $this->_addColumnDelimiterElement();

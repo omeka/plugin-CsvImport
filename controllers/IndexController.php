@@ -60,6 +60,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->columnDelimiter = $columnDelimiter;
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
+        // A bug appears when examples contain UTF-8 characters like 'ГЧ„чŁ'.
+        // The bug is only here, not during import of characters into database.
+        foreach ($this->session->columnExamples as &$value) {
+            $value = iconv('ISO-8859-15', 'UTF-8', @iconv('UTF-8', 'ISO-8859-15' . '//IGNORE', $value));
+        }
 
         $this->session->fileDelimiter = $form->getValue('file_delimiter');
         $this->session->tagDelimiter = $form->getValue('tag_delimiter');
@@ -70,12 +75,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->collectionId = $form->getValue('collection_id');
 
         $this->session->elementsAreHtml = $form->getValue('elements_are_html');
-        $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
+        $this->session->automapColumns = $form->getValue('automap_columns');
 
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
         // All is valid, so we save settings.
         set_option('csv_import_html_elements', $this->session->elementsAreHtml);
+        set_option('csv_import_automap_columns', $this->session->automapColumns);
         set_option(CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
         set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
         set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
@@ -107,7 +113,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             'fileDelimiter' => $this->session->fileDelimiter,
             'tagDelimiter' => $this->session->tagDelimiter,
             'elementDelimiter' => $this->session->elementDelimiter,
-            'automapColumnNamesToElements' => $this->session->automapColumnNamesToElements
+            'automapColumns' => $this->session->automapColumns,
         ));
         $this->view->form = $form;
 
@@ -355,7 +361,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-     * Returns whether the session is valid.
+     * Returns whether the session is valid
      *
      * @return boolean
      */

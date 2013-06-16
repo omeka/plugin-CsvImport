@@ -12,6 +12,7 @@
 //<![CDATA[
 jQuery(document).ready(function () {
     Omeka.CsvImport.enableElementMapping();
+    Omeka.CsvImport.assistWithMapping();
 });
 //]]>
 </script>
