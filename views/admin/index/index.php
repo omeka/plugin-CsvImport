@@ -10,8 +10,9 @@
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready(function () {
-    jQuery('#omeka_csv_export').click(Omeka.CsvImport.updateImportOptions);
-    Omeka.CsvImport.updateImportOptions(); // need this to reset invalid forms
+    jQuery('#format-Report').click(Omeka.CsvImport.updateImportOptions);
+    jQuery('#format-Item').click(Omeka.CsvImport.updateImportOptions);
+    Omeka.CsvImport.updateOnLoad(); // Need this to reset invalid forms.
 });
 //]]>
 </script>

@@ -1,5 +1,6 @@
 <form id="csvimport" method="post" action="">
 <?php
+    $format = $this->format;
     $colNames = $this->columnNames;
     $colExamples = $this->columnExamples;
 ?>
