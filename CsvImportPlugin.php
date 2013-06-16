@@ -2,7 +2,7 @@
 /**
 * CsvImportPlugin class - represents the Csv Import plugin
 *
-* Configuring the plugin:  Set the proper settings in config.ini 
+* Configuring the plugin:  Set the proper settings in config.ini
 * like so:
 *
 * <code>
@@ -14,8 +14,8 @@
 * plugins.CsvImport.fileDestination = "/tmp"
 * plugins.CsvImport.batchSize = "1000"
 * </code>
-* 
-* All of the above settings are optional.  If not given, CsvImport uses the 
+*
+* All of the above settings are optional.  If not given, CsvImport uses the
 * following default values:
 *
 * memoryLimit = current script limit
@@ -26,30 +26,30 @@
 * batchSize = 0 (no batching)
 *
 *
-* Set a high memory limit to avoid memory allocation issues with imports.  
-* Examples include 128M, 1G, and -1.  This will set PHP's memory_limit setting 
-* directly, see PHP's documentation for more info on formatting this number.  
-* Be advised that many web hosts set a maximum memory limit, so this setting 
-* may be ignored if it exceeds the maximum allowable limit. Check with your web 
+* Set a high memory limit to avoid memory allocation issues with imports.
+* Examples include 128M, 1G, and -1.  This will set PHP's memory_limit setting
+* directly, see PHP's documentation for more info on formatting this number.
+* Be advised that many web hosts set a maximum memory limit, so this setting
+* may be ignored if it exceeds the maximum allowable limit. Check with your web
 * host for more information.
-* 
-* Note that 'maxFileSize' will not affect post_max_size or upload_max_filesize 
+*
+* Note that 'maxFileSize' will not affect post_max_size or upload_max_filesize
 * as is set in php.ini.  Having a maxFileSize that exceeds either
 * will still result in errors that prevent the file upload.
 *
-* batchSize: Setting for advanced users.  If you find that your long-running 
-* imports are using too much memory or otherwise hogging system resources, 
-* set this value to split your import into multiple jobs based on the 
+* batchSize: Setting for advanced users.  If you find that your long-running
+* imports are using too much memory or otherwise hogging system resources,
+* set this value to split your import into multiple jobs based on the
 * number of CSV rows to process per job.
 *
-* For example, if you have a CSV with 150000 rows, setting a batchSize 
-* of 5000 would cause the import to be split up over 30 separate jobs.  
-* Note that these jobs run sequentially based on the results of prior 
-* jobs, meaning that the import cannot be parallelized.  The first job 
-* will import 5000 rows and then spawn the next job, and so on until 
+* For example, if you have a CSV with 150000 rows, setting a batchSize
+* of 5000 would cause the import to be split up over 30 separate jobs.
+* Note that these jobs run sequentially based on the results of prior
+* jobs, meaning that the import cannot be parallelized.  The first job
+* will import 5000 rows and then spawn the next job, and so on until
 * the import is completed.
 *
-* 
+*
 * @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
 * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
 * @package CsvImport
@@ -64,29 +64,35 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
 {
     const MEMORY_LIMIT_OPTION_NAME = 'csv_import_memory_limit';
     const PHP_PATH_OPTION_NAME = 'csv_import_php_path';
-    
+
     /**
      * @var array Hooks for the plugin.
      */
-    protected $_hooks = array('install', 
-                              'uninstall',
-                              'upgrade', 
-                              'initialize',
-                              'admin_head', 
-                              'define_acl');
+    protected $_hooks = array(
+        'install',
+        'uninstall',
+        'upgrade',
+        'initialize',
+        'admin_head',
+        'define_acl',
+    );
 
     /**
      * @var array Filters for the plugin.
      */
-    protected $_filters = array('admin_navigation_main');
+    protected $_filters = array(
+        'admin_navigation_main',
+    );
 
     /**
      * @var array Options and their default values.
      */
-    protected $_options = array(self::MEMORY_LIMIT_OPTION_NAME => '',
-                                self::PHP_PATH_OPTION_NAME => '');
+    protected $_options = array(
+        self::MEMORY_LIMIT_OPTION_NAME => '',
+        self::PHP_PATH_OPTION_NAME => '',
+        'csv_import_html_elements' => TRUE,
+    );
 
-    
     /**
      * Install the plugin.
      */
@@ -123,7 +129,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
           KEY (`import_id`),
           UNIQUE (`item_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
-    
+
         $this->_installOptions();
     }
 
@@ -133,31 +139,35 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookUninstall()
     {
         $db = $this->_db;
-        
+
         // drop the tables
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imports`";
         $db->query($sql);
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}csv_import_imported_items`";
         $db->query($sql);
-        
+
         $this->_uninstallOptions();
     }
-    
+
     /**
-     * Upgrade the plugin
+     * Upgrade the plugin.
      */
-    public function hookUpgrade($args) 
+    public function hookUpgrade($args)
     {
         $oldVersion = $args['old_version'];
         $newVersion = $args['new_version'];
         $db = $this->_db;
-        
+
         if (version_compare($oldVersion, '2.0-dev', '<=')) {
             $sql = "UPDATE `{$db->prefix}csv_import_imports` SET `status` = ? WHERE `status` = ?";
             $db->query($sql, array('other_error', 'error'));
-        }   
+        }
+
+        if (version_compare($oldVersion, '2.0', '<=')) {
+            set_option('csv_import_html_elements', $this->_options['csv_import_html_elements']);
+        }
     }
-    
+
     /**
      * Add the translations.
      */
@@ -165,51 +175,51 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
     {
         add_translation_source(dirname(__FILE__) . '/languages');
     }
-    
+
     /**
      * Define the ACL.
-     * 
+     *
      * @param array $args
      */
     public function hookDefineAcl($args)
     {
         $acl = $args['acl']; // get the Zend_Acl
-        
+
         $acl->addResource('CsvImport_Index');
 
         // Hack to disable CRUD actions.
         $acl->deny(null, 'CsvImport_Index', array('show', 'add', 'edit', 'delete'));
         $acl->deny('admin', 'CsvImport_Index');
     }
-    
+
     /**
-    * Configure admin theme header
-    *
-    * @param array $args 
-    */
+     * Configure admin theme header.
+     *
+     * @param array $args
+     */
     public function hookAdminHead($args)
-    {        
-        $request = Zend_Controller_Front::getInstance()->getRequest();        
+    {
+        $request = Zend_Controller_Front::getInstance()->getRequest();
         if ($request->getModuleName() == 'csv-import') {
             queue_css_file('csv-import-main');
             queue_js_file('csv-import');
         }
     }
-            
+
     /**
      * Add the Simple Pages link to the admin main navigation.
-     * 
+     *
      * @param array Navigation array.
      * @return array Filtered navigation array.
      */
     public function filterAdminNavigationMain($nav)
-    {            
+    {
         $nav[] = array(
             'label' => __('Csv Import'),
             'uri' => url('csv-import'),
             'resource' => 'CsvImport_Index',
-            'privilege' => 'index'
-        );       
+            'privilege' => 'index',
+        );
         return $nav;
     }
 }
