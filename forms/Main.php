@@ -22,26 +22,26 @@ class CsvImport_Form_Main extends Omeka_Form
     public function init()
     {
         parent::init();
-        
+
         $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
-        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
-        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
         $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
-        
+        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
+        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
+
         $this->setAttrib('id', 'csvimport');
         $this->setMethod('post');
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select Item Type')) + $values;
-        
+
         $this->addElement('checkbox', 'omeka_csv_export', array(
-            'label' => __('Use an export from Omeka CSV Report'), 
+            'label' => __('Use an export from Omeka CSV Report'),
             'description'=> __('Selecting this will override the options below.'))
         );
-        
+
         $this->addElement('checkbox', 'automap_columns_names_to_elements', array(
-            'label' => __('Automap Column Names to Elements'), 
+            'label' => __('Automap Column Names to Elements'),
             'description'=> __('Automatically maps columns to elements based on their column names. The column name must be in the form: <br/> {ElementSetName}:{ElementName}'),
             'value' => true)
         );
@@ -65,204 +65,29 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
 
         $this->_addColumnDelimiterElement();
+        $this->_addElementDelimiterElement();
         $this->_addTagDelimiterElement();
         $this->_addFileDelimiterElement();
-        $this->_addElementDelimiterElement();
-        
+
         $this->applyOmekaStyles();
         $this->setAutoApplyOmekaStyles(false);
-        
-        $submit = $this->createElement('submit', 
-                                       'submit', 
-                                       array('label' => __('Next'),
-                                             'class' => 'submit submit-medium'));
-            
-        
-        $submit->setDecorators(array('ViewHelper',
-                                      array('HtmlTag', 
-                                            array('tag' => 'div', 
-                                                  'class' => 'csvimportnext'))));
-                                            
+
+        $submit = $this->createElement(
+            'submit', 'submit',
+            array('label' => __('Next'),
+                'class' => 'submit submit-medium'));
+
+        $submit->setDecorators(
+            array('ViewHelper',
+                array('HtmlTag',
+                    array('tag' => 'div',
+                        'class' => 'csvimportnext'))));
+
         $this->addElement($submit);
     }
 
     /**
-     * Return the human readable word for a delimiter
-     *
-     * @param string $delimiter The delimiter
-     * @return string The human readable word for the delimiter
-     */
-    protected function _getHumanDelimiterText($delimiter)
-    {
-        $delimiterText = $delimiter;
-        switch ($delimiter) {
-            case ',':
-                $delimiterText = __('comma');
-                break;
-            case ';':
-                $delimiterText = __('semi-colon');
-                break;
-            case '':
-                $delimiterText = __('empty');
-                break;
-        }
-        return $delimiterText;
-    }
-
-    /**
-     * Add the column delimiter element to the form
-     */
-    protected function _addColumnDelimiterElement()
-    {
-        $delimiter = $this->_columnDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-        $this->addElement('text', 'column_delimiter', array(
-            'label' => __('Choose Column Delimiter'),
-            'description' => __('A single character that will be used to '
-                . 'separate columns in the file (%s by default).'
-                . ' Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
-            'value' => $delimiter,
-            'required' => true,
-            'size' => '1',
-            'validators' => array(
-                array('validator' => 'NotEmpty',
-                      'breakChainOnFailure' => true,
-                      'options' => array('messages' => array(
-                            Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('Column delimiter cannot be whitespace and must be one character long.'),
-                      )),
-                ),
-                array('validator' => 'StringLength', 'options' => array(
-                    'min' => 1,
-                    'max' => 1,
-                    'messages' => array(
-                        Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Column delimiter cannot be whitespace and must be one character long.'),
-                        Zend_Validate_StringLength::TOO_LONG =>
-                            __('Column delimiter cannot be whitespace and must be one character long.'),
-                    ),
-                )),
-            ),
-        ));
-    }
-
-    /**
-     * Add the file delimiter element to the form
-     */
-    protected function _addFileDelimiterElement()
-    {        
-        $delimiter = $this->_fileDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-        $this->addElement('text', 'file_delimiter', array(
-            'label' => __('Choose File Delimiter'),
-            'description' => __('A single character that will be used to '
-                . 'separate file paths or URLs within a cell (%s by default).'
-                . ' If the delimiter is empty, then the whole text will be used as the file path or URL. Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '1',
-            'validators' => array(
-                
-                array('validator' => 'NotEmpty',
-                      'breakChainOnFailure' => true,
-                      'options' => array('type' => 'space', 'messages' => array(
-                            Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('File delimiter cannot be whitespace, and must be empty or one character long.'),
-                      )),
-                ),
-                
-                array('validator' => 'StringLength', 'options' => array(
-                    'min' => 0,
-                    'max' => 1,
-                    'messages' => array(
-                        Zend_Validate_StringLength::TOO_SHORT =>
-                            __('File delimiter cannot be whitespace, and must be empty or one character long.'),
-                        Zend_Validate_StringLength::TOO_LONG =>
-                            __('File delimiter cannot be whitespace, and must be empty or one character long.'),
-                    ),
-                )),
-            ),
-        ));
-    }
-
-    /**
-     * Add the tag delimiter element to the form
-     */    
-    protected function _addTagDelimiterElement()
-    {
-        $delimiter = $this->_tagDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-        $this->addElement('text', 'tag_delimiter', array(
-            'label' => __('Choose Tag Delimiter'),
-            'description' => __('A single character that will be used to '
-                . 'separate tags within a cell (%s by default).'
-                . ' Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
-            'value' => $delimiter,
-            'required' => true,
-            'size' => '1',
-            'validators' => array(
-                array('validator' => 'NotEmpty',
-                      'breakChainOnFailure' => true,
-                      'options' => array('messages' => array(
-                            Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('Tag delimiter cannot be whitespace and must be one character long.'),
-                      )),
-                ),
-                array('validator' => 'StringLength', 'options' => array(
-                    'min' => 1,
-                    'max' => 1,
-                    'messages' => array(
-                        Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Tag delimiter cannot be whitespace and must be one character long.'),
-                        Zend_Validate_StringLength::TOO_LONG =>
-                            __('Tag delimiter cannot be whitespace and must be one character long.'),
-                    ),
-                )),
-            ),
-        ));
-    }
-
-    /**
-     * Add the element delimiter element to the form
-     */
-    protected function _addElementDelimiterElement()
-    {
-        $delimiter = $this->_elementDelimiter;
-        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
-        $this->addElement('text', 'element_delimiter', array(
-            'label' => __('Choose Element Delimiter'),
-            'description' => __('A single character that will be used to '
-                . 'separate metadata elements within a cell (%s by default).'
-                . ' If the delimiter is empty, then the whole text will be used as the element text. Note that spaces, tabs, and other whitespace are not accepted.', $humanDelimiterText),
-            'value' => $delimiter,
-            'required' => false,
-            'size' => '1',
-            'validators' => array(
-                
-                array('validator' => 'NotEmpty',
-                      'breakChainOnFailure' => true,
-                      'options' => array('type' => 'space', 'messages' => array(
-                            Zend_Validate_NotEmpty::IS_EMPTY =>
-                                __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
-                      )),
-                ),
-                
-                array('validator' => 'StringLength', 'options' => array(
-                    'min' => 0,
-                    'max' => 1,
-                    'messages' => array(
-                        Zend_Validate_StringLength::TOO_SHORT =>
-                            __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
-                        Zend_Validate_StringLength::TOO_LONG =>
-                            __('Element delimiter cannot be whitespace, and must be empty or one character long.'),
-                    ),
-                )),
-            ),
-        ));
-    }
-
-    /**
-     * Add the file element to the form
+     * Add the file element to the form.
      */
     protected function _addFileElement()
     {
@@ -298,7 +123,183 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Validate the form post
+     * Return the human readable word for a delimiter if any, or the delimiter.
+     *
+     * @param string $delimiter The delimiter
+     * @return string The human readable word for the delimiter if any, or the
+     * delimiter itself.
+     */
+    protected function _getHumanDelimiterText($delimiter)
+    {
+        $delimitersList = CsvImport_IndexController::getDelimitersList();
+
+        return in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : $delimiter;
+    }
+
+    /**
+     * Return the list of standard delimiters for drop-down menu.
+     *
+     * @return array The list of standard delimiters
+     */
+    protected function _getDelimitersMenu()
+    {
+        $delimitersListKeys = array_keys(CsvImport_IndexController::getDelimitersList());
+        $values = array_combine($delimitersListKeys, $delimitersListKeys);
+        $values['custom'] = 'custom';
+        return $values;
+    }
+
+    /**
+     * Add the column delimiter element to the form.
+     */
+    protected function _addColumnDelimiterElement()
+    {
+        $delimiter = $this->_columnDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+
+        $delimitersList = CsvImport_IndexController::getDelimitersList();
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
+
+        // Two elements are needed to select the delimiter.
+        // First, a list for special characters (one character).
+        $values = $this->_getDelimitersMenu();
+        unset($values['double space']);
+        unset($values['empty']);
+        $this->addElement('select', 'column_delimiter_name', array(
+            'label' => __('Choose column delimiter'),
+            'description'=> __('A single character that will be used to separate columns in the file (the previously used "%s" by default).', $humanDelimiterText),
+            'multiOptions' => $values,
+            'value' => $delimiterCurrent,
+        ));
+
+        // Second, a field to let user chooses a custom delimiter.
+        // TODO Autoset according to previous element or display the element only if the column delimiter is "custom".
+        $this->addElement('text', 'column_delimiter', array(
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '1',
+            'validators' => array(
+                // A second check is done in method isValid() with minimum of 1.
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 0,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_LONG =>
+                            __('Column delimiter must be one character long.'),
+                    ),
+                )),
+            ),
+        ));
+    }
+
+    /**
+     * Add the element delimiter element to the form.
+     */
+    protected function _addElementDelimiterElement()
+    {
+        $delimiter = $this->_elementDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+
+        $delimitersList = CsvImport_IndexController::getDelimitersList();
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
+
+        // Two elements are needed to select the delimiter.
+        // First, a list for special characters.
+        $values = $this->_getDelimitersMenu();
+        $this->addElement('select', 'element_delimiter_name', array(
+            'label' => __('Choose element delimiter'),
+            'description' => __('This delimiter will be used to separate metadata elements within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
+                . ' ' . __('To use more than one character is allowed.'),
+            'multiOptions' => $values,
+            'value' => $delimiterCurrent,
+            'required' => false,
+        ));
+        // Second, a field to let user chooses a custom delimiter.
+        // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
+        $this->addElement('text', 'element_delimiter', array(
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '40',
+        ));
+    }
+
+    /**
+     * Add the tag delimiter element to the form.
+     */
+    protected function _addTagDelimiterElement()
+    {
+        $delimiter = $this->_tagDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+
+        $delimitersList = CsvImport_IndexController::getDelimitersList();
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
+
+        // Two elements are needed to select the delimiter.
+        // First, a list for special characters.
+        $values = $this->_getDelimitersMenu();
+        $this->addElement('select', 'tag_delimiter_name', array(
+            'label' => __('Choose tag delimiter'),
+            'description' => __('This delimiter will be used to separate tags within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used.') . '<br />'
+                . ' ' . __('To use more than one character is allowed.'),
+            'multiOptions' => $values,
+            'value' => $delimiterCurrent,
+            'required' => false,
+        ));
+        // Second, a field to let user chooses a custom delimiter.
+        // TODO Autoset according to previous element or display and check the element only if the tag delimiter is "custom".
+        $this->addElement('text', 'tag_delimiter', array(
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '40',
+        ));
+    }
+
+    /**
+     * Add the file delimiter element to the form.
+     */
+    protected function _addFileDelimiterElement()
+    {
+        $delimiter = $this->_fileDelimiter;
+        $humanDelimiterText = $this->_getHumanDelimiterText($delimiter);
+
+        $delimitersList = CsvImport_IndexController::getDelimitersList();
+        $delimiterCurrent = in_array($delimiter, $delimitersList)
+            ? array_search($delimiter, $delimitersList)
+            : 'custom';
+
+        // Two elements are needed to select the delimiter.
+        // First, a list for special characters.
+        $values = $this->_getDelimitersMenu();
+        $this->addElement('select', 'file_delimiter_name', array(
+            'label' => __('Choose file delimiter'),
+            'description' => __('This delimiter will be used to separate file paths or URLs within a cell (the previously used "%s" by default).', $humanDelimiterText) . '<br />'
+                . __('If the delimiter is empty, then the whole text will be used as the file path or URL.') . '<br />'
+                . ' ' . __('To use more than one character is allowed.'),
+            'multiOptions' => $values,
+            'value' => $delimiterCurrent,
+            'required' => false,
+        ));
+        // Second, a field to let user chooses a custom delimiter.
+        // TODO Autoset according to previous element or display and check the element only if the file delimiter is "custom".
+        $this->addElement('text', 'file_delimiter', array(
+            'value' => $delimiter,
+            'required' => false,
+            'size' => '40',
+        ));
+    }
+
+    /**
+     * Validate the form post.
      */
     public function isValid($post)
     {
@@ -339,7 +340,7 @@ class CsvImport_Form_Main extends Omeka_Form
      * Set the tag delimiter for the form.
      *
      * @param string $delimiter The tag delimiter
-     */    
+     */
     public function setTagDelimiter($delimiter)
     {
         $this->_tagDelimiter = $delimiter;
@@ -349,7 +350,7 @@ class CsvImport_Form_Main extends Omeka_Form
      * Set the element delimiter for the form.
      *
      * @param string $delimiter The element delimiter
-     */    
+     */
     public function setElementDelimiter($delimiter)
     {
         $this->_elementDelimiter = $delimiter;
@@ -374,14 +375,14 @@ class CsvImport_Form_Main extends Omeka_Form
      *
      * If this is set but it exceeds the aforementioned php setting, the size
      * will be reduced to that lower setting.
-     * 
+     *
      * @param string|null $size The maximum file size
      */
     public function setMaxFileSize($size = null)
     {
         $postMaxSize = $this->_getBinarySize(ini_get('post_max_size'));
         $fileMaxSize = $this->_getBinarySize(ini_get('upload_max_filesize'));
-        
+
         // Start with the max size as the lower of the two php ini settings.
         $strictMaxSize = $postMaxSize->compare($fileMaxSize) > 0
                         ? $fileMaxSize
@@ -400,21 +401,21 @@ class CsvImport_Form_Main extends Omeka_Form
         if ($size === null) {
             $maxSize = $this->_maxFileSize;
         } else {
-            $maxSize = $this->_getBinarySize($size);            
+            $maxSize = $this->_getBinarySize($size);
         }
-        
-        if ($maxSize === false || 
-            $maxSize === null || 
+
+        if ($maxSize === false ||
+            $maxSize === null ||
             $maxSize->compare($strictMaxSize) > 0) {
             $maxSize = $strictMaxSize;
         }
-        
+
         $this->_maxFileSize = $maxSize;
     }
 
     /**
-     * Return the max file size
-     * 
+     * Return the max file size.
+     *
      * @return string The max file size
      */
     public function getMaxFileSize()
@@ -426,8 +427,8 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Return the binary size measure
-     * 
+     * Return the binary size measure.
+     *
      * @return Zend_Measure_Binary The binary size
      */
     protected function _getBinarySize($size)
@@ -435,7 +436,7 @@ class CsvImport_Form_Main extends Omeka_Form
         if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
             return false;
         }
-        
+
         $sizeType = Zend_Measure_Binary::BYTE;
 
         $sizeTypes = array(
