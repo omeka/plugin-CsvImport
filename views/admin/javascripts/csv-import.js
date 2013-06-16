@@ -26,6 +26,32 @@ Omeka.CsvImport = {};
     };
 
     /**
+     * Add a little script that selects the right form values if our spreadsheet
+     * uses the same names are our Omeka fields (or similar names like Creator_1,
+     * Creator_2, and Creator_3 that should be mapped to our Creator Omeka field)
+     */
+    Omeka.CsvImport.assistWithMapping = function () {
+        jQuery.each(jQuery('select[class="map-element"]'), function() {
+            $tr = jQuery(this).parent().parent();
+            $label = jQuery($tr).find('strong:eq(0)').text();
+            $end = $label.lastIndexOf("_");
+
+            if ($end != -1) {
+                $label = $label.substring(0, $end);
+            }
+            $label = $label.replace(/ /g, '');
+
+            jQuery.each(jQuery($tr).find('option'), function() {
+                $optionText = jQuery(this).text().replace(/ /g, '');
+
+                if ($optionText == $label) {
+                    jQuery(this).attr('selected', 'selected');
+                }
+            });
+        });
+    };
+
+    /**
      * Add a confirm step before undoing an import.
      */
     Omeka.CsvImport.confirm = function () {
@@ -40,7 +66,7 @@ Omeka.CsvImport = {};
     Omeka.CsvImport.updateImportOptions = function () {
         // we need to test whether the checkbox is checked
         // because fields will all be displayed if the form fails validation
-        var fields = $('div.field').has('#automap_columns_names_to_elements, #item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter, #element_delimiter, #tag_delimiter, #file_delimiter');
+        var fields = $('div.field').has('#automap_columns, #item_type_id, #collection_id, #items_are_public, #items_are_featured, #column_delimiter, #element_delimiter, #tag_delimiter, #file_delimiter');
         if ($('#omeka_csv_export').is(':checked')) {
           fields.slideUp();
         } else {
