@@ -673,8 +673,6 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function _addItemFromRow($row)
     {        
         $result = $this->getColumnMaps()->map($row);
-        debug($this->collection_id);
-        debug($this->item_type_id);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
             Builder_Item::IS_PUBLIC      => $this->is_public,
