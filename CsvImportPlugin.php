@@ -106,8 +106,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         // create csv imports table
         $db->query("CREATE TABLE IF NOT EXISTS `{$db->prefix}csv_import_imports` (
            `id` int(10) unsigned NOT NULL auto_increment,
-           `item_type_id` int(10) unsigned NOT NULL,
-           `collection_id` int(10) unsigned NOT NULL,
+           `item_type_id` int(10) unsigned NULL,
+           `collection_id` int(10) unsigned NULL,
            `owner_id` int unsigned NOT NULL,
            `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
            `original_filename` text collate utf8_unicode_ci NOT NULL,
@@ -171,6 +171,13 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
+        }   
+        
+        if(version_compare($oldVersion, '2.0.1', '<=')) {
+            $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
+                    CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
+            ";
+            $db->query($sql);
         }
     }
 

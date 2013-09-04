@@ -87,7 +87,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function setCollectionId($id)
     {
-        $this->collection_id = (int)$id;
+        if(!$id) {
+            $this->collection_id = null;
+        } else {
+            $this->collection_id = (int)$id;
+        }
     }
 
     /**
@@ -127,7 +131,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function setItemTypeId($id)
     {
-        $this->item_type_id = (int)$id;
+        if(!$id) {
+            $this->item_type_id = null;
+        } else {
+            $this->item_type_id = (int)$id;
+        }
+        
     }
 
     /**
@@ -664,7 +673,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function _addItemFromRow($row)
     {        
         $result = $this->getColumnMaps()->map($row);
-        
+        debug($this->collection_id);
+        debug($this->item_type_id);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
             Builder_Item::IS_PUBLIC      => $this->is_public,
