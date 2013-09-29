@@ -27,6 +27,7 @@ Set the proper settings in config.ini like so:
 
 ```
 plugins.CsvImport.columnDelimiter = ","
+plugins.CsvImport.enclosure = '"'
 plugins.CsvImport.memoryLimit = "128M"
 plugins.CsvImport.requiredExtension = "txt"
 plugins.CsvImport.requiredMimeType = "text/csv"
@@ -88,6 +89,7 @@ columns if field names are the same in your file and in the drop-down list.
 * `test_special_delimiters.csv`: a file to try any delimiters. Special
 delimiters of this file are:
     - Column delimiter: tabulation
+    - Enclosure: quotation mark "
     - Element delimiter: custom ^^ (used by Csv Report)
     - Tag delimiter: double space
     - File delimiter: semi-colon
@@ -98,9 +100,9 @@ form.
 * `test_mixed_records.csv`: a file used to show how to import metadata of item
 and files simultaneously, and to import files one by one to avoid server
 overloading. To try it, you should check `Mixed records` in the form and choose
-`tabulation` as column delimiter, `#` as element delimiter and `;` as tag
-delimiter. Note that in the csv file, file rows should always be after the item
-to which they are attached.
+`tabulation` as column delimiter, `"` as enclosure, `#` as element delimiter
+and `;` as tag delimiter. Note that in the csv file, file rows should always be
+ after the item to which they are attached.
 * `test_update_records.csv`: a file used to show how to update metadata of item
 and files. To try it, you should import "test_mixed_recods.csv" above first,
 then choose this file and check `Update records` in the form.

@@ -43,6 +43,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         'csv_import_html_elements' => TRUE,
         'csv_import_automap_columns' => TRUE,
         CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME => CsvImport_RowIterator::DEFAULT_COLUMN_DELIMITER,
+        CsvImport_RowIterator::ENCLOSURE_OPTION_NAME => CsvImport_RowIterator::DEFAULT_ENCLOSURE,
         CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER,
         CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER,
         CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER,
@@ -63,6 +64,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             `format` varchar(255) collate utf8_unicode_ci NOT NULL,
             `owner_id` int unsigned NOT NULL,
             `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
+            `enclosure` varchar(1) collate utf8_unicode_ci NOT NULL,
             `original_filename` text collate utf8_unicode_ci NOT NULL,
             `file_path` text collate utf8_unicode_ci NOT NULL,
             `file_position` bigint unsigned NOT NULL,
@@ -139,10 +141,22 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             $db->query($sql);
         }
 
+        if (version_compare($oldVersion, '2.0.2', '<=')) {
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'enclosure'";
+            $result = $db->query($sql)->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `enclosure` varchar(1) collate utf8_unicode_ci NOT NULL AFTER `delimiter`
+                ";
+                $db->query($sql);
+            }
+            set_option(CsvImport_RowIterator::ENCLOSURE_OPTION_NAME, CsvImport_RowIterator::DEFAULT_ENCLOSURE);
+        }
+
         if (version_compare($oldVersion, '2.1', '<=')) {
             $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'record_type_id'";
-            $result = $db->query($sql);
-            $result = $result->fetch();
+            $result = $db->query($sql)->fetch();
             if (!empty($result)) {
                 $sql = "
                     ALTER TABLE `{$db->prefix}csv_import_imports`
@@ -152,8 +166,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             }
 
             $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'format'";
-            $result = $db->query($sql);
-            $result = $result->fetch();
+            $result = $db->query($sql)->fetch();
             if (empty($result)) {
                 $sql = "
                     ALTER TABLE `{$db->prefix}csv_import_imports`
@@ -163,8 +176,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             }
 
             $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'row_count'";
-            $result = $db->query($sql);
-            $result = $result->fetch();
+            $result = $db->query($sql)->fetch();
             if (empty($result)) {
                 $sql = "
                     ALTER TABLE `{$db->prefix}csv_import_imports`
@@ -174,8 +186,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             }
 
             $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imported_items` LIKE 'source_item_id'";
-            $result = $db->query($sql);
-            $result = $result->fetch();
+            $result = $db->query($sql)->fetch();
             if (empty($result)) {
                 $sql = "
                     ALTER TABLE `{$db->prefix}csv_import_imported_items`
@@ -187,14 +198,38 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             // Update index. Item id is no more unique, because CsvImport can
             // import files separately, so an item can be updated. Furthermore,
             // now, any metadata can be updated individualy too.
+            $sql = "SHOW INDEX FROM `{$db->prefix}csv_import_imported_items` WHERE KEY_NAME = 'source_item_id_import_id'";
+            $result = $db->query($sql)->fetch();
+            if (!empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imported_items`
+                    DROP INDEX `source_item_id_import_id`
+                ";
+                $db->query($sql);
+            }
             $sql = "
                 ALTER TABLE `{$db->prefix}csv_import_imported_items`
-                DROP INDEX `item_id`,
-                ADD INDEX (`item_id`),
-                DROP INDEX `source_item_id_import_id`,
                 ADD INDEX `source_item_id_import_id` (`source_item_id`, `import_id`)
             ";
             $db->query($sql);
+            $sql = "SHOW INDEX FROM `{$db->prefix}csv_import_imported_items` WHERE KEY_NAME = 'item_id'";
+            $result = $db->query($sql)->fetch();
+            if (!empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imported_items`
+                    DROP INDEX `item_id`
+                ";
+                $db->query($sql);
+            }
+            $sql = "SHOW INDEX FROM `{$db->prefix}csv_import_imported_items` WHERE KEY_NAME = 'import_id'";
+            $result = $db->query($sql)->fetch();
+            if (!empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imported_items`
+                    ADD INDEX (`import_id`)
+                ";
+                $db->query($sql);
+            }
         }
     }
 

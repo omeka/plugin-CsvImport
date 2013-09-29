@@ -10,12 +10,15 @@ class CsvImport_RowIterator implements SeekableIterator
 {
     const COLUMN_DELIMITER_OPTION_NAME = 'csv_import_column_delimiter';
     const DEFAULT_COLUMN_DELIMITER = ',';
+    const ENCLOSURE_OPTION_NAME = 'csv_import_enclosure';
+    const DEFAULT_ENCLOSURE = '"';
 
     private $_filePath;
     private $_handle;
     private $_currentRow;
     private $_currentRowNumber;
     private $_columnDelimiter;
+    private $_enclosure;
     private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
@@ -25,14 +28,20 @@ class CsvImport_RowIterator implements SeekableIterator
     /**
      * @param string $filePath
      * @param string $columnDelimiter  The column delimiter
+     * @param string $enclosure  The enclosure
      */
-    public function __construct($filePath, $columnDelimiter = null)
+    public function __construct($filePath, $columnDelimiter = null, $enclosure = null)
     {
         $this->_filePath = $filePath;
         if ($columnDelimiter !== null) {
             $this->_columnDelimiter = $columnDelimiter;
         } else {
             $this->_columnDelimiter = self::getDefaultColumnDelimiter();
+        }
+        if ($enclosure !== null) {
+            $this->_enclosure = $enclosure;
+        } else {
+            $this->_enclosure = self::getDefaultEnclosure();
         }
     }
 
@@ -44,6 +53,16 @@ class CsvImport_RowIterator implements SeekableIterator
     public function getColumnDelimiter()
     {
         return $this->_columnDelimiter;
+    }
+
+    /**
+     * Returns the enclosure.
+     *
+     * @return string The enclosure
+     */
+    public function getEnclosure()
+    {
+        return $this->_enclosure;
     }
 
     /**
@@ -263,7 +282,7 @@ class CsvImport_RowIterator implements SeekableIterator
     {
         $currentRow = array();
         $handle = $this->_getFileHandle();
-        while (($row = fgetcsv($handle, 0, $this->_columnDelimiter)) !== FALSE) {
+        while (($row = fgetcsv($handle, 0, $this->_columnDelimiter, $this->_enclosure)) !== FALSE) {
             $this->_currentRowNumber++;
             return $row;
         }
@@ -282,5 +301,19 @@ class CsvImport_RowIterator implements SeekableIterator
             $delimiter = self::DEFAULT_COLUMN_DELIMITER;
         }
         return $delimiter;
+    }
+    /**
+     * Returns the default enclosure.
+     * Uses the default enclosure specified in the options table if available.
+     * A zero lenght enclosure is allowed (it will be a chr(0)), but not a null.
+     *
+     * @return string The default enclosure
+     */
+    static public function getDefaultEnclosure()
+    {
+        if (($enclosure = get_option(self::ENCLOSURE_OPTION_NAME)) === null) {
+            $enclosure = self::DEFAULT_ENCLOSURE;
+        }
+        return $enclosure;
     }
 }

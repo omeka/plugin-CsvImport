@@ -10,6 +10,7 @@
 class CsvImport_Form_Main extends Omeka_Form
 {
     private $_columnDelimiter;
+    private $_enclosure;
     private $_elementDelimiter;
     private $_tagDelimiter;
     private $_fileDelimiter;
@@ -24,6 +25,7 @@ class CsvImport_Form_Main extends Omeka_Form
         parent::init();
 
         $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
+        $this->_enclosure = CsvImport_RowIterator::getDefaultEnclosure();
         $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
         $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
         $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
@@ -82,6 +84,7 @@ class CsvImport_Form_Main extends Omeka_Form
         ));
 
         $this->_addColumnDelimiterElement();
+        $this->_addEnclosureElement();
         $this->_addElementDelimiterElement();
         $this->_addTagDelimiterElement();
         $this->_addFileDelimiterElement();
@@ -214,6 +217,33 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
+     * Add the enclosure element to the form
+     */
+    protected function _addEnclosureElement()
+    {
+        $enclosure = $this->_enclosure;
+        $this->addElement('text', 'enclosure', array(
+            'label' => __('Choose Enclosure'),
+            'description' => __('A zero or single character that will be used to separate columns '
+                . 'clearly. It allows to use the column delimiter as a character in a field. By default, '
+                . 'the quotation mark « " » is used. Enclosure can be omitted in the csv file.'),
+            'value' => $enclosure,
+            'required' => false,
+            'size' => '1',
+            'validators' => array(
+                array('validator' => 'StringLength', 'options' => array(
+                    'min' => 0,
+                    'max' => 1,
+                    'messages' => array(
+                        Zend_Validate_StringLength::TOO_LONG =>
+                            __('Enclosure must be zero or one character long.'),
+                    ),
+                )),
+            ),
+        ));
+    }
+
+    /**
      * Add the element delimiter element to the form.
      */
     protected function _addElementDelimiterElement()
@@ -332,8 +362,8 @@ class CsvImport_Form_Main extends Omeka_Form
         }
 
         // Check custom delimiters.
-        if ('column_delimiter_name' == 'custom') {
-            if (strlen($column_delimiter) != 1) {
+        if ($post['column_delimiter_name'] == 'custom') {
+            if (strlen($post['column_delimiter']) != 1) {
                 $this->column_delimiter->addError(
                     __('The custom delimiter you choose cannot be whitespace and must be one character long.'));
                 $isValid = false;
@@ -355,6 +385,16 @@ class CsvImport_Form_Main extends Omeka_Form
     public function setColumnDelimiter($delimiter)
     {
         $this->_columnDelimiter = $delimiter;
+    }
+
+    /**
+     * Set the enclosure for the form.
+     *
+     * @param string $enclosure The enclosure
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->_enclosure = $enclosure;
     }
 
     /**

@@ -48,8 +48,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $columnDelimiter = isset($delimitersList[$columnDelimiterName])
             ? $delimitersList[$columnDelimiterName]
             : $form->getValue('column_delimiter');
+        $enclosure = $form->getValue('enclosure');
 
-        $file = new CsvImport_File($filePath, $columnDelimiter);
+        $file = new CsvImport_File($filePath, $columnDelimiter, $enclosure);
 
         if (!$file->parse()) {
             $this->_helper->flashMessenger(__('Your file is incorrectly formatted.')
@@ -68,6 +69,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->elementsAreHtml = $form->getValue('elements_are_html');
         $this->session->automapColumns = $form->getValue('automap_columns');
         $this->session->columnDelimiter = $columnDelimiter;
+        $this->session->enclosure = $enclosure;
         $this->session->columnNames = $file->getColumnNames();
         $this->session->columnExamples = $file->getColumnExamples();
         // A bug appears when examples contain UTF-8 characters like 'ГЧ„чŁ'.
@@ -95,6 +97,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         set_option('csv_import_html_elements', $this->session->elementsAreHtml);
         set_option('csv_import_automap_columns', $this->session->automapColumns);
         set_option(CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
+        set_option(CsvImport_RowIterator::ENCLOSURE_OPTION_NAME, $this->session->enclosure);
         set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
         set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
         set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);

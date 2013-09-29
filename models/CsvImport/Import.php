@@ -36,6 +36,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $added;
 
     public $delimiter;
+    public $enclosure;
     public $is_public;
     public $is_featured;
     public $row_count = 0;
@@ -160,6 +161,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function setColumnDelimiter($delimiter)
     {
         $this->delimiter = $delimiter;
+    }
+
+    /**
+     * Sets the enclosure in the imported CSV file
+     *
+     * @param string The enclosure of the imported CSV file
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->enclosure = $enclosure;
     }
 
     /**
@@ -536,7 +547,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function getCsvFile()
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->file_path, $this->delimiter);
+            $this->_csvFile = new CsvImport_File($this->file_path, $this->delimiter, $this->enclosure);
         }
         return $this->_csvFile;
     }
