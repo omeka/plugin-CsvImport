@@ -40,6 +40,10 @@ class CsvImport_ColumnMap_Set
     {
         $allResults = array(
             CsvImport_ColumnMap::TYPE_SOURCE_ITEM_ID => null,
+            CsvImport_ColumnMap::TYPE_UPDATE_MODE => null,
+            CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER => null,
+            CsvImport_ColumnMap::TYPE_RECORD_TYPE => null,
+            CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER => null,
             CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
             CsvImport_ColumnMap::TYPE_COLLECTION => null,
             CsvImport_ColumnMap::TYPE_PUBLIC => null,

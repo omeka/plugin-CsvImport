@@ -5,9 +5,10 @@ CSV Import (plugin for Omeka)
 Summary
 -------
 
-This plugin for [Omeka] allows users to import items from a simple CSV (comma
-separated values) file, and then map the CSV column data to multiple elements,
-files, and/or tags. Each row in the file represents metadata for a single item.
+This plugin for [Omeka] allows users to import or update items from a simple
+CSV (comma separated values) file, and then map the CSV column data to multiple
+elements, files, and/or tags. Each row in the file represents metadata for a
+single item.
 This plugin is useful for exporting data from one database and importing that
 data into an Omeka site.
 
@@ -72,7 +73,7 @@ meaning that the import cannot be parallelized.  The first job will import
 Examples
 --------
 
-Five examples of csv files are available in the csv_files folder:
+Six examples of csv files are available in the csv_files folder:
 
 * `test.csv`: a basic list of three books with images of Wikipedia, with
 non Dublin Core tags.
@@ -100,6 +101,30 @@ overloading. To try it, you should check `Mixed records` in the form and choose
 `tabulation` as column delimiter, `#` as element delimiter and `;` as tag
 delimiter. Note that in the csv file, file rows should always be after the item
 to which they are attached.
+* `test_update_records.csv`: a file used to show how to update metadata of item
+and files. To try it, you should import "test_mixed_recods.csv" above first,
+then choose this file and check `Update records` in the form.
+In this csv file, four columns may be added comparing to a normal file:
+    - `updateMode`: The mode of update can be:
+        - "Add" (add values to fields),
+        - "Replace" (remove values of the field before inserting new ones),
+        - "Replace all" (remove values of all imported fields before inserting
+        new ones).
+    This column is optional: by default, values are added.
+    - `updateIdentifier`: This column is optional: by default, the identifier
+    is the "internal id" of the record. If another one is used, for example
+    "Dublin Core:Identifier", "Dublin Core:Title" or "original_filename", it
+    should be unique, else only the first existing record will be updated.
+    - `recordType`: The default record type is "Item", but each "File" can be
+    updated too. "Any" can be used only when identifier is not the internal id.
+    - `recordIdentifier`: This column is mandatory. According to
+    `updateIdentifier` column, it can be an internal id or anything else. If the
+    record doesn't exist, the row is skipped.
+Note: Currently, to update the collection, the item type, the public and
+featured parameters, and the tags, the standard Omeka "Modify" button should
+be used. A file can't be attached to an item via update.
+
+Columns can be ordered like in examples or not.
 
 _Warning_
 Depending of your environment and database, if you imports items with encoded

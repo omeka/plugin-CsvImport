@@ -37,6 +37,7 @@
                     case 'Item': echo __('Items'); break;
                     case 'File': echo __('Files metadata'); break;
                     case 'Mix': echo __('Mixed records'); break;
+                    case 'Update': echo __('Update records'); break;
                     // Imports made with the standard plugin.
                     default: echo __('Unknown'); break;
                 } ?></td>
@@ -47,12 +48,9 @@
                 <td><?php echo html_escape($csvImport->skipped_item_count); ?></td>
 
                 <td><?php echo html_escape(__(Inflector::humanize($csvImport->status, 'all'))); ?></td>
-                <?php if ($csvImport->format == 'File'
-                            && ($csvImport->isCompleted()
-                                || $csvImport->isStopped()
-                                || ($csvImport->isImportError() && $importedItemCount > 0))): ?>
-                    <td><?php echo __('No action'); ?></td>
-                <?php elseif ($csvImport->format != 'File'
+                <?php if ($csvImport->format != 'File'
+                        && $csvImport->format != 'Mix'
+                        && $csvImport->format != 'Update'
                         && ($csvImport->isCompleted()
                             || $csvImport->isStopped()
                             || ($csvImport->isImportError() && $importedItemCount > 0))): ?>
@@ -67,9 +65,9 @@
                         <a href="<?php echo html_escape($undoImportUrl); ?>" class="csv-undo-import delete-button"><?php echo html_escape(__('Undo Import')); ?></a>
                     </td>
                 <?php elseif ($csvImport->isUndone()
-                        || $csvImport->isUndoImportError()
-                        || $csvImport->isOtherError()
-                        || ($csvImport->isImportError() && $importedItemCount == 0)): ?>
+                            || $csvImport->isUndoImportError()
+                            || $csvImport->isOtherError()
+                            || ($csvImport->isImportError() && $importedItemCount == 0)): ?>
                     <?php
                     $clearHistoryImportUrl = $this->url(array(
                             'action' => 'clear-history',
@@ -81,7 +79,7 @@
                         <a href="<?php echo html_escape($clearHistoryImportUrl); ?>" class="csv-clear-history delete-button"><?php echo html_escape(__('Clear History')); ?></a>
                     </td>
                 <?php else: ?>
-                    <td></td>
+                    <td><?php echo __('No action.'); ?></td>
                 <?php endif; ?>
             </tr>
             <?php endforeach; ?>

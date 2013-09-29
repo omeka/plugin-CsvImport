@@ -1,0 +1,3 @@
+updateMode	updateIdentifier	recordType	recordIdentifier	Dublin Core:Description
+Add	Dublin Core:Title	Any	"Der Proceß"	"This new description is inserted via CSV Import > update records."
+Replace	original_filename	File	"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Kafka_statue_Prague.jpg/328px-Kafka_statue_Prague.jpg"	"This description replaces the existing one."

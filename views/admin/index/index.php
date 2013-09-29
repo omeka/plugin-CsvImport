@@ -14,6 +14,7 @@ jQuery(document).ready(function () {
     jQuery('#format-Item').click(Omeka.CsvImport.updateImportOptions);
     jQuery('#format-File').click(Omeka.CsvImport.updateImportOptions);
     jQuery('#format-Mix').click(Omeka.CsvImport.updateImportOptions);
+    jQuery('#format-Update').click(Omeka.CsvImport.updateImportOptions);
     jQuery('#column_delimiter_name').click(Omeka.CsvImport.updateColumnDelimiterField);
     jQuery('#element_delimiter_name').click(Omeka.CsvImport.updateElementDelimiterField);
     jQuery('#tag_delimiter_name').click(Omeka.CsvImport.updateTagDelimiterField);

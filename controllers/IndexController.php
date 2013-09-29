@@ -104,6 +104,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                 $this->_helper->redirector->goto('check-omeka-csv');
             case 'Mix':
                 $this->_helper->redirector->goto('check-mix-csv');
+            case 'Update':
+                $this->_helper->redirector->goto('check-update-csv');
             default:
                 $this->_helper->redirector->goto('map-columns');
         }
@@ -204,10 +206,33 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
+     * For update of records.
+     */
+    public function checkUpdateCsvAction()
+    {
+        $skipColumns = array(
+            'updateMode',
+            'updateIdentifier',
+            'recordType',
+            'fileUrl',
+            'itemType',
+            'collection',
+            'public',
+            'featured',
+            'tags',
+            'file',
+        );
+        $neededColumns = array(
+            'recordIdentifier',
+        );
+        $this->_checkCsv($skipColumns, $neededColumns);
+    }
+
+    /**
      * For direct import of a file from Omeka.net or with mixed records.
      * Check if all needed Elements are present.
      */
-    protected function _checkCsv(array $skipColumns = array())
+    protected function _checkCsv(array $skipColumns = array(), array $neededColumns = array())
     {
         if (empty($this->session->columnNames)) {
             $this->_helper->redirector->goto('index');
@@ -222,8 +247,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $skipColumnsText = '( ' . implode(',  ', $skipColumnsWrapped) . ' )';
 
         $hasError = false;
-        foreach ($this->session->columnNames as $columnName){
-            if (!in_array($columnName, $skipColumns)) {
+        foreach ($this->session->columnNames as $columnName) {
+            if (!in_array($columnName, $skipColumns) && !in_array($columnName, $neededColumns)) {
                 $data = explode(':', $columnName);
                 if (count($data) != 2) {
                     $msg = __('Invalid column name: "%s".', $columnName)
@@ -236,10 +261,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         if (!$hasError) {
-            foreach ($this->session->columnNames as $columnName){
-                if (!in_array($columnName, $skipColumns)) {
+            foreach ($this->session->columnNames as $columnName) {
+                if (!in_array($columnName, $skipColumns) && !in_array($columnName, $neededColumns)) {
                     $data = explode(':', $columnName);
-                    //$data is like array('Element Set Name', 'Element Name');
+                    // $data is like array('Element Set Name', 'Element Name');
                     $elementSetName = $data[0];
                     $elementName = $data[1];
                     $element = $elementTable->findByElementSetNameAndElementName($elementSetName, $elementName);
@@ -250,6 +275,18 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                     }
                 }
             }
+        }
+
+        foreach ($this->session->columnNames as $columnName) {
+            $needed = array_search($columnName, $neededColumns);
+            if ($needed !== false) {
+                unset($neededColumns[$needed]);
+            }
+        }
+        if (!empty($neededColumns)) {
+            $msg = __('Columns "%s" are needed with this format of import.', explode('", "', $neededColumns));
+            $this->_helper->flashMessenger($msg, 'error');
+            $hasError = true;
         }
 
         if ($hasError) {
@@ -275,6 +312,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                 $isHtml = (boolean) $this->session->elementsAreHtml;
                 break;
             case 'Mix':
+            case 'Update':
                 $elementDelimiter = $this->session->elementDelimiter;
                 $tagDelimiter = $this->session->tagDelimiter;
                 $fileDelimiter = $this->session->fileDelimiter;
@@ -291,6 +329,18 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             switch ($heading) {
                 case 'sourceItemId':
                     $columnMaps[] = new CsvImport_ColumnMap_SourceItemId($heading);
+                    break;
+                case 'updateMode':
+                    $columnMaps[] = new CsvImport_ColumnMap_UpdateMode($heading);
+                    break;
+                case 'updateIdentifier':
+                    $columnMaps[] = new CsvImport_ColumnMap_UpdateIdentifier($heading);
+                    break;
+                case 'recordType':
+                    $columnMaps[] = new CsvImport_ColumnMap_RecordType($heading);
+                    break;
+                case 'recordIdentifier':
+                    $columnMaps[] = new CsvImport_ColumnMap_RecordIdentifier($heading);
                     break;
                 case 'itemType':
                     $columnMaps[] = new CsvImport_ColumnMap_ItemType($heading);
@@ -324,6 +374,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
                             );
                             break;
                         case 'Mix':
+                        case 'Update':
                             $elementMap = new CsvImport_ColumnMap_MixElement($heading, $elementDelimiter);
                             $options = array(
                                 'columnNameDelimiter' => $elementMap::DEFAULT_COLUMN_NAME_DELIMITER,

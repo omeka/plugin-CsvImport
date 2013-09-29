@@ -184,8 +184,9 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
                 $db->query($sql);
             }
 
-            // Update index. Item id is no more unique, because CsvImport should
-            // be able to update records.
+            // Update index. Item id is no more unique, because CsvImport can
+            // import files separately, so an item can be updated. Furthermore,
+            // now, any metadata can be updated individualy too.
             $sql = "
                 ALTER TABLE `{$db->prefix}csv_import_imported_items`
                 DROP INDEX `item_id`,

@@ -624,7 +624,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                         $record = $this->_addItemFromRow($row);
                         break;
                     case 'File':
-                        $record = $this->_addFileMetadataFromRow($row);
+                        $record = $this->_updateFileFromRow($row);
                         break;
                     case 'Mix':
                         $result = $this->getColumnMaps()->map($row);
@@ -632,6 +632,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                                 && !empty($result[CsvImport_ColumnMap::TYPE_FILE_URL]))
                             ? $this->_addFileFromRow($row)
                             : $this->_addItemFromRow($row);
+                        break;
+                    case 'Update':
+                        $record = $this->_updateFromRow($row);
                         break;
                     default:
                         $record = null;
@@ -740,11 +743,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
-            Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
-            Builder_Item::COLLECTION_ID  => $this->collection_id,
-            Builder_Item::IS_PUBLIC      => $this->is_public,
-            Builder_Item::IS_FEATURED    => $this->is_featured,
-            Builder_Item::TAGS           => $tags,
+            Builder_Item::ITEM_TYPE_ID => $this->item_type_id,
+            Builder_Item::COLLECTION_ID => $this->collection_id,
+            Builder_Item::IS_PUBLIC => $this->is_public,
+            Builder_Item::IS_FEATURED => $this->is_featured,
+            Builder_Item::TAGS => $tags,
         );
 
         // If this is coming from CSV Report or from mixed records, bring in the
@@ -856,7 +859,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $file = get_record_by_id('File', $file_id);
 
         // Update file with new metadata.
-        $this->_addFileMetadata($file, $result);
+        $this->_updateRecord($file, $result);
         return $file;
     }
 
@@ -867,7 +870,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * @return File|boolean The inserted file or false if metadata can't be
      * added.
      */
-    protected function _addFileMetadataFromRow($row)
+    protected function _updateFileFromRow($row)
     {
         $result = $this->getColumnMaps()->map($row);
 
@@ -889,41 +892,154 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $file = $files[0];
 
         // Update file with new metadata.
-        $this->_addFileMetadata($file, $result);
+        $this->_updateRecord($file, $result);
         return $file;
     }
 
     /**
-     * Adds metadata to an existing file.
+     * Update a record based on a row string in the CSV file and returns it.
      *
-     * @param File $file An existing and checked file object
-     * @param array $map A mapped row
-     *
-     * @return File|boolean The inserted file or false if metadata can't be
-     * added.
+     * @param string $row A row string in the CSV file
+     * @return Record|boolean The updated record or false if no record could be
+     * updated.
      */
-    protected function _addFileMetadata($file, $map)
+    protected function _updateFromRow($row)
+    {
+        $result = $this->getColumnMaps()->map($row);
+
+        $updateIdentifier = isset($result[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER])
+            ? $result[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER]
+            : 'internal id';
+        $recordType = isset($result[CsvImport_ColumnMap::TYPE_RECORD_TYPE])
+            ? $result[CsvImport_ColumnMap::TYPE_RECORD_TYPE]
+            : 'Item';
+        $recordIdentifier = isset($result[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER])
+            ? $result[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER]
+            : '';
+
+        $record = $this->_getRecordByIdentifier($recordIdentifier, $recordType, $updateIdentifier);
+
+        // No record can be updated.
+        if (empty($record)) {
+            $msg = __('You try to update the record "%s", but it does not exist.', $recordIdentifier);
+            $this->_log($msg, Zend_Log::ERR);
+            return false;
+        }
+
+        // Update of a record.
+       $updateMode = isset($result[CsvImport_ColumnMap::TYPE_UPDATE_MODE])
+            ? $result[CsvImport_ColumnMap::TYPE_UPDATE_MODE]
+            : 'Add';
+
+        return $this->_updateRecord($record, $result, $updateMode);
+    }
+
+    /**
+     * Adds metadata to an existing record.
+     *
+     * @param Record $record An existing and checked record object.
+     * @param array $map A mapped row.
+     * @param string $mode Update mode: "Add", "Replace" or "Replace all".
+     *
+     * @return Record|boolean The updated record or false if metadata can't be
+     * updated.
+     */
+    protected function _updateRecord($record, $map, $mode = 'Add')
     {
         // Import metadata.
         $elementTexts = $map[CsvImport_ColumnMap::TYPE_ELEMENT];
-        // Keep only non empty fields to avoid removing them (allow update).
-        $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
         // Trim metadata to avoid spaces.
         $elementTexts = $this->_trimElementTexts($elementTexts);
-
-        // Overwrite existing element text values.
-        foreach ($elementTexts as $key => $info) {
-            if ($info['element_id']) {
-                $file->deleteElementTextsbyElementId((array) $info['element_id']);
+        // Keep only non empty fields to avoid removing them to allow update.
+        if ($mode == 'Add' || $mode == 'Replace') {
+            $elementTexts = array_filter($elementTexts, 'self::_removeEmptyElement');
+        }
+        // Overwrite existing element text values if wanted.
+        if ($mode == 'Replace' || $mode == 'Replace all') {
+            foreach ($elementTexts as $key => $info) {
+                if ($info['element_id']) {
+                    $record->deleteElementTextsbyElementId((array) $info['element_id']);
+                }
             }
         }
         // To reset keys is needed to avoid bug when there is no DC Title.
         $elementTexts = array_values($elementTexts);
 
-        $file->addElementTextsByArray($elementTexts);
+        $record->addElementTextsByArray($elementTexts);
 
-        $file->save();
-        return $file;
+        $record->save();
+        return $record;
+    }
+
+    /**
+     * Get a record from an identifier.
+     *
+     * @param string $recordIdentifier The identifier of the record to update.
+     * @param string $recordType The type of the record to update.
+     * @param string $identifier The type of identifier used to identify
+     * the record to update.
+     *
+     * @return Item|boolean The record to update or false if no one exists.
+     */
+    protected function _getRecordByIdentifier($recordIdentifier, $recordType = 'Item', $identifier = 'internal id')
+    {
+        $record = false;
+
+        if (empty($recordIdentifier)) {
+        }
+        elseif ($identifier == 'internal id') {
+            if ($recordType != 'Any') {
+                $record = get_record_by_id($recordType, $recordIdentifier);
+            }
+        }
+        elseif ($identifier == 'original_filename') {
+            if ($recordType == 'Any' || $recordType == 'File') {
+                $records = get_records('File', array('original_filename' => $recordIdentifier), 1);
+                if (!empty($records)) {
+                    $record = $records[0];
+                }
+            }
+        }
+        else {
+            $db = get_db();
+
+            $elementSet = trim(substr($identifier, 0, strrpos($identifier, ':')));
+            $element = trim(substr($identifier, strrpos($identifier, ':') + 1));
+
+            // Use of ordered placeholders.
+            $bind = array();
+            $bind[] = $elementSet;
+            $bind[] = $element;
+            $bind[] = $recordIdentifier;
+            $sql_record_type = '';
+            if ($recordType !== 'Any') {
+                $sql_record_type = 'AND element_texts.record_type = ?';
+                $bind[] = $recordType;
+            }
+
+            $sql = "
+                SELECT items.id, element_texts.record_type
+                FROM {$db->Item} items
+                    JOIN {$db->ElementText} element_texts
+                        ON items.id = element_texts.record_id
+                    JOIN {$db->Element} elements
+                        ON element_texts.element_id = elements.id
+                    JOIN {$db->ElementSet} element_sets
+                        ON elements.element_set_id = element_sets.id
+                WHERE element_sets.name = ?
+                    AND elements.name = ?
+                    AND element_texts.text = ?
+                    $sql_record_type
+                LIMIT 1
+            ";
+            $result = $db->fetchRow($sql, $bind);
+
+            if (!empty($result)) {
+                $record = get_record_by_id($result['record_type'], $result['id']);
+            }
+        }
+
+        return $record;
     }
 
     /**

@@ -10,7 +10,14 @@
  */
 abstract class CsvImport_ColumnMap
 {
+    // Used with "Mixed records".
     const TYPE_SOURCE_ITEM_ID = 'SourceItemId';
+    // Used with "Update records".
+    const TYPE_UPDATE_MODE = 'UpdateMode';
+    const TYPE_UPDATE_IDENTIFIER = 'UpdateIdentifier';
+    const TYPE_RECORD_TYPE = 'RecordType';
+    const TYPE_RECORD_IDENTIFIER = 'RecordIdentifier';
+    // Used with any import type.
     const TYPE_ITEM_TYPE = 'ItemType';
     const TYPE_COLLECTION = 'Collection';
     const TYPE_PUBLIC = 'Public';

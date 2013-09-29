@@ -41,6 +41,7 @@ class CsvImport_Form_Main extends Omeka_Form
                 'Item' => __('Items'),
                 'File' => __('Files metadata'),
                 'Mix' => __('Mixed records'),
+                'Update' => __('Update records'),
             ),
             'required' => TRUE,
         ));
@@ -48,14 +49,14 @@ class CsvImport_Form_Main extends Omeka_Form
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select item type')) + $values;
         $this->addElement('select', 'item_type_id', array(
-            'label' => __('Select item type'),
+            'label' => __('Select default item type'),
             'multiOptions' => $values,
         ));
 
         $values = get_db()->getTable('Collection')->findPairsForSelectForm();
         $values = array('' => __('Select collection')) + $values;
         $this->addElement('select', 'collection_id', array(
-            'label' => __('Select collection'),
+            'label' => __('Select default collection'),
             'multiOptions' => $values,
         ));
 
