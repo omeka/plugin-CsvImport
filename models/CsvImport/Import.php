@@ -789,6 +789,24 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
+        if (!$this->_attachFilesToItem($item, $fileUrls)) {
+            return false;
+        }
+
+        // Makes it easy to unimport the item later.
+        $this->_recordImportedItemId($item->id, $sourceItemId);
+        return $item;
+    }
+
+    /**
+     * Attachs a list of  files to an item.
+     *
+     * @param Item $item
+     * @param array $fileUrls An array of the urls of files to attach to item.
+     * @return boolean True if success, false else.
+     */
+    protected function _attachFilesToItem($item, $fileUrls)
+    {
         foreach ($fileUrls as $url) {
             try {
                 $files = insert_files_for_item($item,
@@ -803,10 +821,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             }
             release_object($files);
         }
-
-        // Makes it easy to unimport the item later.
-        $this->_recordImportedItemId($item->id, $sourceItemId);
-        return $item;
+        return true;
     }
 
     /**
@@ -916,16 +931,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     protected function _updateFromRow($row)
     {
-        $result = $this->getColumnMaps()->map($row);
+        $map = $this->getColumnMaps()->map($row);
 
-        $updateIdentifier = isset($result[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER])
-            ? $result[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER]
+        $updateIdentifier = isset($map[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER])
+            ? $map[CsvImport_ColumnMap::TYPE_UPDATE_IDENTIFIER]
             : 'internal id';
-        $recordType = isset($result[CsvImport_ColumnMap::TYPE_RECORD_TYPE])
-            ? $result[CsvImport_ColumnMap::TYPE_RECORD_TYPE]
+        $recordType = isset($map[CsvImport_ColumnMap::TYPE_RECORD_TYPE])
+            ? $map[CsvImport_ColumnMap::TYPE_RECORD_TYPE]
             : 'Item';
-        $recordIdentifier = isset($result[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER])
-            ? $result[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER]
+        $recordIdentifier = isset($map[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER])
+            ? $map[CsvImport_ColumnMap::TYPE_RECORD_IDENTIFIER]
             : '';
 
         $record = $this->_getRecordByIdentifier($recordIdentifier, $recordType, $updateIdentifier);
@@ -937,12 +952,20 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return false;
         }
 
+        // If there are files to attach to an item, import it separately.
+        if (method_exists($record, 'addFile')) {
+            $fileUrls = $map[CsvImport_ColumnMap::TYPE_FILE];
+            if (!$this->_attachFilesToItem($record, $fileUrls)) {
+                return false;
+            }
+        }
+
         // Update of a record.
-       $updateMode = isset($result[CsvImport_ColumnMap::TYPE_UPDATE_MODE])
-            ? $result[CsvImport_ColumnMap::TYPE_UPDATE_MODE]
+        $updateMode = isset($map[CsvImport_ColumnMap::TYPE_UPDATE_MODE])
+            ? $map[CsvImport_ColumnMap::TYPE_UPDATE_MODE]
             : 'Add';
 
-        return $this->_updateRecord($record, $result, $updateMode);
+        return $this->_updateRecord($record, $map, $updateMode);
     }
 
     /**
@@ -952,8 +975,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * @param array $map A mapped row.
      * @param string $mode Update mode: "Add", "Replace" or "Replace all".
      *
-     * @return Record|boolean The updated record or false if metadata can't be
-     * updated.
+     * @return Record|boolean
+     *   The updated record or false if metadata can't be updated.
      */
     protected function _updateRecord($record, $map, $mode = 'Add')
     {

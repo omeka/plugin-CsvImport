@@ -94,7 +94,7 @@ delimiters of this file are:
     - Tag delimiter: double space
     - File delimiter: semi-colon
 * `test_files_metadata.csv`: a file used to import metadata of files. To try it,
-you should to import items before with any of previous csv files, and check
+you should import items before with any of previous csv files, and check
 `File metadata` in the first form and `Filename` in the first row of the second
 form.
 * `test_mixed_records.csv`: a file used to show how to import metadata of item
@@ -124,7 +124,7 @@ In this csv file, four columns may be added comparing to a normal file:
     record doesn't exist, the row is skipped.
 Note: Currently, to update the collection, the item type, the public and
 featured parameters, and the tags, the standard Omeka "Modify" button should
-be used. A file can't be attached to an item via update.
+be used. To attach a file to an item, you need to use the column name `file`.
 
 Columns can be ordered like in examples or not.
 
@@ -142,7 +142,7 @@ Status page
 The status page indicates situation of previous, queued and current imports. You
 can make an action on any import process.
 
-Note that can't undo a files metadata import, because previous ones are
+Note that you can't undo a files metadata import, because previous ones are
 overwritten.
 
 The column "Skipped rows" means that some imported lines were non complete or
@@ -197,7 +197,7 @@ Current maintainers:
 This plugin has been built by [Center for History & New Media]. Next, the
 release 1.3.4 has been forked for [University of Iowa Libraries] and upgraded
 for [École des Ponts ParisTech] and [Pop Up Archive]. The fork of this plugin
-has been upgraded for Omeka 2.0 for [Mines ParisTech] and integrated into
+has been upgraded for Omeka 2.0 for [Mines ParisTech] and may be integrated into
 mainstream.
 
 
