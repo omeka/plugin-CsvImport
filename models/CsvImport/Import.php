@@ -803,9 +803,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      *
      * @param Item $item
      * @param array $fileUrls An array of the urls of files to attach to item.
+     * @param boolean $itemDelete Delete item (default) or not if the file can't
+     *   be ingested.
      * @return boolean True if success, false else.
      */
-    protected function _attachFilesToItem($item, $fileUrls)
+    protected function _attachFilesToItem($item, $fileUrls, $itemDelete = true)
     {
         foreach ($fileUrls as $url) {
             try {
@@ -816,7 +818,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $msg = __("Error occurred when attempting to ingest '%s' as a file:", $url)
                     . ' ' . $e->getMessage();
                 $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
+                if ($itemDelete) {
+                    $item->delete();
+                }
                 return false;
             }
             release_object($files);
@@ -955,7 +959,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         // If there are files to attach to an item, import it separately.
         if (method_exists($record, 'addFile')) {
             $fileUrls = $map[CsvImport_ColumnMap::TYPE_FILE];
-            if (!$this->_attachFilesToItem($record, $fileUrls)) {
+            if (!$this->_attachFilesToItem($record, $fileUrls, false)) {
                 return false;
             }
         }
