@@ -1032,10 +1032,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
         elseif ($identifier == 'original_filename') {
             if ($recordType == 'Any' || $recordType == 'File') {
-                $records = get_records('File', array('original_filename' => $recordIdentifier), 1);
-                if (!empty($records)) {
-                    $record = $records[0];
-                }
+                $record = get_db()->getTable('File')->findBySql(
+                    'original_filename = ?',
+                    array('original_filename' => $recordIdentifier),
+                    true);
             }
         }
         else {
