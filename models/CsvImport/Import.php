@@ -21,7 +21,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     const IMPORT_ERROR = 'import_error';
     const UNDO_IMPORT_ERROR = 'undo_import_error';
     const OTHER_ERROR = 'other_error';
-    
+
     const STOPPED = 'stopped';
     const PAUSED = 'paused';
 
@@ -34,6 +34,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $added;
 
     public $delimiter; // the column delimiter
+    public $enclosure;
     public $is_public;
     public $is_featured;
     public $skipped_row_count = 0;
@@ -105,6 +106,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
+     * Sets the enclosure in the imported CSV file
+     *
+     * @param string The enclosure of the imported CSV file
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->enclosure = $enclosure;
+    }
+
+    /**
      * Sets the file path of the imported CSV file
      *
      * @param string The file path of the imported CSV file
@@ -113,7 +124,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $this->file_path = $path;
     }
-    
+
     /**
      * Sets the original filename of the imported CSV file
      *
@@ -136,11 +147,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         } else {
             $this->item_type_id = (int)$id;
         }
-        
+
     }
 
     /**
-     * Sets the status of the import 
+     * Sets the status of the import
      *
      * @param string The status of the import
      */
@@ -196,7 +207,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * imports from running.  When used in conjunction with Omeka_Job and
      * resume(), this can be used to spawn multiple sequential jobs for a given
      * import.
-     * 
+     *
      * @param int $size
      */
     public function setBatchSize($size)
@@ -230,11 +241,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     public function isError()
     {
-        return $this->isImportError() || 
+        return $this->isImportError() ||
                $this->isUndoImportError() ||
                $this->isOtherError();
     }
-    
+
     /**
      * Returns whether there is an error with the import process
      *
@@ -244,7 +255,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         return $this->status == self::IMPORT_ERROR;
     }
-    
+
     /**
      * Returns whether there is an error with the undo import process
      *
@@ -327,7 +338,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $this->status = self::IN_PROGRESS;
         $this->save();
-        $this->_log("Started import.");        
+        $this->_log("Started import.");
         $this->_importLoop($this->file_position);
         return !$this->isError();
     }
@@ -336,7 +347,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Completes the import.
      * Sets import status to self::COMPLETED
      *
-     * @return boolean Whether the import was successfully completed 
+     * @return boolean Whether the import was successfully completed
      */
     public function complete()
     {
@@ -350,12 +361,12 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             . "$this->skipped_row_count rows).");
         return true;
     }
-    
+
     /**
      * Completes the undo import.
      * Sets import status to self::COMPLETED_UNDO
      *
-     * @return boolean Whether the undo import was successfully completed 
+     * @return boolean Whether the undo import was successfully completed
      */
     public function completeUndo()
     {
@@ -373,7 +384,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Resumes the import.
      * Sets import status to self::IN_PROGRESS
      *
-     * @return boolean Whether the import was successful after it was resumed 
+     * @return boolean Whether the import was successful after it was resumed
      */
     public function resume()
     {
@@ -381,9 +392,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot resume an import or undo import that has not been queued.");
             return false;
         }
-        
+
         $undoImport = $this->isQueuedUndo();
-        
+
         if ($this->isQueued()) {
             $this->status = self::IN_PROGRESS;
             $this->save();
@@ -395,27 +406,27 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Resumed undo import.");
             $this->_undoImportLoop();
         }
-        
+
         return !$this->isError();
     }
 
     /**
-     * Stops the import or undo import. 
+     * Stops the import or undo import.
      * Sets import status to self::STOPPED
-     * 
-     * @return boolean Whether the import or undo import was stopped due to an error 
+     *
+     * @return boolean Whether the import or undo import was stopped due to an error
      */
     public function stop()
     {
         // If the import or undo import loops were prematurely stopped while in progress,
-        // then there is an error, otherwise there is no error, i.e. the import 
+        // then there is an error, otherwise there is no error, i.e. the import
         // or undo import was completed
         if ($this->status != self::IN_PROGRESS and
             $this->status != self::IN_PROGRESS_UNDO) {
             return false; // no error
         }
-        
-        // The import or undo import loop was prematurely stopped 
+
+        // The import or undo import loop was prematurely stopped
         $logMsg = "Stopped import or undo import due to error";
         if ($error = error_get_last()) {
             $logMsg .= ": " . $error['message'];
@@ -429,10 +440,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
-     * Queue the import. 
+     * Queue the import.
      * Sets import status to self::QUEUED
-     * 
-     * @return boolean Whether the import was successfully queued 
+     *
+     * @return boolean Whether the import was successfully queued
      */
     public function queue()
     {
@@ -440,33 +451,33 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot queue an import that has an error.");
             return false;
         }
-        
+
         if ($this->isStopped()) {
             $this->_log("Cannot queue an import that has been stopped.");
             return false;
         }
-        
+
         if ($this->isCompleted()) {
             $this->_log("Cannot queue an import that has been completed.");
             return false;
         }
-        
+
         if ($this->isUndone()) {
             $this->_log("Cannot queue an import that has been undone.");
             return false;
         }
-        
+
         $this->status = self::QUEUED;
         $this->save();
         $this->_log("Queued import.");
         return true;
     }
-    
+
     /**
-     * Queue the undo import. 
+     * Queue the undo import.
      * Sets import status to self::QUEUED_UNDO
-     * 
-     * @return boolean Whether the undo import was successfully queued 
+     *
+     * @return boolean Whether the undo import was successfully queued
      */
     public function queueUndo()
     {
@@ -474,59 +485,59 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             $this->_log("Cannot queue an undo import that has an undo import error.");
             return false;
         }
-        
+
         if ($this->isOtherError()) {
             $this->_log("Cannot queue an undo import that has an error.");
             return false;
         }
-        
+
         if ($this->isStopped()) {
             $this->_log("Cannot queue an undo import that has been stopped.");
             return false;
         }
-        
+
         if ($this->isUndone()) {
             $this->_log("Cannot queue an undo import that has been undone.");
             return false;
         }
-        
+
         $this->status = self::QUEUED_UNDO;
         $this->save();
         $this->_log("Queued undo import.");
         return true;
     }
-    
+
     /**
-     * Undo the import. 
+     * Undo the import.
      * Sets import status to self::IN_PROGRESS_UNDO and then self::COMPLETED_UNDO
-     * 
-     * @return boolean Whether the import was successfully undone 
+     *
+     * @return boolean Whether the import was successfully undone
      */
     public function undo()
     {
         $this->status = self::IN_PROGRESS_UNDO;
         $this->save();
-        $this->_log("Started undo import.");        
+        $this->_log("Started undo import.");
         $this->_undoImportLoop();
         return !$this->isError();
     }
 
     /**
      * Returns the CsvImport_File object for the import
-     * 
+     *
      * @return CsvImport_File
      */
     public function getCsvFile()
     {
         if (empty($this->_csvFile)) {
-            $this->_csvFile = new CsvImport_File($this->file_path, $this->delimiter);
+            $this->_csvFile = new CsvImport_File($this->file_path, $this->delimiter, $this->enclosure);
         }
         return $this->_csvFile;
     }
 
     /**
      * Returns the set of column maps for the import
-     * 
+     *
      * @throws UnexpectedValueException
      * @return CsvImport_ColumnMap_Set The set of column maps for the import
      */
@@ -547,7 +558,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     /**
      * Returns the number of items currently imported.  If a user undoes an import,
      * this number decreases to the number of items left to remove.
-     * 
+     *
      * @return int The number of items imported minus the number of items undone
      */
     public function getImportedItemCount()
@@ -560,14 +571,14 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
     /**
      * Runs the import loop
-     * 
+     *
      * @param int $startAt A row number in the CSV file.
      * @throws Exception
      * @return boolean Whether the import loop was successfully run
      */
     protected function _importLoop($startAt = null)
     {
-        try {        
+        try {
             register_shutdown_function(array($this, 'stop'));
             $rows = $this->getCsvFile()->getIterator();
             $rows->rewind();
@@ -606,10 +617,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             throw $e;
         }
     }
-    
+
     /**
      * Runs the undo import loop
-     * 
+     *
      * @throws Exception
      * @return boolean Whether the undo import loop was successfully run
      */
@@ -640,7 +651,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     $deletedItemIds[] = $itemId;
                     $deletedItemCount++;
                     if ($batchSize > 0 && $deletedItemCount == $batchSize) {
-                        $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                        $inClause = 'IN (' . join(', ', $deletedItemIds) . ')';
                         $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
                         $this->_log("Completed undoing the import of a batch of $batchSize "
                             . "items. Memory usage: %memory%");
@@ -652,7 +663,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return $this->completeUndo();
         } catch (Omeka_Job_Worker_InterruptException $e) {
             if ($db && $deletedItemIds) {
-                $inClause = 'IN (' . join(', ', $deletedItemIds) . ')'; 
+                $inClause = 'IN (' . join(', ', $deletedItemIds) . ')';
                 $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
             }
             return $this->queueUndo();
@@ -663,15 +674,15 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             throw $e;
         }
     }
-    
+
     /**
      * Adds a new item based on a row string in the CSV file and returns it.
-     * 
+     *
      * @param string $row A row string in the CSV file
      * @return Item|boolean The inserted item or false if an item could not be added.
      */
     protected function _addItemFromRow($row)
-    {        
+    {
         $result = $this->getColumnMaps()->map($row);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
@@ -681,7 +692,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             Builder_Item::COLLECTION_ID  => $this->collection_id,
             Builder_Item::TAGS           => $tags,
         );
-        
+
         // If this is coming from CSV Report, bring in the itemmetadata coming from the report
         if (!is_null($result[CsvImport_ColumnMap::TYPE_COLLECTION])) {
             $itemMetadata[Builder_Item::COLLECTION_ID] = $result[CsvImport_ColumnMap::TYPE_COLLECTION];
@@ -708,7 +719,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         foreach ($fileUrls as $url) {
             try {
                 $file = insert_files_for_item($item,
-                                              'Url', 
+                                              'Url',
                                               $url,
                                               array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
@@ -729,13 +740,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
     /**
      * Records that an item was successfully imported in the database
-     * 
+     *
      * @param int $itemId The id of the item imported
      */
     protected function _recordImportedItemId($itemId)
     {
         $csvImportedItem = new CsvImport_ImportedItem();
-        $csvImportedItem->setArray(array('import_id' => $this->id, 
+        $csvImportedItem->setArray(array('import_id' => $this->id,
                                          'item_id' => $itemId));
         $csvImportedItem->save();
         $this->_importedCount++;
@@ -745,7 +756,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      * Log an import message
      * Every message will log a timestamp and the item id.
      * Messages that have %memory% will include a memory usage information.
-     * 
+     *
      * @param string $msg The message to log
      * @param int $priority The priority of the message
      */

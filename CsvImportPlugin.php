@@ -7,6 +7,7 @@
 *
 * <code>
 * plugins.CsvImport.columnDelimiter = ","
+* plugins.CsvImport.enclosure = '"'
 * plugins.CsvImport.memoryLimit = "128M"
 * plugins.CsvImport.requiredExtension = "txt"
 * plugins.CsvImport.requiredMimeType = "text/csv"
@@ -91,6 +92,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         self::MEMORY_LIMIT_OPTION_NAME => '',
         self::PHP_PATH_OPTION_NAME => '',
         CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME => CsvImport_RowIterator::DEFAULT_COLUMN_DELIMITER,
+        CsvImport_RowIterator::ENCLOSURE_OPTION_NAME => CsvImport_RowIterator::DEFAULT_ENCLOSURE,
         CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER,
         CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER,
         CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER,
@@ -110,6 +112,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `collection_id` int(10) unsigned NULL,
            `owner_id` int unsigned NOT NULL,
            `delimiter` varchar(1) collate utf8_unicode_ci NOT NULL,
+           `enclosure` varchar(1) collate utf8_unicode_ci NOT NULL,
            `original_filename` text collate utf8_unicode_ci NOT NULL,
            `file_path` text collate utf8_unicode_ci NOT NULL,
            `file_position` bigint unsigned NOT NULL,
@@ -171,13 +174,26 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
-        }   
-        
-        if(version_compare($oldVersion, '2.0.1', '<=')) {
+        }
+
+        if (version_compare($oldVersion, '2.0.1', '<=')) {
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
                     CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
             ";
             $db->query($sql);
+        }
+
+        if (version_compare($oldVersion, '2.0.2', '<=')) {
+            $sql = "SHOW COLUMNS FROM `{$db->prefix}csv_import_imports` LIKE 'enclosure'";
+            $result = $db->query($sql)->fetch();
+            if (empty($result)) {
+                $sql = "
+                    ALTER TABLE `{$db->prefix}csv_import_imports`
+                    ADD `enclosure` varchar(1) collate utf8_unicode_ci NOT NULL AFTER `delimiter`
+                ";
+                $db->query($sql);
+            }
+            set_option(CsvImport_RowIterator::ENCLOSURE_OPTION_NAME, CsvImport_RowIterator::DEFAULT_ENCLOSURE);
         }
     }
 
