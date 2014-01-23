@@ -27,12 +27,13 @@ class CsvImport_ColumnMap_Collection extends CsvImport_ColumnMap
      */
     public function map($row, $result)
     {
+        $result = null;
         $collectionTitle = $row[$this->_columnName];
-        $collection = $this->_getCollectionByTitle($collectionTitle);
-        if ($collection) {
-            $result = $collection->id;
-        } else {
-            $result = false;
+        if ($collectionTitle != '') {
+            $collection = $this->_getCollectionByTitle($collectionTitle);
+            if ($collection) {
+                $result = $collection->id;
+            }
         }
         return $result;
     }
