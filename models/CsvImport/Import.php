@@ -584,7 +584,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     release_object($item);
                 } else {
                     $this->skipped_item_count++;
-                    $this->_log("Skipped row #{$index}.", Zend_Log::WARN);
+                    $this->_log("Skipped item on row #{$index}.", Zend_Log::WARN);
                 }
                 $this->file_position = $this->getCsvFile()->getIterator()->tell();
                 if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
