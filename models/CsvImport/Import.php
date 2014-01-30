@@ -744,20 +744,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
     /**
      * Log an import message
-     * Every message will log a timestamp and the item id.
-     * Messages that have %memory% will include a memory usage information.
+     * Every message will log the import ID.
+     * Messages that have %memory% will include memory usage information.
      *
      * @param string $msg The message to log
      * @param int $priority The priority of the message
      */
     protected function _log($msg, $priority = Zend_Log::DEBUG)
     {
-        $msg = '[CsvImport][time:%time%][id:%id%] ' . $msg;
-        $msg = str_replace('%time%', Zend_Date::now()->toString(), $msg);
-        $msg = str_replace('%id%', strval($this->id), $msg);
-        if (strpos($msg, '%memory%') !== false) {
-            $msg = str_replace('%memory%', memory_get_usage(), $msg);
-        }
-        _log($msg, $priority);
+        $prefix = "[CsvImport][#{$this->id}]";
+        $msg = str_replace('%memory%', memory_get_usage(), $msg);
+        _log("$prefix $msg", $priority);
     }
 }
