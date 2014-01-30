@@ -703,6 +703,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         } catch (Omeka_Validator_Exception $e) {
             $this->_log($e, Zend_Log::ERR);
             return false;
+        } catch (Omeka_Record_Builder_Exception $e) {
+            $this->_log($e, Zend_Log::ERR);
+            return false;
         }
 
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
@@ -711,11 +714,18 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $file = insert_files_for_item($item, 'Url', $url,
                     array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Error occurred when attempting to ingest the "
-                     . "following URL as a file: '$url': "
+                $msg = "Invalid file URL '$url': "
                      . $e->getMessage();
                 $this->_log($msg, Zend_Log::ERR);
                 $item->delete();
+                release_object($item);
+                return false;
+            } catch (Omeka_File_Ingest_Exception $e) {
+                $msg = "Could not import file '$url': "
+                     . $e->getMessage();
+                $this->_log($msg, Zend_Log::ERR);
+                $item->delete();
+                release_object($item);
                 return false;
             }
             release_object($file);
