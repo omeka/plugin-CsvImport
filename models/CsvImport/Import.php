@@ -456,6 +456,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return false;
         }
 
+        $this->added = date("Y-m-d H:i:s", time());
         $this->status = self::QUEUED;
         $this->save();
         $this->_log("Queued import.");
