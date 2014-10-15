@@ -58,6 +58,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     private $_columnMaps;
 
+    protected function _initializeMixins()
+    {
+        $this->_mixins[] = new Mixin_Timestamp($this, 'added', null);
+    }
+
     /**
      * Sets whether the imported items are public
      *
