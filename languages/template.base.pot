@@ -16,3 +16,41 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid "Import Items"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Queued"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Queued Undo"
+msgstr ""
+
+msgid "Undo In Progress"
+msgstr ""
+
+msgid "Completed Undo"
+msgstr ""
+
+msgid "Import Error"
+msgstr ""
+
+msgid "Undo Import Error"
+msgstr ""
+
+msgid "Other Error"
+msgstr ""
+
+msgid "Stopped"
+msgstr ""
+
+msgid "Paused"
+msgstr ""

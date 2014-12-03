@@ -1,5 +1,5 @@
 <?php
-    echo head(array('title' => __('CSV Import Errors'), 'bodyclass' => 'primary', 'content_class' => 'horizontal-nav'));
+    echo head(array('title' => __('CSV Import Errors')));
 ?>
 <?php echo common('csvimport-nav'); ?>
 <div id='primary'>

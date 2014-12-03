@@ -1,5 +1,5 @@
 # Translation for the Csv Import plugin for Omeka.
-# Copyright (C) YEAR THE Omeka'S COPYRIGHT HOLDER
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the Omeka package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -16,8 +16,49 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: CsvImportPlugin.php:199
-msgid "Csv Import"
+msgid "Import Items"
+msgstr ""
+
+#: views/admin/index/browse.php:6 views/admin/index/browse.php:19
+msgid "Status"
+msgstr ""
+
+msgid "Queued"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Queued Undo"
+msgstr ""
+
+msgid "Undo In Progress"
+msgstr ""
+
+msgid "Completed Undo"
+msgstr ""
+
+msgid "Import Error"
+msgstr ""
+
+msgid "Undo Import Error"
+msgstr ""
+
+msgid "Other Error"
+msgstr ""
+
+msgid "Stopped"
+msgstr ""
+
+msgid "Paused"
+msgstr ""
+
+#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
+#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+msgid "CSV Import"
 msgstr ""
 
 #: controllers/IndexController.php:36
@@ -32,52 +73,52 @@ msgstr ""
 msgid "Your file is incorrectly formatted."
 msgstr ""
 
-#: controllers/IndexController.php:88
+#: controllers/IndexController.php:95
 msgid "Import settings expired. Please try again."
 msgstr ""
 
-#: controllers/IndexController.php:109
+#: controllers/IndexController.php:116
 msgid "Invalid form input. Please try again."
 msgstr ""
 
-#: controllers/IndexController.php:115
+#: controllers/IndexController.php:122
 msgid "Please map at least one column to an element, file, or tag."
 msgstr ""
 
-#: controllers/IndexController.php:129 controllers/IndexController.php:247
+#: controllers/IndexController.php:136 controllers/IndexController.php:254
 msgid "Import started. Reload this page for status updates."
 msgstr ""
 
-#: controllers/IndexController.php:131 controllers/IndexController.php:249
+#: controllers/IndexController.php:138 controllers/IndexController.php:256
 msgid "Import could not be started. Please check error logs for more details."
 msgstr ""
 
-#: controllers/IndexController.php:167
+#: controllers/IndexController.php:174
 #, php-format
 msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
 msgstr ""
 
-#: controllers/IndexController.php:183
+#: controllers/IndexController.php:190
 #, php-format
 msgid "Element \"%s\" is not found in element set \"%s\""
 msgstr ""
 
-#: controllers/IndexController.php:277
+#: controllers/IndexController.php:282
 msgid "Undo import started. Reload this page for status updates."
 msgstr ""
 
-#: controllers/IndexController.php:279
+#: controllers/IndexController.php:284
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
 msgstr ""
 
-#: controllers/IndexController.php:299
+#: controllers/IndexController.php:303
 msgid "Cleared import from the history."
 msgstr ""
 
-#: controllers/IndexController.php:301
+#: controllers/IndexController.php:305
 msgid "Cannot clear import history."
 msgstr ""
 
@@ -113,6 +154,10 @@ msgstr ""
 
 #: forms/Main.php:64
 msgid "Feature All Items?"
+msgstr ""
+
+#: forms/Main.php:77
+msgid "Next"
 msgstr ""
 
 #: forms/Main.php:100
@@ -224,43 +269,39 @@ msgid ""
 "expected number of columns for each row."
 msgstr ""
 
-#: views/admin/index/browse.php:7 views/admin/index/browse.php:20
-msgid "Status"
-msgstr ""
-
-#: views/admin/index/browse.php:15
+#: views/admin/index/browse.php:14
 msgid "Import Date"
 msgstr ""
 
-#: views/admin/index/browse.php:16
+#: views/admin/index/browse.php:15
 msgid "CSV File"
 msgstr ""
 
-#: views/admin/index/browse.php:17
+#: views/admin/index/browse.php:16
 msgid "Imported Items"
 msgstr ""
 
-#: views/admin/index/browse.php:18
+#: views/admin/index/browse.php:17
 msgid "Skipped Items"
 msgstr ""
 
-#: views/admin/index/browse.php:19
+#: views/admin/index/browse.php:18
 msgid "Skipped Rows"
 msgstr ""
 
-#: views/admin/index/browse.php:21
+#: views/admin/index/browse.php:20
 msgid "Action"
 msgstr ""
 
-#: views/admin/index/browse.php:50
+#: views/admin/index/browse.php:49
 msgid "Undo Import"
 msgstr ""
 
-#: views/admin/index/browse.php:62
+#: views/admin/index/browse.php:61
 msgid "Clear History"
 msgstr ""
 
-#: views/admin/index/browse.php:72
+#: views/admin/index/browse.php:71
 msgid "You have no imports yet."
 msgstr ""
 
@@ -315,6 +356,6 @@ msgstr ""
 msgid "Files?"
 msgstr ""
 
-#: views/admin/index/map-columns.php:7
+#: views/admin/index/map-columns.php:6
 msgid "Step 2: Map Columns To Elements, Tags, or Files"
 msgstr ""
