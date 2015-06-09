@@ -63,6 +63,9 @@ class CsvImport_Form_Main extends Omeka_Form
         $this->addElement('checkbox', 'items_are_featured', array(
             'label' => __('Feature All Items?'),
         ));
+        $this->addElement('checkbox', 'remove_local_files', array(
+            'label' => __('Remove local files after successful import?'),
+        ));
 
         $this->_addColumnDelimiterElement();
         $this->_addTagDelimiterElement();

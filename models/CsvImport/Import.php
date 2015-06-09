@@ -36,6 +36,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $delimiter; // the column delimiter
     public $is_public;
     public $is_featured;
+    public $remove_local_files;
     public $skipped_row_count = 0;
     public $skipped_item_count = 0;
     public $status;
@@ -83,6 +84,17 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $booleanFilter = new Omeka_Filter_Boolean;
         $this->is_featured = $booleanFilter->filter($flag);
+    }
+
+    /**
+     * Sets whether the local files should be removed or not
+     *
+     * @param mixed $flag A boolean representation
+     */
+    public function setRemoveLocalFiles($flag)
+    {
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->remove_local_files = $booleanFilter->filter($flag);
     }
 
     /**
@@ -715,25 +727,42 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
         foreach ($fileUrls as $url) {
-            try {
-                $file = insert_files_for_item($item, 'Url', $url,
-                    array('ignore_invalid_files' => false));
-            } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Invalid file URL '$url': "
-                     . $e->getMessage();
-                $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
-                release_object($item);
-                return false;
-            } catch (Omeka_File_Ingest_Exception $e) {
-                $msg = "Could not import file '$url': "
-                     . $e->getMessage();
+            $successfulTransferStrategy = null;
+            foreach (array('Url', 'Filesystem') as $transferStrategy) {
+                try {
+                    $file = insert_files_for_item($item, $transferStrategy, $url,
+                        array('ignore_invalid_files' => false));
+                } catch (Omeka_File_Ingest_InvalidException $e) {
+                    $msg = "Invalid file URL '$url': "
+                         . $e->getMessage();
+                    continue;
+                } catch (Omeka_File_Ingest_Exception $e) {
+                    $msg = "Could not import file '$url': "
+                         . $e->getMessage();
+                    continue;
+                }
+                $successfulTransferStrategy = $transferStrategy;
+                break;
+            }
+            if (!isset($file)) {
                 $this->_log($msg, Zend_Log::ERR);
                 $item->delete();
                 release_object($item);
                 return false;
             }
             release_object($file);
+
+            if ($successfulTransferStrategy === 'Filesystem') {
+                $localFiles []= $url;
+            }
+        }
+
+        if ($this->remove_local_files) {
+            foreach ($localFiles as $localFile) {
+                if(!unlink($localFile)) {
+                    $this->_log("Failed to remove file $localFile", Zend_Log::ERR);
+                }
+            }
         }
 
         // Makes it easy to unimport the item later.

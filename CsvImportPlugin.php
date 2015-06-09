@@ -118,6 +118,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `skipped_item_count` int(10) unsigned NOT NULL,
            `is_public` tinyint(1) default '0',
            `is_featured` tinyint(1) default '0',
+           `remove_local_files` tinyint(1) default '0',
            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
            `added` timestamp NOT NULL default '0000-00-00 00:00:00',
            PRIMARY KEY  (`id`)
@@ -177,6 +178,11 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
                     CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
             ";
+            $db->query($sql);
+        }
+
+        if(version_compare($oldVersion, '2.0.3', '<=')) {
+            $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` ADD `remove_local_files` TINYINT( 1 ) DEFAULT 0 AFTER is_featured";
             $db->query($sql);
         }
     }

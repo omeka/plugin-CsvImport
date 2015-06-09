@@ -67,6 +67,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = $form->getValue('items_are_public');
         $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
+        $this->session->removeLocalFiles = $form->getValue('remove_local_files');
         $this->session->collectionId = $form->getValue('collection_id');
 
         $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
@@ -349,6 +350,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     {
         $requiredKeys = array('itemsArePublic',
                               'itemsAreFeatured',
+                              'removeLocalFiles',
                               'collectionId',
                               'itemTypeId',
                               'ownerId');
