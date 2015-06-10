@@ -37,6 +37,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $is_public;
     public $is_featured;
     public $remove_local_files;
+    public $serialized_identifier_element_ids;
     public $skipped_row_count = 0;
     public $skipped_item_count = 0;
     public $status;
@@ -45,6 +46,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     private $_csvFile;
     private $_isOmekaExport;
     private $_importedCount = 0;
+    private $_identifier_element_ids;
 
     /**
      * Batch importing is not enabled by default.
@@ -84,6 +86,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $booleanFilter = new Omeka_Filter_Boolean;
         $this->is_featured = $booleanFilter->filter($flag);
+    }
+
+    public function setIdentifierElementIds($element_ids)
+    {
+        $this->_identifier_element_ids = $element_ids;
     }
 
     /**
@@ -228,6 +235,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function beforeSave($args)
     {
         $this->serialized_column_maps = serialize($this->getColumnMaps());
+        $this->serialized_identifier_element_ids = serialize($this->getIdentifierElementIds());
     }
 
     /**
@@ -561,6 +569,15 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         return $this->_columnMaps;
     }
 
+    public function getIdentifierElementIds()
+    {
+        if ($this->_identifier_element_ids === null) {
+            $this->_identifier_element_ids
+                = unserialize($this->serialized_identifier_element_ids);
+        }
+        return $this->_identifier_element_ids;
+    }
+
     /**
      * Returns the number of items currently imported.  If a user undoes an import,
      * this number decreases to the number of items left to remove.
@@ -682,6 +699,24 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
     }
 
+    protected function _findItemsByElementTexts($elementTexts)
+    {
+        if (!$elementTexts) {
+            return array();
+        }
+
+        $db = $this->getDb();
+        $select = $db->select()->from(array('i' => 'items'), array('item_id' => 'id'));
+        foreach ($elementTexts as $elementText) {
+            $element_id = $elementText['element_id'];
+            $select->joinLeft(array("et_$element_id" => 'element_texts'),
+                "i.id = et_{$element_id}.record_id AND et_{$element_id}.record_type = 'Item' AND et_{$element_id}.element_id = {$element_id}");
+            $select->where("et_{$element_id}.text = ?", $elementText['text']);
+        }
+        $items = $db->fetchCol($select);
+        return $items;
+    }
+
     /**
      * Adds a new item based on a row string in the CSV file and returns it.
      *
@@ -715,6 +750,18 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
+
+        $identifier_element_ids = $this->getIdentifierElementIds();
+        $identifierElementTexts = array_filter($elementTexts, function ($e) use ($identifier_element_ids) {
+            return in_array($e['element_id'], $identifier_element_ids);
+        });
+        $existing_items = $this->_findItemsByElementTexts($identifierElementTexts);
+        if ($existing_items) {
+            $this->_log("Found similar items: " . implode(", ", $existing_items), Zend_Log::WARN);
+            $this->_log("Identifier Element Texts:\n" . var_export($identifierElementTexts, true), Zend_Log::WARN);
+            return false;
+        }
+
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
