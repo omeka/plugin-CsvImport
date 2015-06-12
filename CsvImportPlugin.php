@@ -120,6 +120,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `is_featured` tinyint(1) default '0',
            `remove_local_files` tinyint(1) default '0',
            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
+           `serialized_identifier_element_ids` TEXT,
            `added` timestamp NOT NULL default '0000-00-00 00:00:00',
            PRIMARY KEY  (`id`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
@@ -183,6 +184,15 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
 
         if(version_compare($oldVersion, '2.0.3', '<=')) {
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` ADD `remove_local_files` TINYINT( 1 ) DEFAULT 0 AFTER is_featured";
+            $db->query($sql);
+        }
+
+        if(version_compare($oldVersion, '2.0.4', '<=')) {
+            $sql = "
+                ALTER TABLE `{$db->prefix}csv_import_imports`
+                ADD `serialized_identifier_element_ids` TEXT
+                    AFTER serialized_column_maps
+            ";
             $db->query($sql);
         }
     }

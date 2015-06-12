@@ -67,6 +67,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'label' => __('Remove local files after successful import?'),
         ));
 
+        $this->_addIdentifierElementIdsElement();
         $this->_addColumnDelimiterElement();
         $this->_addTagDelimiterElement();
         $this->_addFileDelimiterElement();
@@ -87,6 +88,44 @@ class CsvImport_Form_Main extends Omeka_Form
                                                   'class' => 'csvimportnext'))));
                                             
         $this->addElement($submit);
+    }
+
+    protected function _getElementsOptions()
+    {
+        $db = get_db();
+        $sql = "
+            SELECT
+                es.name AS element_set_name,
+                e.id AS element_id,
+                e.name AS element_name,
+                it.name AS item_type_name
+            FROM {$db->ElementSet} es
+                JOIN {$db->Element} e ON es.id = e.element_set_id
+                LEFT JOIN {$db->ItemTypesElements} ite ON e.id = ite.element_id
+                LEFT JOIN {$db->ItemType} it ON ite.item_type_id = it.id
+            WHERE es.record_type IS NULL
+              OR (es.record_type = 'Item' AND it.name IS NOT NULL)
+            ORDER BY es.name, it.name, e.name
+        ";
+        $elements = $db->fetchAll($sql);
+        $result = array();
+        foreach ($elements as $element) {
+            $group = $element['item_type_name']
+                ? __('Item Type') . ': ' . __($element['item_type_name'])
+                : __($element['element_set_name']);
+            $result[$group][$element['element_id']] = $element['element_name'];
+        }
+        return $result;
+    }
+
+    protected function _addIdentifierElementIdsElement()
+    {
+        $this->addElement('multiselect', 'identifier_element_ids', array(
+            'label' => __('Choose Identifier Elements'),
+            'description' => __('Those elements will be compared to detect if an item already exists in database. If an item already exists, it will be skipped.'),
+            'size' => '6',
+            'multioptions' => $this->_getElementsOptions(),
+        ));
     }
 
     /**
