@@ -706,10 +706,10 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $db = $this->getDb();
-        $select = $db->select()->from(array('i' => 'items'), array('item_id' => 'id'));
+        $select = $db->select()->from(array('i' => $db->Item), array('item_id' => 'id'));
         foreach ($elementTexts as $elementText) {
             $element_id = $elementText['element_id'];
-            $select->joinLeft(array("et_$element_id" => 'element_texts'),
+            $select->joinLeft(array("et_$element_id" => $db->ElementText),
                 "i.id = et_{$element_id}.record_id AND et_{$element_id}.record_type = 'Item' AND et_{$element_id}.element_id = {$element_id}");
             $select->where("et_{$element_id}.text = ?", $elementText['text']);
         }
