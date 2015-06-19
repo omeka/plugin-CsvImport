@@ -55,7 +55,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
             if (is_callable('element_types_format')) {
                 $formattedText = element_types_format($this->_elementId, $text);
                 if (!$formattedText) {
-                    _log("Cannot format '$text' for element {$this->_elementId}", Zned_Log::WARN);
+                    _log("Cannot format '$text' for element {$this->_elementId}", Zend_Log::WARN);
                 }
                 $text = $formattedText;
             }
