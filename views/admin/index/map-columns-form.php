@@ -19,7 +19,7 @@
         <tr>
         <td><strong><?php echo html_escape($colNames[$i]); ?></strong></td>
         <?php $exampleString = $colExamples[$colNames[$i]]; ?>
-        <td>&quot;<?php echo html_escape(substr($exampleString, 0, 47)); ?>&quot;<?php if (strlen($exampleString) > 47) { echo '...';} ?></td>
+        <td><tt><?php echo html_escape(substr($exampleString, 0, 47)); ?><?php if (strlen($exampleString) > 47) { echo '&hellip;';} ?></tt></td>
         <?php echo $this->form->getSubForm("row$i"); ?>
         </tr>
 <?php endfor; ?>
