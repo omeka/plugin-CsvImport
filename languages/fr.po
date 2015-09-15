@@ -193,7 +193,7 @@ msgstr "Mettre en avant tous les contenus ?"
 
 #: forms/Main.php:67
 msgid "Remove local files after successful import?"
-msgstr ""
+msgstr "Supprimer les fichiers locaux après un import réussi?"
 
 #: forms/Main.php:81
 msgid "Next"
@@ -368,7 +368,7 @@ msgstr "Étape 2 : Relier les colonnes aux éléments, mots clé ou fichiers"
 #: views/admin/index/logs.php:6
 #, php-format
 msgid "Logs for import #%s"
-msgstr ""
+msgstr "Logs pour l'import #%s"
 
 #: views/admin/index/logs.php:73
 msgid "You have no logs yet."
