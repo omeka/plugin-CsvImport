@@ -135,6 +135,18 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
           UNIQUE (`item_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
+        $db->query("
+            CREATE TABLE IF NOT EXISTS `{$db->CsvImport_Log}` (
+                `id` int(10) unsigned NOT NULL auto_increment,
+                `import_id` int(10) unsigned NOT NULL,
+                `priority` tinyint unsigned NOT NULL,
+                `created` timestamp DEFAULT CURRENT_TIMESTAMP,
+                `message` text NOT NULL,
+                PRIMARY KEY (`id`),
+                KEY (`import_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+        ");
+
         $this->_installOptions();
     }
 
@@ -192,6 +204,21 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
                 ALTER TABLE `{$db->prefix}csv_import_imports`
                 ADD `serialized_identifier_element_ids` TEXT
                     AFTER serialized_column_maps
+            ";
+            $db->query($sql);
+        }
+
+        if (version_compare($oldVersion, '2.0.5', '<=')) {
+            $sql = "
+                CREATE TABLE IF NOT EXISTS `{$db->CsvImport_Log}` (
+                    `id` int(10) unsigned NOT NULL auto_increment,
+                    `import_id` int(10) unsigned NOT NULL,
+                    `priority` tinyint unsigned NOT NULL,
+                    `created` timestamp DEFAULT CURRENT_TIMESTAMP,
+                    `message` text NOT NULL,
+                    PRIMARY KEY (`id`),
+                    KEY (`import_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
             ";
             $db->query($sql);
         }
