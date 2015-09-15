@@ -292,6 +292,16 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('browse');
     }
 
+    public function logsAction()
+    {
+        $db = $this->_helper->db;
+        $csvImport = $db->findById();
+        $logs = $db->getTable('CsvImport_Log')->findByImportId($csvImport->id);
+
+        $this->view->csvImport = $csvImport;
+        $this->view->logs = $logs;
+    }
+
     /**
      * Clear the import history.
      */

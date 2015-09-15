@@ -846,5 +846,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $prefix = "[CsvImport][#{$this->id}]";
         $msg = str_replace('%memory%', memory_get_usage(), $msg);
         _log("$prefix $msg", $priority);
+
+        $csvImportLog = new CsvImport_Log();
+        $csvImportLog->setArray(array(
+            'import_id' => $this->id,
+            'priority' => $priority,
+            'message' => $msg,
+        ));
+        $csvImportLog->save();
     }
 }
