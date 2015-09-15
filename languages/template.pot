@@ -56,8 +56,19 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
-#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr ""
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr ""
+
+#: CsvImportPlugin.php:274 views/admin/index/index.php:2
+#: views/admin/index/map-columns.php:2 views/admin/index/logs.php:1
+#: views/admin/index/browse.php:2
 msgid "CSV Import"
 msgstr ""
 
@@ -73,53 +84,57 @@ msgstr ""
 msgid "Your file is incorrectly formatted."
 msgstr ""
 
-#: controllers/IndexController.php:95
+#: controllers/IndexController.php:100
 msgid "Import settings expired. Please try again."
 msgstr ""
 
-#: controllers/IndexController.php:116
+#: controllers/IndexController.php:121
 msgid "Invalid form input. Please try again."
 msgstr ""
 
-#: controllers/IndexController.php:122
+#: controllers/IndexController.php:127
 msgid "Please map at least one column to an element, file, or tag."
 msgstr ""
 
-#: controllers/IndexController.php:136 controllers/IndexController.php:254
+#: controllers/IndexController.php:141 controllers/IndexController.php:259
 msgid "Import started. Reload this page for status updates."
 msgstr ""
 
-#: controllers/IndexController.php:138 controllers/IndexController.php:256
+#: controllers/IndexController.php:143 controllers/IndexController.php:261
 msgid "Import could not be started. Please check error logs for more details."
 msgstr ""
 
-#: controllers/IndexController.php:174
+#: controllers/IndexController.php:179
 #, php-format
 msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
 msgstr ""
 
-#: controllers/IndexController.php:190
+#: controllers/IndexController.php:195
 #, php-format
 msgid "Element \"%s\" is not found in element set \"%s\""
 msgstr ""
 
-#: controllers/IndexController.php:282
+#: controllers/IndexController.php:287
 msgid "Undo import started. Reload this page for status updates."
 msgstr ""
 
-#: controllers/IndexController.php:284
+#: controllers/IndexController.php:289
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
 msgstr ""
 
-#: controllers/IndexController.php:303
+#: controllers/IndexController.php:318
 msgid "Cleared import from the history."
 msgstr ""
 
-#: controllers/IndexController.php:305
+#: controllers/IndexController.php:320
 msgid "Cannot clear import history."
+msgstr ""
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
 msgstr ""
 
 #: forms/Main.php:36 forms/Main.php:50
@@ -156,42 +171,56 @@ msgstr ""
 msgid "Feature All Items?"
 msgstr ""
 
-#: forms/Main.php:77
+#: forms/Main.php:67
+msgid "Remove local files after successful import?"
+msgstr ""
+
+#: forms/Main.php:81
 msgid "Next"
 msgstr ""
 
-#: forms/Main.php:100
+#: forms/Main.php:124
+msgid "Choose Identifier Elements"
+msgstr ""
+
+#: forms/Main.php:125
+msgid ""
+"Those elements will be compared to detect if an item already exists in "
+"database. If an item already exists, it will be skipped."
+msgstr ""
+
+#: forms/Main.php:142
 msgid "comma"
 msgstr ""
 
-#: forms/Main.php:103
+#: forms/Main.php:145
 msgid "semi-colon"
 msgstr ""
 
-#: forms/Main.php:106
+#: forms/Main.php:148
 msgid "empty"
 msgstr ""
 
-#: forms/Main.php:120
+#: forms/Main.php:162
 msgid "Choose Column Delimiter"
 msgstr ""
 
-#: forms/Main.php:121
+#: forms/Main.php:163
 #, php-format
 msgid ""
 "A single character that will be used to separate columns in the file (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
 msgstr ""
 
-#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+#: forms/Main.php:174 forms/Main.php:182 forms/Main.php:184
 msgid "Column delimiter cannot be whitespace and must be one character long."
 msgstr ""
 
-#: forms/Main.php:157
+#: forms/Main.php:199
 msgid "Choose File Delimiter"
 msgstr ""
 
-#: forms/Main.php:158
+#: forms/Main.php:200
 #, php-format
 msgid ""
 "A single character that will be used to separate file paths or URLs within a "
@@ -200,31 +229,31 @@ msgid ""
 "are not accepted."
 msgstr ""
 
-#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+#: forms/Main.php:212 forms/Main.php:221 forms/Main.php:223
 msgid ""
 "File delimiter cannot be whitespace, and must be empty or one character long."
 msgstr ""
 
-#: forms/Main.php:196
+#: forms/Main.php:238
 msgid "Choose Tag Delimiter"
 msgstr ""
 
-#: forms/Main.php:197
+#: forms/Main.php:239
 #, php-format
 msgid ""
 "A single character that will be used to separate tags within a cell (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
 msgstr ""
 
-#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+#: forms/Main.php:250 forms/Main.php:258 forms/Main.php:260
 msgid "Tag delimiter cannot be whitespace and must be one character long."
 msgstr ""
 
-#: forms/Main.php:233
+#: forms/Main.php:275
 msgid "Choose Element Delimiter"
 msgstr ""
 
-#: forms/Main.php:234
+#: forms/Main.php:276
 #, php-format
 msgid ""
 "A single character that will be used to separate metadata elements within a "
@@ -233,76 +262,26 @@ msgid ""
 "not accepted."
 msgstr ""
 
-#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+#: forms/Main.php:288 forms/Main.php:297 forms/Main.php:299
 msgid ""
 "Element delimiter cannot be whitespace, and must be empty or one character "
 "long."
 msgstr ""
 
-#: forms/Main.php:291
+#: forms/Main.php:333
 msgid "Upload CSV File"
 msgstr ""
 
-#: forms/Main.php:295
+#: forms/Main.php:337
 #, php-format
 msgid "Maximum file size is %s."
 msgstr ""
 
-#: forms/Main.php:309
+#: forms/Main.php:351
 #, php-format
 msgid ""
 "The file you have uploaded exceeds the maximum post size allowed by the "
 "server. Please upload a file smaller than %s."
-msgstr ""
-
-#: forms/Mapping.php:56
-msgid "Import CSV File"
-msgstr ""
-
-#: models/CsvImport/File.php:99
-msgid "Please ensure that all column names are unique."
-msgstr ""
-
-#: models/CsvImport/File.php:103
-msgid ""
-"Please ensure that the CSV file is formatted correctly and contains the "
-"expected number of columns for each row."
-msgstr ""
-
-#: views/admin/index/browse.php:14
-msgid "Import Date"
-msgstr ""
-
-#: views/admin/index/browse.php:15
-msgid "CSV File"
-msgstr ""
-
-#: views/admin/index/browse.php:16
-msgid "Imported Items"
-msgstr ""
-
-#: views/admin/index/browse.php:17
-msgid "Skipped Items"
-msgstr ""
-
-#: views/admin/index/browse.php:18
-msgid "Skipped Rows"
-msgstr ""
-
-#: views/admin/index/browse.php:20
-msgid "Action"
-msgstr ""
-
-#: views/admin/index/browse.php:49
-msgid "Undo Import"
-msgstr ""
-
-#: views/admin/index/browse.php:61
-msgid "Clear History"
-msgstr ""
-
-#: views/admin/index/browse.php:71
-msgid "You have no imports yet."
 msgstr ""
 
 #: views/admin/index/check-omeka-csv.php:2
@@ -332,6 +311,19 @@ msgstr ""
 msgid "Step 1: Select File and Item Settings"
 msgstr ""
 
+#: views/admin/index/map-columns.php:6
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr ""
+
+#: views/admin/index/logs.php:6
+#, php-format
+msgid "Logs for import #%s"
+msgstr ""
+
+#: views/admin/index/logs.php:73
+msgid "You have no logs yet."
+msgstr ""
+
 #: views/admin/index/map-columns-form.php:9
 msgid "Column"
 msgstr ""
@@ -356,6 +348,42 @@ msgstr ""
 msgid "Files?"
 msgstr ""
 
-#: views/admin/index/map-columns.php:6
-msgid "Step 2: Map Columns To Elements, Tags, or Files"
+#: views/admin/index/browse.php:14
+msgid "Import Date"
+msgstr ""
+
+#: views/admin/index/browse.php:15
+msgid "CSV File"
+msgstr ""
+
+#: views/admin/index/browse.php:16
+msgid "Imported Items"
+msgstr ""
+
+#: views/admin/index/browse.php:17
+msgid "Skipped Items"
+msgstr ""
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Rows"
+msgstr ""
+
+#: views/admin/index/browse.php:20
+msgid "Action"
+msgstr ""
+
+#: views/admin/index/browse.php:53
+msgid "Undo Import"
+msgstr ""
+
+#: views/admin/index/browse.php:55
+msgid "Logs"
+msgstr ""
+
+#: views/admin/index/browse.php:67
+msgid "Clear History"
+msgstr ""
+
+#: views/admin/index/browse.php:77
+msgid "You have no imports yet."
 msgstr ""
