@@ -372,7 +372,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $this->status = self::COMPLETED;
         $this->save();
         $this->_log("Completed importing $this->_importedCount items (skipped "
-            . "$this->skipped_row_count rows).");
+            . "$this->skipped_item_count items, $this->skipped_row_count rows).");
         return true;
     }
 
