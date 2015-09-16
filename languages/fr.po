@@ -61,6 +61,130 @@ msgstr "Arrêté"
 msgid "Paused"
 msgstr "En pause"
 
+msgid "Started import."
+msgstr "Import démarré."
+
+msgid "Cannot complete an import that is already completed."
+msgstr "Impossible de terminer un import déjà terminé."
+
+#, php-format
+msgid "Completed importing %1$s items (skipped %2$s items, %3$s rows)."
+msgstr ""
+"Import de %1$s contenus terminé (%2$s contenus et %3$s lignes sautés)."
+
+msgid "Cannot complete an undo import that is already undone."
+msgstr "Impossible de terminer l'annulation d'un import déjà annulé."
+
+msgid "Completed undoing the import."
+msgstr "Annulations de l'import terminées"
+
+msgid "Cannot resume an import or undo import that has not been queued."
+msgstr ""
+"Impossible de reprendre ou d'annuler un import qui n'a pas été mis en "
+"file d'attente."
+
+msgid "Resumed import."
+msgstr "Import repris."
+
+msgid "Resumed undo import."
+msgstr "Annulation d'import reprise."
+
+msgid "Stopped import or undo import due to error."
+msgstr "Import ou annulation d'import arrêté pour cause d'erreur."
+
+#, php-format
+msgid "Stopped import or undo import due to error: %s"
+msgstr "Import ou annulation d'import arrêté pour cause d'erreur: %s"
+
+msgid "Cannot queue an import that has an error."
+msgstr ""
+"Impossible de mettre en file d'attente un import qui a une erreur."
+
+msgid "Cannot queue an import that has been stopped."
+msgstr ""
+"Impossible de mettre en file d'attente un import qui a été arrêté."
+
+msgid "Cannot queue an import that has been completed."
+msgstr ""
+"Impossible de mettre en file d'attente un import qui a été terminé."
+
+msgid "Cannot queue an import that has been undone."
+msgstr ""
+"Impossible de mettre en file d'attente un import qui a été annulé."
+
+msgid "Queued import."
+msgstr "Import mis en file d'attente."
+
+msgid "Cannot queue an undo import that has an undo import error."
+msgstr ""
+"Impossible de mettre en file d'attente un import qui a une erreur "
+"d'annulation."
+
+msgid "Cannot queue an undo import that has an error."
+msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a une erreur"
+
+msgid "Cannot queue an undo import that has been stopped."
+msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a été arrêtée."
+
+msgid "Cannot queue an undo import that has been undone."
+msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a été annulée."
+
+msgid "Queued undo import."
+msgstr "Annulations en file d'attente"
+
+msgid "Started undo import."
+msgstr "Annulation d'import démarrée."
+
+#, php-format
+msgid "Running item import loop. Memory usage: %s"
+msgstr "Lancement de la boucle d'import. Utilisation de la mémoire: %s"
+
+#, php-format
+msgid "Skipped item on row #%s"
+msgstr "Contenus ignorés à la ligne #%s"
+
+#, php-format
+msgid "Completed importing batch of %1$s items. Memory usage %2$s"
+msgstr ""
+"Import d'un lot de %1$s contenus terminé. Utilisation de la mémoire: %2$s"
+
+#, php-format
+msgid ""
+"Completed undoing the import of a batch of %1$s items. Memory usage: %2$s"
+msgstr ""
+"Annulation de l'import d'un lot de %1$s contenus terminée. "
+"Utilisation de la mémoire! %2$s"
+
+#, php-format
+msgid "Found similar items: %s"
+msgstr ""
+
+#, php-format
+msgid ""
+"Identifier Element Texts:\n"
+"%s"
+msgstr ""
+"Textes des éléments identifiants\n"
+"%s"
+
+#, php-format
+msgid "Invalid file URL \"%1$s\": %2$s"
+msgstr "URL du fichier invalide \"%1$s\": %2$s"
+
+#, php-format
+msgid "Could not import file \"%1$s\": %2$s"
+msgstr "Impossible d'importer le fichier \"%1$s\": %2$s"
+
+#, php-format
+msgid "Failed to remove file %s"
+msgstr "Suppression du fichier %s echouée"
+
 #: models/CsvImport/File.php:99
 msgid "Please ensure that all column names are unique."
 msgstr "Veuillez vous assurer que chaque nom de colonne est unique. "
@@ -73,7 +197,7 @@ msgstr ""
 "Veuillez vous assurer que le fichier CSV est correctement formé et qu'il "
 "contient le nombre de colonnes attendues pour chaque contenu."
 
-#: CsvImportPlugin.php:274 views/admin/index/index.php:2
+#: CsvImportPlugin.php:282 views/admin/index/index.php:2
 #: views/admin/index/map-columns.php:2 views/admin/index/logs.php:1
 #: views/admin/index/browse.php:2
 msgid "CSV Import"
@@ -208,8 +332,8 @@ msgid ""
 "Those elements will be compared to detect if an item already exists in "
 "database. If an item already exists, it will be skipped."
 msgstr ""
-"Ces éléments seront comparés pour détecter is un contenu existe déjà "
-"dans la base de données. Si un contenu existe déjà, il sera sauté."
+"Ces éléments seront comparés pour détecter is un contenu existe déjà dans la "
+"base de données. Si un contenu existe déjà, il sera sauté."
 
 #: forms/Main.php:142
 msgid "comma"
@@ -370,7 +494,19 @@ msgstr "Étape 2 : Relier les colonnes aux éléments, mots clé ou fichiers"
 msgid "Logs for import #%s"
 msgstr "Logs pour l'import #%s"
 
-#: views/admin/index/logs.php:73
+#: views/admin/index/logs.php:14
+msgid "Time"
+msgstr "Temps"
+
+#: views/admin/index/logs.php:15
+msgid "Priority"
+msgstr "Priorité"
+
+#: views/admin/index/logs.php:16
+msgid "Message"
+msgstr "Message"
+
+#: views/admin/index/logs.php:82
 msgid "You have no logs yet."
 msgstr "Vous n'avez encore aucun log."
 

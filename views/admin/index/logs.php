@@ -11,9 +11,9 @@
         <table class="simple" cellspacing="0" cellpadding="0">
             <thead>
                 <tr>
-                    <th>Time</th>
-                    <th>Priority</th>
-                    <th>Message</th>
+                    <th><?php echo __('Time'); ?></th>
+                    <th><?php echo __('Priority'); ?></th>
+                    <th><?php echo __('Message'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -64,7 +64,16 @@
                             echo $priority;
                         ?>
                     </td>
-                    <td><?php echo html_escape($log->message); ?></td>
+                    <td>
+                        <?php
+                            $param_arr = array($log->message);
+                            $params = unserialize($log->params);
+                            if (is_array($params)) {
+                                $param_arr = array_merge($param_arr, $params);
+                            }
+                            echo html_escape(call_user_func_array('__', $param_arr));
+                        ?>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
