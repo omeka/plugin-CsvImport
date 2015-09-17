@@ -70,7 +70,7 @@ msgstr "Impossible de terminer un import déjà terminé."
 #, php-format
 msgid "Completed importing %1$s items (skipped %2$s items, %3$s rows)."
 msgstr ""
-"Import de %1$s contenus terminé (%2$s contenus et %3$s lignes sautés)."
+"Import terminé: %1$s contenus importés (ignorés: %2$s contenus et %3$s lignes)."
 
 msgid "Cannot complete an undo import that is already undone."
 msgstr "Impossible de terminer l'annulation d'un import déjà annulé."
