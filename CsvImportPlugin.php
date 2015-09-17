@@ -222,6 +222,14 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             ";
             $db->query($sql);
         }
+
+        if (version_compare($oldVersion, '2.0.6', '<=')) {
+            $sql = "
+                ALTER TABLE `{$db->CsvImport_Log}`
+                ADD COLUMN `params` text DEFAULT NULL
+            ";
+            $db->query($sql);
+        }
     }
 
     /**

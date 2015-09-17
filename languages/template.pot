@@ -56,6 +56,110 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
+msgid "Started import."
+msgstr ""
+
+msgid "Cannot complete an import that is already completed."
+msgstr ""
+
+#, php-format
+msgid "Completed importing %1$s items (skipped %2$s items, %3$s rows)."
+msgstr ""
+
+msgid "Cannot complete an undo import that is already undone."
+msgstr ""
+
+msgid "Completed undoing the import."
+msgstr ""
+
+msgid "Cannot resume an import or undo import that has not been queued."
+msgstr ""
+
+msgid "Resumed import."
+msgstr ""
+
+msgid "Resumed undo import."
+msgstr ""
+
+msgid "Stopped import or undo import due to error."
+msgstr ""
+
+#, php-format
+msgid "Stopped import or undo import due to error: %s"
+msgstr ""
+
+msgid "Cannot queue an import that has an error."
+msgstr ""
+
+msgid "Cannot queue an import that has been stopped."
+msgstr ""
+
+msgid "Cannot queue an import that has been completed."
+msgstr ""
+
+msgid "Cannot queue an import that has been undone."
+msgstr ""
+
+msgid "Queued import."
+msgstr ""
+
+msgid "Cannot queue an undo import that has an undo import error."
+msgstr ""
+
+msgid "Cannot queue an undo import that has an error."
+msgstr ""
+
+msgid "Cannot queue an undo import that has been stopped."
+msgstr ""
+
+msgid "Cannot queue an undo import that has been undone."
+msgstr ""
+
+msgid "Queued undo import."
+msgstr ""
+
+msgid "Started undo import."
+msgstr ""
+
+#, php-format
+msgid "Running item import loop. Memory usage: %s"
+msgstr ""
+
+#, php-format
+msgid "Skipped item on row #%s"
+msgstr ""
+
+#, php-format
+msgid "Completed importing batch of %1$s items. Memory usage %2$s"
+msgstr ""
+
+#, php-format
+msgid ""
+"Completed undoing the import of a batch of %1$s items. Memory usage: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Found similar items: %s"
+msgstr ""
+
+#, php-format
+msgid ""
+"Identifier Element Texts:\n"
+"%s"
+msgstr ""
+
+#, php-format
+msgid "Invalid file URL \"%1$s\": %2$s"
+msgstr ""
+
+#, php-format
+msgid "Could not import file \"%1$s\": %2$s"
+msgstr ""
+
+#, php-format
+msgid "Failed to remove file %s"
+msgstr ""
+
 #: models/CsvImport/File.php:99
 msgid "Please ensure that all column names are unique."
 msgstr ""
@@ -66,7 +170,7 @@ msgid ""
 "expected number of columns for each row."
 msgstr ""
 
-#: CsvImportPlugin.php:274 views/admin/index/index.php:2
+#: CsvImportPlugin.php:282 views/admin/index/index.php:2
 #: views/admin/index/map-columns.php:2 views/admin/index/logs.php:1
 #: views/admin/index/browse.php:2
 msgid "CSV Import"
@@ -320,7 +424,19 @@ msgstr ""
 msgid "Logs for import #%s"
 msgstr ""
 
-#: views/admin/index/logs.php:73
+#: views/admin/index/logs.php:14
+msgid "Time"
+msgstr ""
+
+#: views/admin/index/logs.php:15
+msgid "Priority"
+msgstr ""
+
+#: views/admin/index/logs.php:16
+msgid "Message"
+msgstr ""
+
+#: views/admin/index/logs.php:82
 msgid "You have no logs yet."
 msgstr ""
 

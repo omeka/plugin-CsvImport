@@ -7,4 +7,5 @@ class CsvImport_Log extends Omeka_Record_AbstractRecord
     public $priority;
     public $created;
     public $message;
+    public $params;
 }
