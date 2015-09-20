@@ -142,6 +142,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
                 `priority` tinyint unsigned NOT NULL,
                 `created` timestamp DEFAULT CURRENT_TIMESTAMP,
                 `message` text NOT NULL,
+                `params` text DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 KEY (`import_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -185,8 +186,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
-        }   
-        
+        }
+
         if(version_compare($oldVersion, '2.0.1', '<=')) {
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
                     CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
