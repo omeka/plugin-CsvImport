@@ -67,6 +67,11 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->itemTypeId = $form->getValue('item_type_id');
         $this->session->itemsArePublic = $form->getValue('items_are_public');
         $this->session->itemsAreFeatured = $form->getValue('items_are_featured');
+        $this->session->removeLocalFiles = $form->getValue('remove_local_files');
+        $this->session->identifierElementIds = $form->getValue('identifier_element_ids');
+        if (!isset($this->session->identifierElementIds)) {
+            $this->session->identifierElementIds = array();
+        }
         $this->session->collectionId = $form->getValue('collection_id');
 
         $this->session->automapColumnNamesToElements = $form->getValue('automap_columns_names_to_elements');
@@ -287,6 +292,16 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->_helper->redirector->goto('browse');
     }
 
+    public function logsAction()
+    {
+        $db = $this->_helper->db;
+        $csvImport = $db->findById();
+        $logs = $db->getTable('CsvImport_Log')->findByImportId($csvImport->id);
+
+        $this->view->csvImport = $csvImport;
+        $this->view->logs = $logs;
+    }
+
     /**
      * Clear the import history.
      */
@@ -349,6 +364,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     {
         $requiredKeys = array('itemsArePublic',
                               'itemsAreFeatured',
+                              'removeLocalFiles',
+                              'identifierElementIds',
                               'collectionId',
                               'itemTypeId',
                               'ownerId');

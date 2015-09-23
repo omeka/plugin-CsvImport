@@ -1,142 +1,165 @@
 # Translation for the Csv Import plugin for Omeka.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the Omeka package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Translators:
+# fiuzzy <fiuzzy1@gmail.com>, 2015
+# Isabelle Gilles <isabelle.gillesgallet@gmail.com>, 2015
+# Stéphane Loret Sdj <stephane.loret@univ-nantes.fr>, 2015
+# symac <wikitipiac@laposte.net>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version: CsvImport\n"
+"Project-Id-Version: Omeka\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2015-04-14 19:40+0000\n"
+"Last-Translator: Isabelle Gilles <isabelle.gillesgallet@gmail.com>\n"
+"Language-Team: French (http://www.transifex.com/omeka/omeka/language/fr/)\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 msgid "Import Items"
-msgstr ""
+msgstr "Importer les contenus"
 
 #: views/admin/index/browse.php:6 views/admin/index/browse.php:19
 msgid "Status"
-msgstr ""
+msgstr "Statut"
 
 msgid "Queued"
-msgstr ""
+msgstr "En attente"
 
 msgid "In Progress"
-msgstr ""
+msgstr "En cours"
 
 msgid "Completed"
-msgstr ""
+msgstr "Terminé"
 
 msgid "Queued Undo"
-msgstr ""
+msgstr "Annulations en attente"
 
 msgid "Undo In Progress"
-msgstr ""
+msgstr "Annulations en cours"
 
 msgid "Completed Undo"
-msgstr ""
+msgstr "Annulations terminées"
 
 msgid "Import Error"
-msgstr ""
+msgstr "Erreur d'importation"
 
 msgid "Undo Import Error"
-msgstr ""
+msgstr "Erreur d'annulation"
 
 msgid "Other Error"
-msgstr ""
+msgstr "Autres erreurs"
 
 msgid "Stopped"
-msgstr ""
+msgstr "Arrêté"
 
 msgid "Paused"
-msgstr ""
+msgstr "En pause"
 
 msgid "Started import."
-msgstr ""
+msgstr "Import démarré."
 
 msgid "Cannot complete an import that is already completed."
-msgstr ""
+msgstr "Impossible de terminer un import déjà terminé."
 
 #, php-format
 msgid "Completed importing %1$s items (skipped %2$s items, %3$s rows)."
 msgstr ""
+"Import terminé: %1$s contenus importés (ignorés: %2$s contenus et %3$s lignes)."
 
 msgid "Cannot complete an undo import that is already undone."
-msgstr ""
+msgstr "Impossible de terminer l'annulation d'un import déjà annulé."
 
 msgid "Completed undoing the import."
-msgstr ""
+msgstr "Annulations de l'import terminées"
 
 msgid "Cannot resume an import or undo import that has not been queued."
 msgstr ""
+"Impossible de reprendre ou d'annuler un import qui n'a pas été mis en "
+"file d'attente."
 
 msgid "Resumed import."
-msgstr ""
+msgstr "Import repris."
 
 msgid "Resumed undo import."
-msgstr ""
+msgstr "Annulation d'import reprise."
 
 msgid "Stopped import or undo import due to error."
-msgstr ""
+msgstr "Import ou annulation d'import arrêté pour cause d'erreur."
 
 #, php-format
 msgid "Stopped import or undo import due to error: %s"
-msgstr ""
+msgstr "Import ou annulation d'import arrêté pour cause d'erreur: %s"
 
 msgid "Cannot queue an import that has an error."
 msgstr ""
+"Impossible de mettre en file d'attente un import qui a une erreur."
 
 msgid "Cannot queue an import that has been stopped."
 msgstr ""
+"Impossible de mettre en file d'attente un import qui a été arrêté."
 
 msgid "Cannot queue an import that has been completed."
 msgstr ""
+"Impossible de mettre en file d'attente un import qui a été terminé."
 
 msgid "Cannot queue an import that has been undone."
 msgstr ""
+"Impossible de mettre en file d'attente un import qui a été annulé."
 
 msgid "Queued import."
-msgstr ""
+msgstr "Import mis en file d'attente."
 
 msgid "Cannot queue an undo import that has an undo import error."
 msgstr ""
+"Impossible de mettre en file d'attente un import qui a une erreur "
+"d'annulation."
 
 msgid "Cannot queue an undo import that has an error."
 msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a une erreur"
 
 msgid "Cannot queue an undo import that has been stopped."
 msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a été arrêtée."
 
 msgid "Cannot queue an undo import that has been undone."
 msgstr ""
+"Impossible de mettre en file d'attente une annulation d'import qui "
+"a été annulée."
 
 msgid "Queued undo import."
-msgstr ""
+msgstr "Annulations en file d'attente"
 
 msgid "Started undo import."
-msgstr ""
+msgstr "Annulation d'import démarrée."
 
 #, php-format
 msgid "Running item import loop. Memory usage: %s"
-msgstr ""
+msgstr "Lancement de la boucle d'import. Utilisation de la mémoire: %s"
 
 #, php-format
 msgid "Skipped item on row #%s"
-msgstr ""
+msgstr "Contenus ignorés à la ligne #%s"
 
 #, php-format
 msgid "Completed importing batch of %1$s items. Memory usage %2$s"
 msgstr ""
+"Import d'un lot de %1$s contenus terminé. Utilisation de la mémoire: %2$s"
 
 #, php-format
 msgid ""
 "Completed undoing the import of a batch of %1$s items. Memory usage: %2$s"
 msgstr ""
+"Annulation de l'import d'un lot de %1$s contenus terminée. "
+"Utilisation de la mémoire! %2$s"
 
 #, php-format
 msgid "Found similar items: %s"
@@ -147,66 +170,74 @@ msgid ""
 "Identifier Element Texts:\n"
 "%s"
 msgstr ""
+"Textes des éléments identifiants\n"
+"%s"
 
 #, php-format
 msgid "Invalid file URL \"%1$s\": %2$s"
-msgstr ""
+msgstr "URL du fichier invalide \"%1$s\": %2$s"
 
 #, php-format
 msgid "Could not import file \"%1$s\": %2$s"
-msgstr ""
+msgstr "Impossible d'importer le fichier \"%1$s\": %2$s"
 
 #, php-format
 msgid "Failed to remove file %s"
-msgstr ""
+msgstr "Suppression du fichier %s echouée"
 
 #: models/CsvImport/File.php:99
 msgid "Please ensure that all column names are unique."
-msgstr ""
+msgstr "Veuillez vous assurer que chaque nom de colonne est unique. "
 
 #: models/CsvImport/File.php:103
 msgid ""
 "Please ensure that the CSV file is formatted correctly and contains the "
 "expected number of columns for each row."
 msgstr ""
+"Veuillez vous assurer que le fichier CSV est correctement formé et qu'il "
+"contient le nombre de colonnes attendues pour chaque contenu."
 
 #: CsvImportPlugin.php:282 views/admin/index/index.php:2
 #: views/admin/index/map-columns.php:2 views/admin/index/logs.php:1
 #: views/admin/index/browse.php:2
 msgid "CSV Import"
-msgstr ""
+msgstr "CSV Import"
 
 #: controllers/IndexController.php:36
 msgid "Invalid form input. Please see errors below and try again."
 msgstr ""
+"Formulaire non valide. Prenez connaissance des erreurs et essayez à nouveau."
 
 #: controllers/IndexController.php:41
 msgid "Error uploading file. Please try again."
-msgstr ""
+msgstr "Chargement du fichier impossible. Merci d'essayer à nouveau."
 
 #: controllers/IndexController.php:51
 msgid "Your file is incorrectly formatted."
-msgstr ""
+msgstr "Votre fichier n'est pas formaté correctement."
 
 #: controllers/IndexController.php:100
 msgid "Import settings expired. Please try again."
-msgstr ""
+msgstr "Les paramètres d'importation ont expiré. Merci de réessayer."
 
 #: controllers/IndexController.php:121
 msgid "Invalid form input. Please try again."
-msgstr ""
+msgstr "Formulaire non valide. Merci d'essayer à nouveau."
 
 #: controllers/IndexController.php:127
 msgid "Please map at least one column to an element, file, or tag."
 msgstr ""
+"Veuillez créer l'équivalence pour une colonne au moins vers un élément, "
+"fichier ou mot-clé."
 
 #: controllers/IndexController.php:141 controllers/IndexController.php:259
 msgid "Import started. Reload this page for status updates."
-msgstr ""
+msgstr "Import démarré. Recharger cette page pour une mise à jour du statut."
 
 #: controllers/IndexController.php:143 controllers/IndexController.php:261
 msgid "Import could not be started. Please check error logs for more details."
 msgstr ""
+"L'import n'a pas démarré. Consultez les logs d'import pour plus de détails."
 
 #: controllers/IndexController.php:179
 #, php-format
@@ -214,100 +245,111 @@ msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
 msgstr ""
+"Nom de colonne non valide. Les noms de colonne doivent être parmi : %s, ou "
+"avoir le format suivant : {ElementSetName}:{ElementName}"
 
 #: controllers/IndexController.php:195
 #, php-format
 msgid "Element \"%s\" is not found in element set \"%s\""
-msgstr ""
+msgstr "L'élément \"%s\" n'appartient pas au jeu d'éléments \"%s\""
 
 #: controllers/IndexController.php:287
 msgid "Undo import started. Reload this page for status updates."
 msgstr ""
+"Annulation d'import démarrée. Recharger cette page pour une mise à jour du "
+"statut."
 
 #: controllers/IndexController.php:289
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
 msgstr ""
+"L'annulation d'import n'a pas démarré. Consultez les logs d'import pour plus "
+"de détails."
 
 #: controllers/IndexController.php:318
 msgid "Cleared import from the history."
-msgstr ""
+msgstr "Historique effacé"
 
 #: controllers/IndexController.php:320
 msgid "Cannot clear import history."
-msgstr ""
+msgstr "Impossible d'effacer l'historique."
 
 #: forms/Mapping.php:56
 msgid "Import CSV File"
-msgstr ""
+msgstr "Importer un fichier CSV"
 
 #: forms/Main.php:36 forms/Main.php:50
 msgid "Select Item Type"
-msgstr ""
+msgstr "Choisir le type de contenu"
 
 #: forms/Main.php:39
 msgid "Use an export from Omeka CSV Report"
-msgstr ""
+msgstr "Utiliser un export de CSV Report."
 
 #: forms/Main.php:40
 msgid "Selecting this will override the options below."
-msgstr ""
+msgstr "Sélectionner ceci remplacera les options ci-dessous."
 
 #: forms/Main.php:44
 msgid "Automap Column Names to Elements"
-msgstr ""
+msgstr "Aligner automatiquement les noms de colonnes avec les éléments."
 
 #: forms/Main.php:45
 msgid ""
 "Automatically maps columns to elements based on their column names. The "
 "column name must be in the form: <br/> {ElementSetName}:{ElementName}"
 msgstr ""
+"Aligner automatiquement les noms de colonnes avec les éléments en fonction "
+"des titres de colonnes. Les noms de colonne doivent être de la forme : <br/> "
+"{ElementSetName}:{ElementName}"
 
 #: forms/Main.php:54 forms/Main.php:57
 msgid "Select Collection"
-msgstr ""
+msgstr "Choisir la collection"
 
 #: forms/Main.php:61
 msgid "Make All Items Public?"
-msgstr ""
+msgstr "Rendre tous les contenus publics ?"
 
 #: forms/Main.php:64
 msgid "Feature All Items?"
-msgstr ""
+msgstr "Mettre en avant tous les contenus ?"
 
 #: forms/Main.php:67
 msgid "Remove local files after successful import?"
-msgstr ""
+msgstr "Supprimer les fichiers locaux après un import réussi?"
 
 #: forms/Main.php:81
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 #: forms/Main.php:124
 msgid "Choose Identifier Elements"
-msgstr ""
+msgstr "Sélectionnez les éléments identifiants"
 
 #: forms/Main.php:125
 msgid ""
 "Those elements will be compared to detect if an item already exists in "
 "database. If an item already exists, it will be skipped."
 msgstr ""
+"Ces éléments seront comparés pour détecter is un contenu existe déjà dans la "
+"base de données. Si un contenu existe déjà, il sera sauté."
 
 #: forms/Main.php:142
 msgid "comma"
-msgstr ""
+msgstr "virgule"
 
 #: forms/Main.php:145
 msgid "semi-colon"
-msgstr ""
+msgstr "point-virgule"
 
 #: forms/Main.php:148
 msgid "empty"
-msgstr ""
+msgstr "vide"
 
 #: forms/Main.php:162
 msgid "Choose Column Delimiter"
-msgstr ""
+msgstr "Choisir le délimiteur de colonne"
 
 #: forms/Main.php:163
 #, php-format
@@ -315,14 +357,18 @@ msgid ""
 "A single character that will be used to separate columns in the file (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
 msgstr ""
+"Un caractère unique sera utilisé comme séparateur de colonnes dans le "
+"fichier (%s par défaut). Veuillez noter que les espaces, tabulations et "
+"caractères vides ne sont pas acceptés."
 
 #: forms/Main.php:174 forms/Main.php:182 forms/Main.php:184
 msgid "Column delimiter cannot be whitespace and must be one character long."
 msgstr ""
+"Le délimiteur de colonnes ne peut être vide et doit contenir un caractère."
 
 #: forms/Main.php:199
 msgid "Choose File Delimiter"
-msgstr ""
+msgstr "Choisir le délimiteur de fichier."
 
 #: forms/Main.php:200
 #, php-format
@@ -332,15 +378,21 @@ msgid ""
 "used as the file path or URL. Note that spaces, tabs, and other whitespace "
 "are not accepted."
 msgstr ""
+"Un caractère unique sera utilisé pour séparer les chemins vers les fichiers "
+"ou leurs URLs à l'intérieur d'une cellule (%s par défaut). Si le délimiteur "
+"est vide, la cellule entière sera utilisée comme chemin de fichier ou URL. "
+"Veuillez noter que les espaces, tabulations et caractères vides ne sont pas "
+"acceptés."
 
 #: forms/Main.php:212 forms/Main.php:221 forms/Main.php:223
 msgid ""
 "File delimiter cannot be whitespace, and must be empty or one character long."
 msgstr ""
+"Le délimiteur de fichier ne peut être vide et doit contenir un caractère."
 
 #: forms/Main.php:238
 msgid "Choose Tag Delimiter"
-msgstr ""
+msgstr "Choisir un délimiteur pour les mots clé"
 
 #: forms/Main.php:239
 #, php-format
@@ -348,14 +400,18 @@ msgid ""
 "A single character that will be used to separate tags within a cell (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
 msgstr ""
+"Un caractère unique sera utilisé pour séparer les mots clé à l'intérieur "
+"d'une cellule (%s par défaut). Veuillez noter que les espaces, tabulations "
+"et caractères vides ne sont pas acceptés."
 
 #: forms/Main.php:250 forms/Main.php:258 forms/Main.php:260
 msgid "Tag delimiter cannot be whitespace and must be one character long."
 msgstr ""
+"Le délimiteur de mot clé ne peut être vide et doit contenir un caractère."
 
 #: forms/Main.php:275
 msgid "Choose Element Delimiter"
-msgstr ""
+msgstr "Choisir un délimiteur pour les contenus."
 
 #: forms/Main.php:276
 #, php-format
@@ -365,21 +421,26 @@ msgid ""
 "used as the element text. Note that spaces, tabs, and other whitespace are "
 "not accepted."
 msgstr ""
+"Un caractère unique sera utilisé pour séparer les métadonnées à l'intérieur "
+"d'une cellule (%s par défaut). Si le délimiteur est vide, la cellule entière "
+"sera utilisée comme texte pour l'enregistrement. Veuillez noter que les "
+"espaces, tabulations et caractères vides ne sont pas acceptés."
 
 #: forms/Main.php:288 forms/Main.php:297 forms/Main.php:299
 msgid ""
 "Element delimiter cannot be whitespace, and must be empty or one character "
 "long."
 msgstr ""
+"Le délimiteur de contenus ne peut être vide et doit contenir un caractère."
 
 #: forms/Main.php:333
 msgid "Upload CSV File"
-msgstr ""
+msgstr "Charger un fichier CSV"
 
 #: forms/Main.php:337
 #, php-format
 msgid "Maximum file size is %s."
-msgstr ""
+msgstr "La taille maximale du fichier est de %s."
 
 #: forms/Main.php:351
 #, php-format
@@ -387,15 +448,19 @@ msgid ""
 "The file you have uploaded exceeds the maximum post size allowed by the "
 "server. Please upload a file smaller than %s."
 msgstr ""
+"Le fichier téléchargé dépasse la limite imposée par le serveur. Veuillez "
+"charger un fichier de moins de %s."
 
 #: views/admin/index/check-omeka-csv.php:2
 msgid "CSV Import Errors"
-msgstr ""
+msgstr "Erreur d'importation CSV"
 
 #: views/admin/index/check-omeka-csv.php:7
 msgid ""
 "The following problems were found with your CSV file and Omeka installation."
 msgstr ""
+"Les problèmes suivants ont été détectés dans votre fichier CSV et votre "
+"instance d'Omeka."
 
 #: views/admin/index/check-omeka-csv.php:10
 msgid ""
@@ -406,100 +471,105 @@ msgid ""
 "    installed, or you created custom item type elements in Omeka.net, but "
 "have not yet created them here."
 msgstr ""
+"D'habitude, l'erreur est causée par des contenus sur votre site hébergé sur "
+"Omeka.net qui n'ont pas d'équivalent sur cette instance d'Omeka. Soit "
+"l'extension Dublin Core Extended n'est pas installée, soit vous avez défini "
+"des types de contenus personnalisés sur votre site Omeka.net qui n'existent "
+"pas encore sur cette instance."
 
 #: views/admin/index/check-omeka-csv.php:14
 msgid "Please correct the errors, then try your import again."
-msgstr ""
+msgstr "Veuillez retenter l'import après avoir corrigé les erreurs."
 
 #: views/admin/index/index.php:7
 msgid "Step 1: Select File and Item Settings"
-msgstr ""
+msgstr "Étape 1 : Choix du fichier et Paramètres des enregistrements"
 
 #: views/admin/index/map-columns.php:6
 msgid "Step 2: Map Columns To Elements, Tags, or Files"
-msgstr ""
+msgstr "Étape 2 : Relier les colonnes aux éléments, mots clé ou fichiers"
 
 #: views/admin/index/logs.php:6
 #, php-format
 msgid "Logs for import #%s"
-msgstr ""
+msgstr "Logs pour l'import #%s"
 
 #: views/admin/index/logs.php:14
 msgid "Time"
-msgstr ""
+msgstr "Temps"
 
 #: views/admin/index/logs.php:15
 msgid "Priority"
-msgstr ""
+msgstr "Priorité"
 
 #: views/admin/index/logs.php:16
 msgid "Message"
-msgstr ""
+msgstr "Message"
 
 #: views/admin/index/logs.php:82
 msgid "You have no logs yet."
-msgstr ""
+msgstr "Vous n'avez encore aucun log."
 
 #: views/admin/index/map-columns-form.php:9
 msgid "Column"
-msgstr ""
+msgstr "Colonne"
 
 #: views/admin/index/map-columns-form.php:10
 msgid "Example from CSV File"
-msgstr ""
+msgstr "Exemple depuis un fichier CSV"
 
 #: views/admin/index/map-columns-form.php:11
 msgid "Map To Element"
-msgstr ""
+msgstr "Relier à l'élément"
 
 #: views/admin/index/map-columns-form.php:12
 msgid "Use HTML?"
-msgstr ""
+msgstr "Utiliser HTML ?"
 
 #: views/admin/index/map-columns-form.php:13
 msgid "Tags?"
-msgstr ""
+msgstr "Mots clé ?"
 
 #: views/admin/index/map-columns-form.php:14
 msgid "Files?"
-msgstr ""
+msgstr "Fichiers ?"
 
 #: views/admin/index/browse.php:14
 msgid "Import Date"
-msgstr ""
+msgstr "Date de l'import"
 
 #: views/admin/index/browse.php:15
 msgid "CSV File"
-msgstr ""
+msgstr "Fichier CSV"
 
 #: views/admin/index/browse.php:16
 msgid "Imported Items"
-msgstr ""
+msgstr "Contenus importés"
 
 #: views/admin/index/browse.php:17
 msgid "Skipped Items"
-msgstr ""
+msgstr "Contenus ignorés"
 
 #: views/admin/index/browse.php:18
 msgid "Skipped Rows"
-msgstr ""
+msgstr "Lignes ignorées"
 
 #: views/admin/index/browse.php:20
 msgid "Action"
-msgstr ""
+msgstr "Action"
 
 #: views/admin/index/browse.php:53
 msgid "Undo Import"
-msgstr ""
+msgstr "Annuler l'import"
 
 #: views/admin/index/browse.php:55
 msgid "Logs"
-msgstr ""
+msgstr "Logs"
 
 #: views/admin/index/browse.php:67
 msgid "Clear History"
-msgstr ""
+msgstr "Effacer l'historique"
 
 #: views/admin/index/browse.php:77
 msgid "You have no imports yet."
-msgstr ""
+msgstr "Vous n'avez encore aucun import."

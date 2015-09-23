@@ -52,11 +52,20 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
             $texts = explode($this->_elementDelimiter, $text);
         }
         foreach($texts as $text) {
-            $result[] = array(
-                'element_id' => $this->_elementId,
-                'html' => $this->_isHtml ? 1 : 0,
-                'text' => $text,
-            );
+            if (is_callable('element_types_format')) {
+                $formattedText = element_types_format($this->_elementId, $text);
+                if (!$formattedText) {
+                    _log("Cannot format '$text' for element {$this->_elementId}", Zend_Log::WARN);
+                }
+                $text = $formattedText;
+            }
+            if ($text) {
+                $result[] = array(
+                    'element_id' => $this->_elementId,
+                    'html' => $this->_isHtml ? 1 : 0,
+                    'text' => $text,
+                );
+            }
         }
         return $result;
     }

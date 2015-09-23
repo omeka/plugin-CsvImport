@@ -11,7 +11,7 @@
         <thead>
             <tr>                
                 <?php
-                $browseHeadings[__('Import Date')] = 'added';
+                $browseHeadings[__('Import date / Log')] = 'added';
                 $browseHeadings[__('CSV File')] = 'original_filename';
                 $browseHeadings[__('Imported Items')] = null;
                 $browseHeadings[__('Skipped Items')] = 'skipped_item_count';
@@ -25,9 +25,22 @@
         <tbody>            
             <?php $key = 0; ?>
             <?php foreach (loop('CsvImport_Import') as $csvImport): ?>
-            <tr class="<?php if(++$key%2==1) echo 'odd'; else echo 'even'; ?>">
-            
-                <td><?php echo html_escape(format_date($csvImport->added, Zend_Date::DATETIME_SHORT)); ?></td>
+            <tr class="<?php if (++$key%2 == 1) echo 'odd'; else echo 'even'; ?>">
+                <td>
+                    <?php
+                        $importDate = html_escape(format_date($csvImport->added, Zend_Date::DATETIME_SHORT));
+                        $logs = get_db()->getTable('CsvImport_Log')->findByImportId($csvImport->id);
+                        if (empty($logs)):
+                            echo $importDate;
+                        else:
+                            $logsUrl = $this->url(array(
+                                'action' => 'logs',
+                                'id' => $csvImport->id
+                            ), 'default');
+                        ?>
+                    <a href="<?php echo html_escape($logsUrl);  ?>" class="csv-logs delete-button"><?php echo $importDate; ?></a>
+                    <?php endif; ?>
+                </td>
                 <td><?php echo html_escape($csvImport->original_filename); ?></td>
                 
                 <?php $importedItemCount = $csvImport->getImportedItemCount(); ?>
@@ -43,10 +56,10 @@
                     <?php 
                     $undoImportUrl = $this->url(array('action' => 'undo-import',
                                                       'id' => $csvImport->id),
-                                                      'default'); 
+                                                      'default');
                     ?>
                     <td>
-                        <a href="<?php echo html_escape($undoImportUrl);  ?>" class="csv-undo-import delete-button"><?php echo html_escape(__('Undo Import')); ?></a>
+                        <a href="<?php echo html_escape($undoImportUrl); ?>" class="csv-undo-import delete-button"><?php echo html_escape(__('Undo Import')); ?></a>
                     </td>
                 <?php elseif ($csvImport->isUndone() || 
                               $csvImport->isUndoImportError() || 

@@ -118,7 +118,9 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `skipped_item_count` int(10) unsigned NOT NULL,
            `is_public` tinyint(1) default '0',
            `is_featured` tinyint(1) default '0',
+           `remove_local_files` tinyint(1) default '0',
            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
+           `serialized_identifier_element_ids` TEXT,
            `added` timestamp NOT NULL default '0000-00-00 00:00:00',
            PRIMARY KEY  (`id`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
@@ -132,6 +134,19 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
           KEY (`import_id`),
           UNIQUE (`item_id`)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
+
+        $db->query("
+            CREATE TABLE IF NOT EXISTS `{$db->CsvImport_Log}` (
+                `id` int(10) unsigned NOT NULL auto_increment,
+                `import_id` int(10) unsigned NOT NULL,
+                `priority` tinyint unsigned NOT NULL,
+                `created` timestamp DEFAULT CURRENT_TIMESTAMP,
+                `message` text NOT NULL,
+                `params` text DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                KEY (`import_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+        ");
 
         $this->_installOptions();
     }
@@ -171,11 +186,48 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
             set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
             set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
-        }   
-        
+        }
+
         if(version_compare($oldVersion, '2.0.1', '<=')) {
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
                     CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
+            ";
+            $db->query($sql);
+        }
+
+        if(version_compare($oldVersion, '2.0.3', '<=')) {
+            $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` ADD `remove_local_files` TINYINT( 1 ) DEFAULT 0 AFTER is_featured";
+            $db->query($sql);
+        }
+
+        if(version_compare($oldVersion, '2.0.4', '<=')) {
+            $sql = "
+                ALTER TABLE `{$db->prefix}csv_import_imports`
+                ADD `serialized_identifier_element_ids` TEXT
+                    AFTER serialized_column_maps
+            ";
+            $db->query($sql);
+        }
+
+        if (version_compare($oldVersion, '2.0.5', '<=')) {
+            $sql = "
+                CREATE TABLE IF NOT EXISTS `{$db->CsvImport_Log}` (
+                    `id` int(10) unsigned NOT NULL auto_increment,
+                    `import_id` int(10) unsigned NOT NULL,
+                    `priority` tinyint unsigned NOT NULL,
+                    `created` timestamp DEFAULT CURRENT_TIMESTAMP,
+                    `message` text NOT NULL,
+                    PRIMARY KEY (`id`),
+                    KEY (`import_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+            ";
+            $db->query($sql);
+        }
+
+        if (version_compare($oldVersion, '2.0.6', '<=')) {
+            $sql = "
+                ALTER TABLE `{$db->CsvImport_Log}`
+                ADD COLUMN `params` text DEFAULT NULL
             ";
             $db->query($sql);
         }

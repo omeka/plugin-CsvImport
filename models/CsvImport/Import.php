@@ -36,6 +36,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $delimiter; // the column delimiter
     public $is_public;
     public $is_featured;
+    public $remove_local_files;
+    public $serialized_identifier_element_ids;
     public $skipped_row_count = 0;
     public $skipped_item_count = 0;
     public $status;
@@ -44,6 +46,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     private $_csvFile;
     private $_isOmekaExport;
     private $_importedCount = 0;
+    private $_identifier_element_ids;
 
     /**
      * Batch importing is not enabled by default.
@@ -83,6 +86,22 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $booleanFilter = new Omeka_Filter_Boolean;
         $this->is_featured = $booleanFilter->filter($flag);
+    }
+
+    public function setIdentifierElementIds($element_ids)
+    {
+        $this->_identifier_element_ids = $element_ids;
+    }
+
+    /**
+     * Sets whether the local files should be removed or not
+     *
+     * @param mixed $flag A boolean representation
+     */
+    public function setRemoveLocalFiles($flag)
+    {
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->remove_local_files = $booleanFilter->filter($flag);
     }
 
     /**
@@ -216,6 +235,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function beforeSave($args)
     {
         $this->serialized_column_maps = serialize($this->getColumnMaps());
+        $this->serialized_identifier_element_ids = serialize($this->getIdentifierElementIds());
     }
 
     /**
@@ -351,8 +371,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
         $this->status = self::COMPLETED;
         $this->save();
-        $this->_log("Completed importing $this->_importedCount items (skipped "
-            . "$this->skipped_row_count rows).");
+        $this->_log('Completed importing %1$s items (skipped %2$s items, %3$s rows).',
+            array($this->_importedCount, $this->skipped_item_count, $this->skipped_row_count));
         return true;
     }
 
@@ -422,14 +442,16 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
         // The import or undo import loop was prematurely stopped
         $logMsg = "Stopped import or undo import due to error";
+        $logParams = array();
         if ($error = error_get_last()) {
-            $logMsg .= ": " . $error['message'];
+            $logMsg .= ": %s";
+            $logParams[] = $error['message'];
         } else {
             $logMsg .= '.';
         }
         $this->status = self::STOPPED;
         $this->save();
-        $this->_log($logMsg, Zend_Log::ERR);
+        $this->_log($logMsg, $logParams, Zend_Log::ERR);
         return true; // stopped with an error
     }
 
@@ -549,6 +571,15 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         return $this->_columnMaps;
     }
 
+    public function getIdentifierElementIds()
+    {
+        if ($this->_identifier_element_ids === null) {
+            $this->_identifier_element_ids
+                = unserialize($this->serialized_identifier_element_ids);
+        }
+        return $this->_identifier_element_ids;
+    }
+
     /**
      * Returns the number of items currently imported.  If a user undoes an import,
      * this number decreases to the number of items left to remove.
@@ -580,7 +611,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $rows->seek($startAt);
             }
             $rows->skipInvalidRows(true);
-            $this->_log("Running item import loop. Memory usage: %memory%");
+            $this->_log("Running item import loop. Memory usage: %s",
+                array(memory_get_usage()));
             while ($rows->valid()) {
                 $row = $rows->current();
                 $index = $rows->key();
@@ -589,12 +621,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     release_object($item);
                 } else {
                     $this->skipped_item_count++;
-                    $this->_log("Skipped item on row #{$index}.", Zend_Log::WARN);
+                    $this->_log("Skipped item on row #%s", array($index), Zend_Log::WARN);
                 }
                 $this->file_position = $this->getCsvFile()->getIterator()->tell();
                 if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
-                    $this->_log("Completed importing batch of $this->_batchSize "
-                        . "items. Memory usage: %memory%");
+                    $this->_log('Completed importing batch of %1$s items. Memory usage %2$s', array($this->_batchSize, memory_get_usage()));
                     return $this->queue();
                 }
                 $rows->next();
@@ -608,7 +639,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         } catch (Exception $e) {
             $this->status = self::IMPORT_ERROR;
             $this->save();
-            $this->_log($e, Zend_Log::ERR);
+            $this->_log($e, array(), Zend_Log::ERR);
             throw $e;
         }
     }
@@ -648,8 +679,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     if ($batchSize > 0 && $deletedItemCount == $batchSize) {
                         $inClause = 'IN (' . join(', ', $deletedItemIds) . ')';
                         $db->delete($db->CsvImport_ImportedItem, "`item_id` $inClause");
-                        $this->_log("Completed undoing the import of a batch of $batchSize "
-                            . "items. Memory usage: %memory%");
+                        $this->_log('Completed undoing the import of a batch of %1$s items. Memory usage: %2$s', array($batchSize, memory_get_usage()));
                         return $this->queueUndo();
                     }
                 }
@@ -665,9 +695,27 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         } catch (Exception $e) {
             $this->status = self::UNDO_IMPORT_ERROR;
             $this->save();
-            $this->_log($e, Zend_Log::ERR);
+            $this->_log($e, array(), Zend_Log::ERR);
             throw $e;
         }
+    }
+
+    protected function _findItemsByElementTexts($elementTexts)
+    {
+        if (!$elementTexts) {
+            return array();
+        }
+
+        $db = $this->getDb();
+        $select = $db->select()->from(array('i' => $db->Item), array('item_id' => 'id'));
+        foreach ($elementTexts as $elementText) {
+            $element_id = $elementText['element_id'];
+            $select->joinLeft(array("et_$element_id" => $db->ElementText),
+                "i.id = et_{$element_id}.record_id AND et_{$element_id}.record_type = 'Item' AND et_{$element_id}.element_id = {$element_id}");
+            $select->where("et_{$element_id}.text = ?", $elementText['text']);
+        }
+        $items = $db->fetchCol($select);
+        return $items;
     }
 
     /**
@@ -703,37 +751,68 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
+
+        $identifier_element_ids = $this->getIdentifierElementIds();
+        $identifierElementTexts = array_filter($elementTexts, function ($e) use ($identifier_element_ids) {
+            return in_array($e['element_id'], $identifier_element_ids);
+        });
+        $existing_items = $this->_findItemsByElementTexts($identifierElementTexts);
+        if ($existing_items) {
+            $this->_log("Found similar items: %s", array(implode(", ", $existing_items)), Zend_Log::WARN);
+            $this->_log("Identifier Element Texts:\n%s", array(var_export($identifierElementTexts, true)), Zend_Log::WARN);
+            return false;
+        }
+
         try {
             $item = insert_item($itemMetadata, $elementTexts);
         } catch (Omeka_Validator_Exception $e) {
-            $this->_log($e, Zend_Log::ERR);
+            $this->_log($e, array(), Zend_Log::ERR);
             return false;
         } catch (Omeka_Record_Builder_Exception $e) {
-            $this->_log($e, Zend_Log::ERR);
+            $this->_log($e, array(), Zend_Log::ERR);
             return false;
         }
 
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
         foreach ($fileUrls as $url) {
-            try {
-                $file = insert_files_for_item($item, 'Url', $url,
-                    array('ignore_invalid_files' => false));
-            } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Invalid file URL '$url': "
-                     . $e->getMessage();
-                $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
-                release_object($item);
-                return false;
-            } catch (Omeka_File_Ingest_Exception $e) {
-                $msg = "Could not import file '$url': "
-                     . $e->getMessage();
-                $this->_log($msg, Zend_Log::ERR);
+            $successfulTransferStrategy = null;
+            $logMsg = null;
+            $logParams = array();
+            foreach (array('Url', 'Filesystem') as $transferStrategy) {
+                try {
+                    $file = insert_files_for_item($item, $transferStrategy, $url,
+                        array('ignore_invalid_files' => false));
+                } catch (Omeka_File_Ingest_InvalidException $e) {
+                    $logMsg = 'Invalid file URL "%1$s": %2$s';
+                    $logParams = array($url, $e->getMessage());
+                    continue;
+                } catch (Omeka_File_Ingest_Exception $e) {
+                    $logMsg = 'Could not import file "%1$s": %2$s';
+                    $logParams = array($url, $e->getMessage());
+                    continue;
+                }
+                $successfulTransferStrategy = $transferStrategy;
+                break;
+            }
+            if (!isset($file)) {
+                $this->_log($logMsg, $logParams, Zend_Log::ERR);
                 $item->delete();
                 release_object($item);
                 return false;
             }
             release_object($file);
+
+            if ($successfulTransferStrategy === 'Filesystem') {
+                $localFiles []= $url;
+            }
+        }
+
+        if ($this->remove_local_files) {
+            foreach ($localFiles as $localFile) {
+                if(!unlink($localFile)) {
+                    $this->_log("Failed to remove file %s", array($localFile), Zend_Log::ERR);
+                }
+            }
         }
 
         // Makes it easy to unimport the item later.
@@ -760,15 +839,23 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     /**
      * Log an import message
      * Every message will log the import ID.
-     * Messages that have %memory% will include memory usage information.
      *
      * @param string $msg The message to log
+     * @param array $params Params to pass the translation function __()
      * @param int $priority The priority of the message
      */
-    protected function _log($msg, $priority = Zend_Log::DEBUG)
+    protected function _log($msg, $params = array(), $priority = Zend_Log::DEBUG)
     {
         $prefix = "[CsvImport][#{$this->id}]";
-        $msg = str_replace('%memory%', memory_get_usage(), $msg);
         _log("$prefix $msg", $priority);
+
+        $csvImportLog = new CsvImport_Log();
+        $csvImportLog->setArray(array(
+            'import_id' => $this->id,
+            'priority' => $priority,
+            'message' => $msg,
+            'params' => serialize($params),
+        ));
+        $csvImportLog->save();
     }
 }
