@@ -119,7 +119,7 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `is_public` tinyint(1) default '0',
            `is_featured` tinyint(1) default '0',
            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
-           `added` timestamp NOT NULL default '0000-00-00 00:00:00',
+           `added` timestamp NOT NULL default '2000-01-01 00:00:00',
            PRIMARY KEY  (`id`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
