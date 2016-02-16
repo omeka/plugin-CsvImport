@@ -373,13 +373,6 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
         $csvConfig = $this->_getPluginConfig();
 
-        $options = array(
-            'importId' => $csvImport->id,
-            'memoryLimit' => @$csvConfig['memoryLimit'],
-            'batchSize' => @$csvConfig['batchSize'],
-            'method' => $method,
-        );
-
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
         $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
         try {
