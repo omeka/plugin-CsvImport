@@ -1,0 +1,361 @@
+# Translation for the Csv Import plugin for Omeka.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Omeka package.
+# 
+# Translators:
+# dario hereñu <magallania@gmail.com>, 2015
+msgid ""
+msgstr ""
+"Project-Id-Version: Omeka\n"
+"Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
+"POT-Creation-Date: 2013-03-06 00:06+0900\n"
+"PO-Revision-Date: 2015-02-26 18:01+0000\n"
+"Last-Translator: dario hereñu <magallania@gmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/omeka/omeka/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Import Items"
+msgstr "Importar elementos"
+
+#: views/admin/index/browse.php:6 views/admin/index/browse.php:19
+msgid "Status"
+msgstr "Estado"
+
+msgid "Queued"
+msgstr "En cola"
+
+msgid "In Progress"
+msgstr "En curso"
+
+msgid "Completed"
+msgstr "Terminado"
+
+msgid "Queued Undo"
+msgstr "Deshacer en cola"
+
+msgid "Undo In Progress"
+msgstr "Deshacer en curso"
+
+msgid "Completed Undo"
+msgstr "Deshacer terminado"
+
+msgid "Import Error"
+msgstr "Importar error"
+
+msgid "Undo Import Error"
+msgstr "Deshacer importar error"
+
+msgid "Other Error"
+msgstr "Otro error"
+
+msgid "Stopped"
+msgstr "Detenido"
+
+msgid "Paused"
+msgstr "Pausado"
+
+#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
+#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+msgid "CSV Import"
+msgstr "Importar CSV"
+
+#: controllers/IndexController.php:36
+msgid "Invalid form input. Please see errors below and try again."
+msgstr "Entrada de formulario no válida. Por favor, vea los siguientes errores y vuelva a intentarlo."
+
+#: controllers/IndexController.php:41
+msgid "Error uploading file. Please try again."
+msgstr "Error cargando archivo. Por favor, inténtelo nuevamente."
+
+#: controllers/IndexController.php:51
+msgid "Your file is incorrectly formatted."
+msgstr "Su archivo tiene un formato incorrecto."
+
+#: controllers/IndexController.php:95
+msgid "Import settings expired. Please try again."
+msgstr "Configuración de importación concluido. Por favor, inténtelo nuevamente."
+
+#: controllers/IndexController.php:116
+msgid "Invalid form input. Please try again."
+msgstr "Entrada de formulario no válida. Por favor, vuelva a intentarlo."
+
+#: controllers/IndexController.php:122
+msgid "Please map at least one column to an element, file, or tag."
+msgstr "Por favor, asignar al menos una columna para un elemento, archivo o etiqueta."
+
+#: controllers/IndexController.php:136 controllers/IndexController.php:254
+msgid "Import started. Reload this page for status updates."
+msgstr "Importación iniciada. Actualice esta página para actualizar su estado."
+
+#: controllers/IndexController.php:138 controllers/IndexController.php:256
+msgid "Import could not be started. Please check error logs for more details."
+msgstr "Importación no se pudo iniciar. Por favor, compruebe los registros de error para obtener más detalles."
+
+#: controllers/IndexController.php:174
+#, php-format
+msgid ""
+"Invalid column names. Column names must either be one of the following %s, "
+"or have the following format: {ElementSetName}:{ElementName}"
+msgstr "Nombres de columna inválidos. Los nombres de columna deben ser uno de los siguientes %s o tener el siguiente formato: {ElementSetName}:{ElementName}"
+
+#: controllers/IndexController.php:190
+#, php-format
+msgid "Element \"%s\" is not found in element set \"%s\""
+msgstr "Elemento \"%s\" no se encuentra en el conjunto del elemento \"%s\""
+
+#: controllers/IndexController.php:282
+msgid "Undo import started. Reload this page for status updates."
+msgstr "Deshacer importación iniciada. Actualizar esta página para actualizaciones de estado."
+
+#: controllers/IndexController.php:284
+msgid ""
+"Undo import could not be started. Please check error logs for more details."
+msgstr "Deshacer la importación no pudo ser iniciada. Por favor compruebe los registros para mayores detalles. "
+
+#: controllers/IndexController.php:303
+msgid "Cleared import from the history."
+msgstr "Importación limpiada del historial."
+
+#: controllers/IndexController.php:305
+msgid "Cannot clear import history."
+msgstr "No se puede borrar el historial de importación."
+
+#: forms/Main.php:36 forms/Main.php:50
+msgid "Select Item Type"
+msgstr "Seleccionar tipo de elemento"
+
+#: forms/Main.php:39
+msgid "Use an export from Omeka CSV Report"
+msgstr "Usar una exportación del Informe CSV de Omeka"
+
+#: forms/Main.php:40
+msgid "Selecting this will override the options below."
+msgstr "Seleccionando esto anulará las siguientes opciones."
+
+#: forms/Main.php:44
+msgid "Automap Column Names to Elements"
+msgstr "Autoasignar nombres de columna a elementos"
+
+#: forms/Main.php:45
+msgid ""
+"Automatically maps columns to elements based on their column names. The "
+"column name must be in the form: <br/> {ElementSetName}:{ElementName}"
+msgstr "Automáticamente asignar columnas a elementos basado en sus nombres de columna. El nombre de la columna debe estar de este modo: <br/> {ElementSetName}:{ElementName}"
+
+#: forms/Main.php:54 forms/Main.php:57
+msgid "Select Collection"
+msgstr "Seleccionar colección"
+
+#: forms/Main.php:61
+msgid "Make All Items Public?"
+msgstr "¿Hacer todos los elementos públicos?"
+
+#: forms/Main.php:64
+msgid "Feature All Items?"
+msgstr "¿Mostrar todos los elementos?"
+
+#: forms/Main.php:77
+msgid "Next"
+msgstr "Siguiente"
+
+#: forms/Main.php:100
+msgid "comma"
+msgstr "coma"
+
+#: forms/Main.php:103
+msgid "semi-colon"
+msgstr "punto y coma"
+
+#: forms/Main.php:106
+msgid "empty"
+msgstr "vacío"
+
+#: forms/Main.php:120
+msgid "Choose Column Delimiter"
+msgstr "Elegir delimitador de columna"
+
+#: forms/Main.php:121
+#, php-format
+msgid ""
+"A single character that will be used to separate columns in the file (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Un caracter que será usado para separar columnas en el archivo (%s de forma predeterminada). Notese que los espacios, tabulaciones y espacios en blanco no están aceptados."
+
+#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+msgid "Column delimiter cannot be whitespace and must be one character long."
+msgstr "El delimitador de columna no puede ser un espacio en blanco y debe tener una extensión de un caracter."
+
+#: forms/Main.php:157
+msgid "Choose File Delimiter"
+msgstr "Elegir delimitador de archivo"
+
+#: forms/Main.php:158
+#, php-format
+msgid ""
+"A single character that will be used to separate file paths or URLs within a"
+" cell (%s by default). If the delimiter is empty, then the whole text will "
+"be used as the file path or URL. Note that spaces, tabs, and other "
+"whitespace are not accepted."
+msgstr "Un caracter que será usado para separar rutas de archivo o URLs dentro de una celda (%s de forma predeterminada). Si el delimitador está vacío, todo el texto será usado como la ruta de archivo o URL. Notese que los espacios, tabulaciones y otros espacios en blanco no están aceptados."
+
+#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+msgid ""
+"File delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Delimitador de archivo no pueden ser espacios en blanco y debe estar vacío o al menos de una extensión de un caracter."
+
+#: forms/Main.php:196
+msgid "Choose Tag Delimiter"
+msgstr "Elegir delimitador de etiqueta"
+
+#: forms/Main.php:197
+#, php-format
+msgid ""
+"A single character that will be used to separate tags within a cell (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Un caracter será utilizado para separar etiquetas dentro de una celda (%s de forma predeterminada). Notese que los espacios, tabulaciones y otros espacios en blanco no están aceptados."
+
+#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+msgid "Tag delimiter cannot be whitespace and must be one character long."
+msgstr "Delimitador de etiqueta no debe ser un espacio en blanco y debe ser al menos de una extensión de un caracter."
+
+#: forms/Main.php:233
+msgid "Choose Element Delimiter"
+msgstr "Elegir delimitador de elemento"
+
+#: forms/Main.php:234
+#, php-format
+msgid ""
+"A single character that will be used to separate metadata elements within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be"
+" used as the element text. Note that spaces, tabs, and other whitespace are "
+"not accepted."
+msgstr "Un caracter que será usado para separar elementos de metadatos dentro de una celda (%s de forma predeterminada). Si el delimitador está vacío, todo el texto será usado como el texto del elemento. Notese que los espacios, tabulaciones y otros espacios en blanco no están aceptados."
+
+#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+msgid ""
+"Element delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "El delimitador de elemento no puede ser un espacio en blanco, y debe estar vacío o de una extensión de un caracter. "
+
+#: forms/Main.php:291
+msgid "Upload CSV File"
+msgstr "Cargar archivo CSV"
+
+#: forms/Main.php:295
+#, php-format
+msgid "Maximum file size is %s."
+msgstr "Tamaño máximo de archivo es %s."
+
+#: forms/Main.php:309
+#, php-format
+msgid ""
+"The file you have uploaded exceeds the maximum post size allowed by the "
+"server. Please upload a file smaller than %s."
+msgstr "El archivo que ha subido excede el máximo de tamaño permitido por el servidor. Por favor cargue un archivo menor a %s."
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
+msgstr "Importar archivo CSV"
+
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr "Por favor, asegúrese que todos los nombres de las columnas sean únicas."
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr "Por favor asegúrese que el archivo CSV está correctamente configurado y posee el número de columnas esperadas para cada fila."
+
+#: views/admin/index/browse.php:14
+msgid "Import Date"
+msgstr "Importar fecha"
+
+#: views/admin/index/browse.php:15
+msgid "CSV File"
+msgstr "Archivo CSV"
+
+#: views/admin/index/browse.php:16
+msgid "Imported Items"
+msgstr "Elementos importados"
+
+#: views/admin/index/browse.php:17
+msgid "Skipped Items"
+msgstr "Elementos omitidos"
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Rows"
+msgstr "Filas omitidas"
+
+#: views/admin/index/browse.php:20
+msgid "Action"
+msgstr "Acciones"
+
+#: views/admin/index/browse.php:49
+msgid "Undo Import"
+msgstr "Deshacer importación"
+
+#: views/admin/index/browse.php:61
+msgid "Clear History"
+msgstr "Limpiar historia"
+
+#: views/admin/index/browse.php:71
+msgid "You have no imports yet."
+msgstr "Aun no posee importaciones."
+
+#: views/admin/index/check-omeka-csv.php:2
+msgid "CSV Import Errors"
+msgstr "Errores de importación del archivo CSV"
+
+#: views/admin/index/check-omeka-csv.php:7
+msgid ""
+"The following problems were found with your CSV file and Omeka installation."
+msgstr "Los siguientes problemas fueron encontrado con su archivo CSV y "
+
+#: views/admin/index/check-omeka-csv.php:10
+msgid ""
+"Usually, these are the result of the elements in your Omeka.net site not having \n"
+"    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
+"    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
+msgstr "Por lo general, estos son el resultado de los elementos en el sitio Omeka.net no teniendo\nelementos correspondientes en esta instalación de Omeka. O bien, el complemento Dublin Core Extended no está\ninstalado, o creó elementos del tipo personalizado en Omeka.net, pero aun no los ha creado aquí. "
+
+#: views/admin/index/check-omeka-csv.php:14
+msgid "Please correct the errors, then try your import again."
+msgstr "Por favor corrija los errores, después intente la importación nuevamente."
+
+#: views/admin/index/index.php:7
+msgid "Step 1: Select File and Item Settings"
+msgstr "Paso 1: seleccione archivo y configuración del mismo"
+
+#: views/admin/index/map-columns-form.php:9
+msgid "Column"
+msgstr "Columna"
+
+#: views/admin/index/map-columns-form.php:10
+msgid "Example from CSV File"
+msgstr "Ejemplo desde el archivo CSV"
+
+#: views/admin/index/map-columns-form.php:11
+msgid "Map To Element"
+msgstr "Asignar al elemento"
+
+#: views/admin/index/map-columns-form.php:12
+msgid "Use HTML?"
+msgstr "¿Usar HTML?"
+
+#: views/admin/index/map-columns-form.php:13
+msgid "Tags?"
+msgstr "¿Etiquetas?"
+
+#: views/admin/index/map-columns-form.php:14
+msgid "Files?"
+msgstr "¿Archivos?"
+
+#: views/admin/index/map-columns.php:6
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr "Paso 2: Asignar columnas a elementos, etiquetas o archivos."

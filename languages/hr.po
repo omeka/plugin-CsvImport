@@ -1,0 +1,361 @@
+# Translation for the Csv Import plugin for Omeka.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Omeka package.
+# 
+# Translators:
+# rijekateam <digitalizacija@gkri.hr>, 2015
+msgid ""
+msgstr ""
+"Project-Id-Version: Omeka\n"
+"Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
+"POT-Creation-Date: 2013-03-06 00:06+0900\n"
+"PO-Revision-Date: 2015-02-20 16:38+0000\n"
+"Last-Translator: rijekateam <digitalizacija@gkri.hr>\n"
+"Language-Team: Croatian (http://www.transifex.com/omeka/omeka/language/hr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: hr\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+
+msgid "Import Items"
+msgstr "Uvoz podataka"
+
+#: views/admin/index/browse.php:6 views/admin/index/browse.php:19
+msgid "Status"
+msgstr "Status"
+
+msgid "Queued"
+msgstr "Na čekanju"
+
+msgid "In Progress"
+msgstr "U tijeku"
+
+msgid "Completed"
+msgstr "Završeno"
+
+msgid "Queued Undo"
+msgstr "Poništi na čekanju "
+
+msgid "Undo In Progress"
+msgstr "Poništavanje u tijeku"
+
+msgid "Completed Undo"
+msgstr "Poništavanje zavšeno"
+
+msgid "Import Error"
+msgstr "Greška pri uvozu podataka"
+
+msgid "Undo Import Error"
+msgstr "Greška u poništavanju uvoza"
+
+msgid "Other Error"
+msgstr "Druga greška"
+
+msgid "Stopped"
+msgstr "Zaustavljeno"
+
+msgid "Paused"
+msgstr "Pauzirano"
+
+#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
+#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+msgid "CSV Import"
+msgstr "CSV unos"
+
+#: controllers/IndexController.php:36
+msgid "Invalid form input. Please see errors below and try again."
+msgstr "Pogrešan unos obrasca. Molimo pogledajte pogreške u nastavku i pokušajte ponovno."
+
+#: controllers/IndexController.php:41
+msgid "Error uploading file. Please try again."
+msgstr "Pogreška pri prijenosu datoteke. Molimo pokušajte ponovno."
+
+#: controllers/IndexController.php:51
+msgid "Your file is incorrectly formatted."
+msgstr "Vaša datoteka je pogrešno formatirana."
+
+#: controllers/IndexController.php:95
+msgid "Import settings expired. Please try again."
+msgstr "Postavke uvoza su istekle. Molimo pokušajte ponovno ."
+
+#: controllers/IndexController.php:116
+msgid "Invalid form input. Please try again."
+msgstr "Pogrešan unos obrasca. Molimo pokušajte ponovno."
+
+#: controllers/IndexController.php:122
+msgid "Please map at least one column to an element, file, or tag."
+msgstr "Mapirajte barem jedan stupac u element, datoteku ili oznaku."
+
+#: controllers/IndexController.php:136 controllers/IndexController.php:254
+msgid "Import started. Reload this page for status updates."
+msgstr "Uvoz je započeo. Ponovno učitaj ovu stranicu za ažuriranje statusa."
+
+#: controllers/IndexController.php:138 controllers/IndexController.php:256
+msgid "Import could not be started. Please check error logs for more details."
+msgstr "Uvoz se ne može pokrenuti. Provjerite evidenciju o grešci za više detalja."
+
+#: controllers/IndexController.php:174
+#, php-format
+msgid ""
+"Invalid column names. Column names must either be one of the following %s, "
+"or have the following format: {ElementSetName}:{ElementName}"
+msgstr "Pogrešna imena stupaca. Imena stupaca moraju biti jedno od sljedećih %s, ili imati sljedeći format: {NazivSkupaElemenata}:{NazivElementa}"
+
+#: controllers/IndexController.php:190
+#, php-format
+msgid "Element \"%s\" is not found in element set \"%s\""
+msgstr "Element \"%s\" nije pronađen u skupu elemenata \"%s\""
+
+#: controllers/IndexController.php:282
+msgid "Undo import started. Reload this page for status updates."
+msgstr "Poništavanje uvoza je pokrenuto. Ponovno učitaj ovu stranicu za ažuriranje statusa."
+
+#: controllers/IndexController.php:284
+msgid ""
+"Undo import could not be started. Please check error logs for more details."
+msgstr "Poništavanje uovoza nije moguće pokrenuti. Provjerite evidenciju o grešci za više detalja."
+
+#: controllers/IndexController.php:303
+msgid "Cleared import from the history."
+msgstr "Uvoz izbrisan iz povijesti."
+
+#: controllers/IndexController.php:305
+msgid "Cannot clear import history."
+msgstr "Ne mogu izbrisati povijest uvoza."
+
+#: forms/Main.php:36 forms/Main.php:50
+msgid "Select Item Type"
+msgstr "Odaberi vrstu dokumenta"
+
+#: forms/Main.php:39
+msgid "Use an export from Omeka CSV Report"
+msgstr "Koristi izvoz iz Omeka CSV izvještaja"
+
+#: forms/Main.php:40
+msgid "Selecting this will override the options below."
+msgstr "Odabir ove opcije poništit će sve opcije u nastavku."
+
+#: forms/Main.php:44
+msgid "Automap Column Names to Elements"
+msgstr "Automatski mapiraj imena stupaca u elemente"
+
+#: forms/Main.php:45
+msgid ""
+"Automatically maps columns to elements based on their column names. The "
+"column name must be in the form: <br/> {ElementSetName}:{ElementName}"
+msgstr "Automatski mapira stupce u elemente na temelju imena stupaca. Ime stupca mora biti u obliku: <br/> {NazivSkupaElemenata}:{NazivElementa}"
+
+#: forms/Main.php:54 forms/Main.php:57
+msgid "Select Collection"
+msgstr "Izaberi zbirku"
+
+#: forms/Main.php:61
+msgid "Make All Items Public?"
+msgstr "Objavi sve dokumente?"
+
+#: forms/Main.php:64
+msgid "Feature All Items?"
+msgstr "Preporuči sve dokumente?"
+
+#: forms/Main.php:77
+msgid "Next"
+msgstr "Sljedeći"
+
+#: forms/Main.php:100
+msgid "comma"
+msgstr "zarez"
+
+#: forms/Main.php:103
+msgid "semi-colon"
+msgstr "točka sa zarezom"
+
+#: forms/Main.php:106
+msgid "empty"
+msgstr "prazno"
+
+#: forms/Main.php:120
+msgid "Choose Column Delimiter"
+msgstr "Odaberite graničnik stupaca"
+
+#: forms/Main.php:121
+#, php-format
+msgid ""
+"A single character that will be used to separate columns in the file (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Jedan znak koji će se koristiti za odvajanje stupaca u datoteci (%s po zadanim postavkama). Imajte na umu da se razmaci, tabulatori i ostali prazni znakovi ne prihvaćaju."
+
+#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+msgid "Column delimiter cannot be whitespace and must be one character long."
+msgstr "Graničnik stupaca ne može biti razmak i mora imati dužinu jednog znaka."
+
+#: forms/Main.php:157
+msgid "Choose File Delimiter"
+msgstr "Odaberite graničnik datoteka"
+
+#: forms/Main.php:158
+#, php-format
+msgid ""
+"A single character that will be used to separate file paths or URLs within a"
+" cell (%s by default). If the delimiter is empty, then the whole text will "
+"be used as the file path or URL. Note that spaces, tabs, and other "
+"whitespace are not accepted."
+msgstr "Jedan znak koji će se koristiti za odvajanje putanja datoteka ili URL-a unutar jedne ćelije (%s po zadanim postavkama). Ako je graničnik prazan, tada će se cijeli tekst koristiti kao putanja datoteke ili URL. Imajte na umu da se razmaci, tabulatori i ostali prazni znakovi ne prihvaćaju."
+
+#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+msgid ""
+"File delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Graničnik datoteka ne može biti razmak, i mora biti ili prazan ili dužine od jednog znaka."
+
+#: forms/Main.php:196
+msgid "Choose Tag Delimiter"
+msgstr "Odaberite graničnik oznaka"
+
+#: forms/Main.php:197
+#, php-format
+msgid ""
+"A single character that will be used to separate tags within a cell (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Jedan znak koji će se koristiti za odvajanje oznaka unutar jedne ćelije (%s po zadanim postavkama). Imajte na umu da se razmaci, tabulatori i ostali prazni znakovi ne prihvaćaju."
+
+#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+msgid "Tag delimiter cannot be whitespace and must be one character long."
+msgstr "Graničnik oznaka ne može biti razmak i mora biti dužine jednog znaka."
+
+#: forms/Main.php:233
+msgid "Choose Element Delimiter"
+msgstr "Odaberite graničnik elemenata"
+
+#: forms/Main.php:234
+#, php-format
+msgid ""
+"A single character that will be used to separate metadata elements within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be"
+" used as the element text. Note that spaces, tabs, and other whitespace are "
+"not accepted."
+msgstr "Jedan znak koji će se koristiti za odvajanje elemenata metapodataka unutar jedne ćelije (%s po zadanim postavkama). Ako je graničnik prazan, tada će se cijeli tekst koristiti kao tekst elementa metapodatka. Imajte na umu da se razmaci, tabulatori i ostali prazni znakovi ne prihvaćaju."
+
+#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+msgid ""
+"Element delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Graničnik elemenata ne može biti razmak i mora biti dužine jednog znaka."
+
+#: forms/Main.php:291
+msgid "Upload CSV File"
+msgstr "Postavi CSV datoteku"
+
+#: forms/Main.php:295
+#, php-format
+msgid "Maximum file size is %s."
+msgstr "Maksimalna veličina datoteke je %s."
+
+#: forms/Main.php:309
+#, php-format
+msgid ""
+"The file you have uploaded exceeds the maximum post size allowed by the "
+"server. Please upload a file smaller than %s."
+msgstr "Datoteka koju ste postavili premašuje maksimalnu veličinu dopuštenu od strane poslužitelja. Postavite datoteku manju od %s."
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
+msgstr "Uvezi CSV datoteku"
+
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr "Pazite da su svi nazivi stupaca jedinstveni."
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr "Pazite da je CSV datotaka ispravno formatirana i da sadrži očekivani broj stupaca u svakom redu."
+
+#: views/admin/index/browse.php:14
+msgid "Import Date"
+msgstr "Datum uvoza"
+
+#: views/admin/index/browse.php:15
+msgid "CSV File"
+msgstr "CSV datoteka"
+
+#: views/admin/index/browse.php:16
+msgid "Imported Items"
+msgstr "Uvezeni dokumenti"
+
+#: views/admin/index/browse.php:17
+msgid "Skipped Items"
+msgstr "Preskočeni dokumenti"
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Rows"
+msgstr "Preskočeni redovi"
+
+#: views/admin/index/browse.php:20
+msgid "Action"
+msgstr "Akcija"
+
+#: views/admin/index/browse.php:49
+msgid "Undo Import"
+msgstr "Poništi uvoz"
+
+#: views/admin/index/browse.php:61
+msgid "Clear History"
+msgstr "Očisti povijest"
+
+#: views/admin/index/browse.php:71
+msgid "You have no imports yet."
+msgstr "Nemate uvezenih datoteka."
+
+#: views/admin/index/check-omeka-csv.php:2
+msgid "CSV Import Errors"
+msgstr "Greška pri uvozu CSV datoteke"
+
+#: views/admin/index/check-omeka-csv.php:7
+msgid ""
+"The following problems were found with your CSV file and Omeka installation."
+msgstr "Sljedeći problemi su nađeni u vašoj CSV datoteci i instalaciji Omeke."
+
+#: views/admin/index/check-omeka-csv.php:10
+msgid ""
+"Usually, these are the result of the elements in your Omeka.net site not having \n"
+"    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
+"    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
+msgstr "One su obično rezultat činjenice da elementi na vašoj Omeka.net stranici nemaju\nodgovarajuće elemente u ovoj instalaciji Omeke. Dublin Core Extended dodatak ili nije instaliran\nili ste kreirali prilagođene vrste dokumenata u Omeka.net-u, a niste ih još kreirali ovdje."
+
+#: views/admin/index/check-omeka-csv.php:14
+msgid "Please correct the errors, then try your import again."
+msgstr "Molimo, ispravite pogreške pa pokušajte ponoviti svoj uvoz."
+
+#: views/admin/index/index.php:7
+msgid "Step 1: Select File and Item Settings"
+msgstr "Korak 1: Odaberite postavke datoteke i dokumenta"
+
+#: views/admin/index/map-columns-form.php:9
+msgid "Column"
+msgstr "Stupac"
+
+#: views/admin/index/map-columns-form.php:10
+msgid "Example from CSV File"
+msgstr "Primjer iz CSV datoteke"
+
+#: views/admin/index/map-columns-form.php:11
+msgid "Map To Element"
+msgstr "Mapiraj u element"
+
+#: views/admin/index/map-columns-form.php:12
+msgid "Use HTML?"
+msgstr "Koristi HTML?"
+
+#: views/admin/index/map-columns-form.php:13
+msgid "Tags?"
+msgstr "Oznake?"
+
+#: views/admin/index/map-columns-form.php:14
+msgid "Files?"
+msgstr "Datoteke?"
+
+#: views/admin/index/map-columns.php:6
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr "Korak 2: Mapirajte stupce u elemente, oznake ili datoteke"

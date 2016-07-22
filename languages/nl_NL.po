@@ -1,0 +1,362 @@
+# Translation for the Csv Import plugin for Omeka.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Omeka package.
+# 
+# Translators:
+# Brian Cho <briancho@ezuserguide.com>, 2015
+# hans schraven <hans.schraven@gmail.com>, 2015
+msgid ""
+msgstr ""
+"Project-Id-Version: Omeka\n"
+"Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
+"POT-Creation-Date: 2013-03-06 00:06+0900\n"
+"PO-Revision-Date: 2015-10-08 16:12+0000\n"
+"Last-Translator: Brian Cho <briancho@ezuserguide.com>\n"
+"Language-Team: Dutch (Netherlands) (http://www.transifex.com/omeka/omeka/language/nl_NL/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl_NL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Import Items"
+msgstr "Importeer items"
+
+#: views/admin/index/browse.php:6 views/admin/index/browse.php:19
+msgid "Status"
+msgstr "Status"
+
+msgid "Queued"
+msgstr "In wachtrij"
+
+msgid "In Progress"
+msgstr "Bezig"
+
+msgid "Completed"
+msgstr "Afgerond"
+
+msgid "Queued Undo"
+msgstr "Maak In wachtrij ongedaan"
+
+msgid "Undo In Progress"
+msgstr "Maak Bezig ongedaan"
+
+msgid "Completed Undo"
+msgstr "Maak Afgerond ongedaan"
+
+msgid "Import Error"
+msgstr "Importfout"
+
+msgid "Undo Import Error"
+msgstr "Maak Importfout ongedaan"
+
+msgid "Other Error"
+msgstr "Andere fout"
+
+msgid "Stopped"
+msgstr "Gestopt"
+
+msgid "Paused"
+msgstr "Gepauzeerd"
+
+#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
+#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+msgid "CSV Import"
+msgstr "Csv-import"
+
+#: controllers/IndexController.php:36
+msgid "Invalid form input. Please see errors below and try again."
+msgstr "Ongeldige invoer in het formulier. Hieronder volgen de fouten; probeer het opnieuw."
+
+#: controllers/IndexController.php:41
+msgid "Error uploading file. Please try again."
+msgstr "Fout bij het uploaden van het bestand. Probeer het opnieuw."
+
+#: controllers/IndexController.php:51
+msgid "Your file is incorrectly formatted."
+msgstr "Uw bestand heeft het verkeerde format."
+
+#: controllers/IndexController.php:95
+msgid "Import settings expired. Please try again."
+msgstr "De importinstellingen zijn verlopen. Probeer het opnieuw."
+
+#: controllers/IndexController.php:116
+msgid "Invalid form input. Please try again."
+msgstr "Ongeldig invoer in het formulier. Probeer het opnieuw."
+
+#: controllers/IndexController.php:122
+msgid "Please map at least one column to an element, file, or tag."
+msgstr "Wijs tenminste een kolom toe aan een element, een bestand of een tag."
+
+#: controllers/IndexController.php:136 controllers/IndexController.php:254
+msgid "Import started. Reload this page for status updates."
+msgstr "Met importeren begonnen. Laad deze pagina opnieuw voor updates over de status."
+
+#: controllers/IndexController.php:138 controllers/IndexController.php:256
+msgid "Import could not be started. Please check error logs for more details."
+msgstr "Kan niet met importeren beginnen. Kijk in de foutenlogboeken voor meer informatie."
+
+#: controllers/IndexController.php:174
+#, php-format
+msgid ""
+"Invalid column names. Column names must either be one of the following %s, "
+"or have the following format: {ElementSetName}:{ElementName}"
+msgstr "Ongeldige kolomnamen. Kolomnamen moeten of een van de volgende %s hebben of voldoen aan het volgende format: {ElementSetNaam}:{Elementnaam}"
+
+#: controllers/IndexController.php:190
+#, php-format
+msgid "Element \"%s\" is not found in element set \"%s\""
+msgstr "Element '%s' is niet in elementset '%s' gevonden"
+
+#: controllers/IndexController.php:282
+msgid "Undo import started. Reload this page for status updates."
+msgstr "Begonnen met Importeren ongedaan maken. Laad deze pagina opnieuw voor updates over de status."
+
+#: controllers/IndexController.php:284
+msgid ""
+"Undo import could not be started. Please check error logs for more details."
+msgstr "Kan niet met Importeren ongedaan maken beginnen. Kijk in de errorlogs voor meer informatie."
+
+#: controllers/IndexController.php:303
+msgid "Cleared import from the history."
+msgstr "Import uit de geschiedenis verwijderd."
+
+#: controllers/IndexController.php:305
+msgid "Cannot clear import history."
+msgstr "Kan de importgeschiedenis niet opschonen."
+
+#: forms/Main.php:36 forms/Main.php:50
+msgid "Select Item Type"
+msgstr "Itemsoort kiezen"
+
+#: forms/Main.php:39
+msgid "Use an export from Omeka CSV Report"
+msgstr "Gebruik een export uit het csv-rapport van Omeka"
+
+#: forms/Main.php:40
+msgid "Selecting this will override the options below."
+msgstr "Als u dit kiest, dan overschrijft u de opties hieronder."
+
+#: forms/Main.php:44
+msgid "Automap Column Names to Elements"
+msgstr "Wijs automatisch kolomnamen aan elementen toe"
+
+#: forms/Main.php:45
+msgid ""
+"Automatically maps columns to elements based on their column names. The "
+"column name must be in the form: <br/> {ElementSetName}:{ElementName}"
+msgstr "Hiermee worden kolommen automatisch aan elementen toegewezen op basis van de kolomnaam. De kolomnaam moet voldoen aan het volgende format: <br/> {ElementSetName}:{ElementName}"
+
+#: forms/Main.php:54 forms/Main.php:57
+msgid "Select Collection"
+msgstr "Collectie kiezen"
+
+#: forms/Main.php:61
+msgid "Make All Items Public?"
+msgstr "Alle items openbaar maken?"
+
+#: forms/Main.php:64
+msgid "Feature All Items?"
+msgstr "Alle items opnemen?"
+
+#: forms/Main.php:77
+msgid "Next"
+msgstr "Volgende"
+
+#: forms/Main.php:100
+msgid "comma"
+msgstr "komma"
+
+#: forms/Main.php:103
+msgid "semi-colon"
+msgstr "puntkomma"
+
+#: forms/Main.php:106
+msgid "empty"
+msgstr "leeg"
+
+#: forms/Main.php:120
+msgid "Choose Column Delimiter"
+msgstr "Kies scheidingsteken voor kolom"
+
+#: forms/Main.php:121
+#, php-format
+msgid ""
+"A single character that will be used to separate columns in the file (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Een enkel teken dat gebruikt wordt om kolommen in het bestand te scheiden (standaard is dat %s). Spaties, tabs en andere witruimtes worden niet geaccepteerd."
+
+#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+msgid "Column delimiter cannot be whitespace and must be one character long."
+msgstr "Het scheidingsteken voor kolommen mag niet leeg zijn en moet één teken lang zijn."
+
+#: forms/Main.php:157
+msgid "Choose File Delimiter"
+msgstr "Kies een scheidingsteken voor bestand"
+
+#: forms/Main.php:158
+#, php-format
+msgid ""
+"A single character that will be used to separate file paths or URLs within a"
+" cell (%s by default). If the delimiter is empty, then the whole text will "
+"be used as the file path or URL. Note that spaces, tabs, and other "
+"whitespace are not accepted."
+msgstr "Een enkel teken dat gebruikt wordt om kolommen in de bestandspaden of URL's binnen een cel te scheiden (standaard is dat %s). Als er geen scheidingsteken wordt ingevuld, wordt de hele tekst als een bestandspad of URL gebruikt. Spaties, tabs en andere witruimtes worden niet geaccepteerd."
+
+#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+msgid ""
+"File delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Het scheidingsteken voor bestanden mag geen witruimte zijn en moet of leeg worden gelaten of één teken lang zijn."
+
+#: forms/Main.php:196
+msgid "Choose Tag Delimiter"
+msgstr "Kies een scheidingsteken voor tags"
+
+#: forms/Main.php:197
+#, php-format
+msgid ""
+"A single character that will be used to separate tags within a cell (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Een enkel teken dat gebruikt wordt om tags in een cel te scheiden (standaard is dat %s). Spaties, tabs en andere witruimtes worden niet geaccepteerd."
+
+#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+msgid "Tag delimiter cannot be whitespace and must be one character long."
+msgstr "Het scheidingsteken voor tags mag geen witruimte zijn en moet één teken lang zijn."
+
+#: forms/Main.php:233
+msgid "Choose Element Delimiter"
+msgstr "Kies een scheidingsteken voor elementen"
+
+#: forms/Main.php:234
+#, php-format
+msgid ""
+"A single character that will be used to separate metadata elements within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be"
+" used as the element text. Note that spaces, tabs, and other whitespace are "
+"not accepted."
+msgstr "Een enkel teken dat gebruikt wordt om metadata-elementen binnen een cel te scheiden (standaard is dat %s). Als er geen scheidingsteken wordt ingevuld, wordt de hele tekst als een elementtekst gebruikt. Spaties, tabs en andere witruimtes worden niet geaccepteerd."
+
+#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+msgid ""
+"Element delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Het scheidingsteken voor elementen mag geen witruimte zijn en moet of leeg worden gelaten of één teken lang zijn."
+
+#: forms/Main.php:291
+msgid "Upload CSV File"
+msgstr "Upload een csv-bestand"
+
+#: forms/Main.php:295
+#, php-format
+msgid "Maximum file size is %s."
+msgstr "De maximum bestandsgrootte is %s."
+
+#: forms/Main.php:309
+#, php-format
+msgid ""
+"The file you have uploaded exceeds the maximum post size allowed by the "
+"server. Please upload a file smaller than %s."
+msgstr "Het bestand dat u hebt geüpload is groter dan de maximale omvang die door de server is toegestaan. Upload een bestand dat kleiner is dan %s."
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
+msgstr "Upload een csv-bestand"
+
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr "Zorg ervoor dat alle kolomnamen uniek zijn."
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr "Zorg ervoor dat het csv-bestand juist is geformatteerd en dat het het verwachte aantal kolommen voor elke rij bevat."
+
+#: views/admin/index/browse.php:14
+msgid "Import Date"
+msgstr "Datum import"
+
+#: views/admin/index/browse.php:15
+msgid "CSV File"
+msgstr "Csv-bestand"
+
+#: views/admin/index/browse.php:16
+msgid "Imported Items"
+msgstr "Geïmporteerde items"
+
+#: views/admin/index/browse.php:17
+msgid "Skipped Items"
+msgstr "Overgeslagen items"
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Rows"
+msgstr "Overgeslagen rijen"
+
+#: views/admin/index/browse.php:20
+msgid "Action"
+msgstr "Handeling"
+
+#: views/admin/index/browse.php:49
+msgid "Undo Import"
+msgstr "Maak import ongedaan"
+
+#: views/admin/index/browse.php:61
+msgid "Clear History"
+msgstr "Wis geschiedenis"
+
+#: views/admin/index/browse.php:71
+msgid "You have no imports yet."
+msgstr "Je hebt nog geen imports"
+
+#: views/admin/index/check-omeka-csv.php:2
+msgid "CSV Import Errors"
+msgstr "Fouten bij csv-import"
+
+#: views/admin/index/check-omeka-csv.php:7
+msgid ""
+"The following problems were found with your CSV file and Omeka installation."
+msgstr "In uw csv-bestand en versie van Omeka werden de volgende problemen ontdekt."
+
+#: views/admin/index/check-omeka-csv.php:10
+msgid ""
+"Usually, these are the result of the elements in your Omeka.net site not having \n"
+"    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
+"    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
+msgstr "Vaak ontstaan deze doordat de elementen op uw Omeka.net-website geen \n    overeenkomende elementen bij deze uw versie van Omeka hebben. Of de Dublin Core Extended-plug-in is niet \n    geïnstalleerd, of u hebt een aangepast itemsoortelement aangemaakt in Omeka.net zonder dat ze hier al zijn aangemaakt."
+
+#: views/admin/index/check-omeka-csv.php:14
+msgid "Please correct the errors, then try your import again."
+msgstr "Herstel de fouten en probeer of u nu wel kunt importeren."
+
+#: views/admin/index/index.php:7
+msgid "Step 1: Select File and Item Settings"
+msgstr "Stap 1: selecteer bestands- en iteminstellingen"
+
+#: views/admin/index/map-columns-form.php:9
+msgid "Column"
+msgstr "Kolom"
+
+#: views/admin/index/map-columns-form.php:10
+msgid "Example from CSV File"
+msgstr "Voorbeeld uit een csv-bestand"
+
+#: views/admin/index/map-columns-form.php:11
+msgid "Map To Element"
+msgstr "Wijs aan element toe"
+
+#: views/admin/index/map-columns-form.php:12
+msgid "Use HTML?"
+msgstr "HTML gebruiken?"
+
+#: views/admin/index/map-columns-form.php:13
+msgid "Tags?"
+msgstr "Tags?"
+
+#: views/admin/index/map-columns-form.php:14
+msgid "Files?"
+msgstr "Bestanden?"
+
+#: views/admin/index/map-columns.php:6
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr "Stap 2: Wijs kolommen aan Elementen, tags of bestanden toe"
