@@ -1,0 +1,6 @@
+/.gitattributes export-ignore
+/.tx/ export-ignore
+/build.xml export-ignore
+/languages/*.pot export-ignore
+/languages/*.po export-ignore
+/tests/ export-ignore
