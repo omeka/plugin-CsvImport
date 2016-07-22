@@ -161,6 +161,13 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         $newVersion = $args['new_version'];
         $db = $this->_db;
 
+        // Do this first because MySQL will complain about any ALTERs to a table with an
+        // invalid default if we don't fix it first
+        if (version_compare($oldVersion, '2.0.3', '<=')) {
+            $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` MODIFY `added` timestamp NOT NULL default '2000-01-01 00:00:00'";
+            $db->query($sql);
+        }
+
         if (version_compare($oldVersion, '2.0-dev', '<=')) {
             $sql = "UPDATE `{$db->prefix}csv_import_imports` SET `status` = ? WHERE `status` = ?";
             $db->query($sql, array('other_error', 'error'));
