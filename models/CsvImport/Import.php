@@ -735,8 +735,8 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                         $dir = rtrim($file, " /\r\n");
                         $file = array();
                         foreach (scandir($dir) as $_file) {
-                            // ignore hidden files
-                            if (strpos($_file, '.') !== 0 && !in_array($_file, array('Thumbs.db'))) {
+                            // ignore sub-directories, hidden, and auto-generated files
+                            if (!is_dir($dir . '/' . $_file) && strpos($_file, '.') !== 0 && !in_array($_file, array('Thumbs.db'))) {
                                 $file[] = $dir . '/' . $_file;
                             }
                         }
