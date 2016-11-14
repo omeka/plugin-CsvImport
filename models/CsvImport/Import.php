@@ -713,27 +713,75 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return false;
         }
 
-        $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
-        foreach ($fileUrls as $url) {
-            try {
-                $file = insert_files_for_item($item, 'Url', $url,
-                    array('ignore_invalid_files' => false));
-            } catch (Omeka_File_Ingest_InvalidException $e) {
-                $msg = "Invalid file URL '$url': "
-                     . $e->getMessage();
-                $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
-                release_object($item);
-                return false;
-            } catch (Omeka_File_Ingest_Exception $e) {
-                $msg = "Could not import file '$url': "
-                     . $e->getMessage();
+        $files = $result[CsvImport_ColumnMap::TYPE_FILE];
+        foreach ($files as $file) {
+            // if this file is a URL
+            if (filter_var($file, FILTER_VALIDATE_URL)) {
+                $source_type = 'Url';
+                $file = array($file);
+            }
+            // else check if it's on the webserver
+            elseif (is_dir($file) || is_file($file)) {
+                $source_type = 'Filesystem';
+                // make sure this file/directory is web accessible
+                if (strpos(realpath($file), BASE_DIR) === 0) {
+                    // if it's a file, treat similar to a URL - make the single value an array
+                    if (is_file($file)) {
+                        $file = array($file);
+                    }
+                    // if it's a directory, import all files in the directory
+                    else {
+                        // make sure no trailing slashes
+                        $dir = rtrim($file, " /\r\n");
+                        $file = array();
+                        foreach (scandir($dir) as $_file) {
+                            // ignore hidden files
+                            if (strpos($_file, '.') !== 0 && !in_array($_file, array('Thumbs.db'))) {
+                                $file[] = $dir . '/' . $_file;
+                            }
+                        }
+                    }
+                }
+                // if we made it here, a value in the CSV import for this file was for a file on the server that's no web accessible
+                // avoid this
+                else {
+                    $msg = "Invalid file '$file': You can only import files that are web-accessible on the local filesystem.";
+                    $this->_log($msg, Zend_Log::ERR);
+                    $item->delete();
+                    release_object($item);
+                    return false;
+                }
+            }
+            // not a URL or a directory/file on the local filesystem
+            else {
+                $msg = "Invalid file/URL '$file': Not a valid URL or local file";
                 $this->_log($msg, Zend_Log::ERR);
                 $item->delete();
                 release_object($item);
                 return false;
             }
-            release_object($file);
+
+            foreach ($file as $_file) {
+                try {
+                    $f = insert_files_for_item($item, $source_type, $_file,
+                        array('ignore_invalid_files' => false));
+                } catch (Omeka_File_Ingest_InvalidException $e) {
+                    $msg = "Invalid file URL '$url': "
+                         . $e->getMessage();
+                    $this->_log($msg, Zend_Log::ERR);
+                    $item->delete();
+                    release_object($item);
+                    return false;
+                } catch (Omeka_File_Ingest_Exception $e) {
+                    $msg = "Could not import file '$url': "
+                         . $e->getMessage();
+                    $this->_log($msg, Zend_Log::ERR);
+                    $item->delete();
+                    release_object($item);
+                    return false;
+                }
+                release_object($f);
+            }
         }
 
         // Makes it easy to unimport the item later.
