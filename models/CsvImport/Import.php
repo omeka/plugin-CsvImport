@@ -721,7 +721,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $file = array($file);
             }
             // else check if it's on the webserver
-            elseif (is_dir($file) || is_file($file)) {
+            elseif (file_exists($file)) {
                 $source_type = 'Filesystem';
                 // make sure this file/directory is web accessible
                 if (strpos(realpath($file), BASE_DIR) === 0) {
@@ -766,14 +766,14 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                     $f = insert_files_for_item($item, $source_type, $_file,
                         array('ignore_invalid_files' => false));
                 } catch (Omeka_File_Ingest_InvalidException $e) {
-                    $msg = "Invalid file URL '$url': "
+                    $msg = "Invalid file URL '$_file': "
                          . $e->getMessage();
                     $this->_log($msg, Zend_Log::ERR);
                     $item->delete();
                     release_object($item);
                     return false;
                 } catch (Omeka_File_Ingest_Exception $e) {
-                    $msg = "Could not import file '$url': "
+                    $msg = "Could not import file '$_file': "
                          . $e->getMessage();
                     $this->_log($msg, Zend_Log::ERR);
                     $item->delete();
