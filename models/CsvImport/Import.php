@@ -423,7 +423,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         // The import or undo import loop was prematurely stopped
         $logMsg = "Stopped import or undo import due to error";
         if ($error = error_get_last()) {
-            $logMsg .= ": " . $error['message'];
+            $logMsg .= ": " . $error['message'] . " in " . $error['file'] . " line " . $error['line'];
         } else {
             $logMsg .= '.';
         }
