@@ -678,6 +678,20 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     protected function _addItemFromRow($row)
     {
+        // check if this row is all blank cells
+        $blank = TRUE;
+        foreach ($row as $value) {
+            if (trim($value) !== '') {
+                $blank = FALSE;
+                break;
+            }
+        }
+        // if nothing but blank cells, skip this row
+        if ($blank) {
+            $this->_log('Blank row.', Zend_Log::ERR);
+            return FALSE;
+        }
+
         $result = $this->getColumnMaps()->map($row);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
