@@ -688,7 +688,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
         // if nothing but blank cells, skip this row
         if ($blank) {
-            $this->_log('Blank row.', Zend_Log::ERR);
+            $this->_log('Blank row.', Zend_Log::INFO);
             return FALSE;
         }
 
