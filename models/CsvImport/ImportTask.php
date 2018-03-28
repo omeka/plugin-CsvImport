@@ -8,7 +8,7 @@
  */
 class CsvImport_ImportTask extends Omeka_Job_AbstractJob
 {
-    const QUEUE_NAME = 'csv_import_imports';
+    const QUEUE_NAME = 'imports';
     const METHOD_START = 'start';
     const METHOD_UNDO = 'undo';
     
@@ -39,7 +39,7 @@ class CsvImport_ImportTask extends Omeka_Job_AbstractJob
         call_user_func(array($import, $this->_method));
         
         if ($import->isQueued() || $import->isQueuedUndo()) {
-            $this->_dispatcher->setQueueName(self::QUEUE_NAME);
+            $this->_dispatcher->setQueueNameLongRunning(self::QUEUE_NAME);
             $this->_dispatcher->sendLongRunning(__CLASS__, 
                 array(
                     'importId' => $import->id, 
