@@ -98,8 +98,9 @@ class CsvImport_File implements IteratorAggregate
             $this->_parseErrors[] = $e->getMessage() 
                 . ' ' . __('Please ensure that all column names are unique.');
             return false;
-        } catch (CsvImport_MissingColumnException $e) {
-            $this->_parseErrors[] = $e->getMessage()
+        }
+        if ($this->_columnExamples === false) {
+            $this->_parseErrors[] = __('Incorrect number of columns in first row.')
                 . ' ' . __('Please ensure that the CSV file is formatted correctly'
                 . ' and contains the expected number of columns for each row.');
             return false;

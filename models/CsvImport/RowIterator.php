@@ -19,8 +19,6 @@ class CsvImport_RowIterator implements SeekableIterator
     private $_valid = true;
     private $_colNames = array();
     private $_colCount = 0;
-    private $_skipInvalidRows = false;
-    private $_skippedRowCount = 0;
 
     /**
      * @param string $filePath
@@ -103,16 +101,7 @@ class CsvImport_RowIterator implements SeekableIterator
      */
     public function next()
     {
-        try {
-            $this->_moveNext();
-        } catch (CsvImport_MissingColumnException $e) {
-            if ($this->_skipInvalidRows) {
-                $this->_skippedRowCount++;
-                $this->next();
-            } else {
-                throw $e;
-            }
-        }
+        $this->_moveNext();
     }
 
     /**
@@ -149,9 +138,6 @@ class CsvImport_RowIterator implements SeekableIterator
             $this->_currentRow = $this->_formatRow($nextRow);
         } else {
             $this->_currentRow = array();
-        }
-
-        if (!$this->_currentRow) {
             fclose($this->_handle);
             $this->_valid = false;
             $this->_handle = null;
@@ -188,37 +174,10 @@ class CsvImport_RowIterator implements SeekableIterator
     }
 
     /**
-     * Returns the number of rows that were skipped since the last time the
-     * function was called.
-     *
-     * Skipped count is reset to 0 after each call to getSkippedCount(). This
-     * makes it easier to aggregate the number over multiple job runs.
-     *
-     * @return int The number of rows skipped since last time function was called
-     */
-    public function getSkippedCount()
-    {
-        $skipped = $this->_skippedRowCount;
-        $this->_skippedRowCount = 0;
-        return $skipped;
-    }
-
-    /**
-     * Sets whether to skip invalid rows.
-     *
-     * @param boolean $flag
-     */
-    public function skipInvalidRows($flag)
-    {
-        $this->_skipInvalidRows = (boolean)$flag;
-    }
-
-    /**
      * Formats a row.
      *
      * @throws LogicException
-     * @throws CsvImport_MissingColumnException
-     * @return array The formatted row
+     * @return array|false The formatted row, false if malformed (wrong number of columns)
      */
     protected function _formatRow($row)
     {
@@ -228,10 +187,7 @@ class CsvImport_RowIterator implements SeekableIterator
                 . "names have been set.");
         }
         if (count($row) != $this->_colCount) {
-            $printable = substr(join($this->_columnDelimiter, $row), 0, 30) . '...';
-            throw new CsvImport_MissingColumnException("Row beginning with "
-                . "'$printable' does not have the required {$this->_colCount} "
-                . "rows.");
+            return false;
         }
         for ($i = 0; $i < $this->_colCount; $i++)
         {

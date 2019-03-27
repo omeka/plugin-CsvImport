@@ -579,18 +579,24 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             if ($startAt) {
                 $rows->seek($startAt);
             }
-            $rows->skipInvalidRows(true);
             $this->_log("Running item import loop. Memory usage: %memory%");
             while ($rows->valid()) {
                 $row = $rows->current();
                 $index = $rows->key();
-                $this->skipped_row_count += $rows->getSkippedCount();
-                if ($item = $this->_addItemFromRow($row)) {
-                    release_object($item);
-                } else {
+
+                if ($row === false) {
+                    $this->skipped_row_count++;
+                    $this->_log("Row {$index}: Incorrect number of columns, skipped.", Zend_Log::WARN);
+                } elseif ($this->_rowIsBlank($row)) {
+                    $this->skipped_row_count++;
+                    $this->_log("Row {$index}: Blank row, skipped.", Zend_Log::WARN);
+                } elseif (!($item = $this->_addItemFromRow($row))) {
                     $this->skipped_item_count++;
-                    $this->_log("Skipped item on row #{$index}.", Zend_Log::WARN);
+                    $this->_log("Row {$index}: Skipped item.", Zend_Log::WARN);
+                } else {
+                    release_object($item);
                 }
+
                 $this->file_position = $this->getCsvFile()->getIterator()->tell();
                 if ($this->_batchSize && ($index % $this->_batchSize == 0)) {
                     $this->_log("Completed importing batch of $this->_batchSize "
@@ -599,7 +605,6 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 }
                 $rows->next();
             }
-            $this->skipped_row_count += $rows->getSkippedCount();
             return $this->complete();
         } catch (Omeka_Job_Worker_InterruptException $e) {
             // Interruptions usually indicate that we should resume from
@@ -671,6 +676,21 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     }
 
     /**
+     * Check if a given row is completely blank (no values).
+     *
+     * @param array $row A row of CSV values
+     * @return bool
+     */
+    protected function _rowIsBlank($row)
+    {
+        foreach ($row as $value) {
+            if (trim($value) !== '') {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
      * Adds a new item based on a row string in the CSV file and returns it.
      *
      * @param string $row A row string in the CSV file
@@ -678,20 +698,6 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
      */
     protected function _addItemFromRow($row)
     {
-        // check if this row is all blank cells
-        $blank = TRUE;
-        foreach ($row as $value) {
-            if (trim($value) !== '') {
-                $blank = FALSE;
-                break;
-            }
-        }
-        // if nothing but blank cells, skip this row
-        if ($blank) {
-            $this->_log('Blank row.', Zend_Log::INFO);
-            return FALSE;
-        }
-
         $result = $this->getColumnMaps()->map($row);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
         $itemMetadata = array(
