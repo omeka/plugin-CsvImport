@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Omeka package.
 # 
 # Translators:
+# baatarsuren <mgllibrary@gmail.com>, 2016
 # Khaidav T. <khaidaw@yahoo.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
-"PO-Revision-Date: 2016-04-05 09:22+0000\n"
+"PO-Revision-Date: 2017-09-23 21:47+0000\n"
 "Last-Translator: Khaidav T. <khaidaw@yahoo.com>\n"
 "Language-Team: Mongolian (http://www.transifex.com/omeka/omeka/language/mn/)\n"
 "MIME-Version: 1.0\n"
@@ -29,7 +30,7 @@ msgid "Queued"
 msgstr "Хүлээгдсэн"
 
 msgid "In Progress"
-msgstr ""
+msgstr "Хөгжил дэвшил"
 
 msgid "Completed"
 msgstr "Бүрдсэн"
@@ -38,7 +39,7 @@ msgid "Queued Undo"
 msgstr "Хүлээлтийг болиулах"
 
 msgid "Undo In Progress"
-msgstr ""
+msgstr "Хөгжил дэвшлээс буцах"
 
 msgid "Completed Undo"
 msgstr "Бүрдсэн үйлдлийг буцаах"
@@ -61,46 +62,46 @@ msgstr "Түр зогссон"
 #: CsvImportPlugin.php:231 views/admin/index/browse.php:2
 #: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
 msgid "CSV Import"
-msgstr ""
+msgstr "CSV оруулж ирэх"
 
 #: controllers/IndexController.php:36
 msgid "Invalid form input. Please see errors below and try again."
-msgstr ""
+msgstr "Формд оруулахад алдаа гарлаа. Алдааг хянаад дахин оролдоно уу."
 
 #: controllers/IndexController.php:41
 msgid "Error uploading file. Please try again."
-msgstr ""
+msgstr "Файл илгээхэд алдаа гарлаа. Дахин оролдоно уу."
 
 #: controllers/IndexController.php:51
 msgid "Your file is incorrectly formatted."
-msgstr ""
+msgstr "Файлын формат тохирохгүй байна."
 
 #: controllers/IndexController.php:95
 msgid "Import settings expired. Please try again."
-msgstr ""
+msgstr "Импортлох тохиргоонд алдаа гарлаа. Дахин оролдоно уу."
 
 #: controllers/IndexController.php:116
 msgid "Invalid form input. Please try again."
-msgstr ""
+msgstr "Формд оруулахад алдаа гарлаа. Дахин оролдоно уу."
 
 #: controllers/IndexController.php:122
 msgid "Please map at least one column to an element, file, or tag."
-msgstr ""
+msgstr "Газрын зураг нь хамгийн багадаа 1 багана бүхий элемэнт /талбар/, файл, эсвэл тааг байна."
 
 #: controllers/IndexController.php:136 controllers/IndexController.php:254
 msgid "Import started. Reload this page for status updates."
-msgstr ""
+msgstr "Импорт эхэлсэн. Хуудсыг дахин ачаалж шинэчлэлтийг харна уу."
 
 #: controllers/IndexController.php:138 controllers/IndexController.php:256
 msgid "Import could not be started. Please check error logs for more details."
-msgstr ""
+msgstr "Импорт эхэлсэнгүй. Алдааны мэдээллийг шалгана уу."
 
 #: controllers/IndexController.php:174
 #, php-format
 msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
-msgstr ""
+msgstr "Баганы нэр буруу. Баганы нэр нь дараахын аль нэг байх ёстой %s .\nЭсвэл дараах форматын дагуу байна: {ElementSetName}:{ElementName}"
 
 #: controllers/IndexController.php:190
 #, php-format
@@ -109,16 +110,16 @@ msgstr " \"%s\" элемэнт нь  \"%s\" элемэнтийн багцад а
 
 #: controllers/IndexController.php:282
 msgid "Undo import started. Reload this page for status updates."
-msgstr ""
+msgstr "Эхэлсэн импортыг буцаах. Хуудсыг дахин ачаалж шинэчлэлтийг харна уу."
 
 #: controllers/IndexController.php:284
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
-msgstr ""
+msgstr "Импортыг буцаах үйлдэл эхэлсэнгүй. Алдааны мэдээллийг шалгана уу. "
 
 #: controllers/IndexController.php:303
 msgid "Cleared import from the history."
-msgstr ""
+msgstr "Импортын түүхийг цэвэрлэсэн."
 
 #: controllers/IndexController.php:305
 msgid "Cannot clear import history."
@@ -126,25 +127,25 @@ msgstr "Оруулж ирсэн түүхийн мэдээллийг цэвэрл
 
 #: forms/Main.php:36 forms/Main.php:50
 msgid "Select Item Type"
-msgstr ""
+msgstr "Мэдээллийн төрөл сонгох"
 
 #: forms/Main.php:39
 msgid "Use an export from Omeka CSV Report"
-msgstr ""
+msgstr "Омека CSV тайлан-аас экспортд ашиглах"
 
 #: forms/Main.php:40
 msgid "Selecting this will override the options below."
-msgstr ""
+msgstr "Үүнийг сонгоход доорх сонголтыг хүчингүй болгоно."
 
 #: forms/Main.php:44
 msgid "Automap Column Names to Elements"
-msgstr ""
+msgstr "Газрын зураг Баганы нэр => Элемэнт /талбар/"
 
 #: forms/Main.php:45
 msgid ""
 "Automatically maps columns to elements based on their column names. The "
 "column name must be in the form: <br/> {ElementSetName}:{ElementName}"
-msgstr ""
+msgstr "Элемэнт дээр суурилсан баганы нэр дээр газрын зургийн баганууд очно. Баганы нэр формд дараах байдалтай байна: <br/> {ElementSetName}:{ElementName}"
 
 #: forms/Main.php:54 forms/Main.php:57
 msgid "Select Collection"
@@ -152,7 +153,7 @@ msgstr "Сан хөмрөг сонгох"
 
 #: forms/Main.php:61
 msgid "Make All Items Public?"
-msgstr ""
+msgstr "Бүх мэдээллийг нийтэд харуулах уу?"
 
 #: forms/Main.php:64
 msgid "Feature All Items?"
@@ -164,11 +165,11 @@ msgstr "Дараагийн"
 
 #: forms/Main.php:100
 msgid "comma"
-msgstr ""
+msgstr "таслал"
 
 #: forms/Main.php:103
 msgid "semi-colon"
-msgstr ""
+msgstr "цэгтэй таслал"
 
 #: forms/Main.php:106
 msgid "empty"
@@ -176,22 +177,22 @@ msgstr "хоосон"
 
 #: forms/Main.php:120
 msgid "Choose Column Delimiter"
-msgstr ""
+msgstr "Талбар хязгаарлагчийг сонгох"
 
 #: forms/Main.php:121
 #, php-format
 msgid ""
 "A single character that will be used to separate columns in the file (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
-msgstr ""
+msgstr "Файлын багана тус бүрд хэрэглэгдэж байгаа ганц тэмдэгт (%s  -Үндсэн). Хоосон зай /whitespace/, таабуудыг зөвшөөрөхгүй."
 
 #: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
 msgid "Column delimiter cannot be whitespace and must be one character long."
-msgstr ""
+msgstr "Баганы хязгаарлалт нь хоосон зайгүй, 1 тэмдэгтийн урттай байна."
 
 #: forms/Main.php:157
 msgid "Choose File Delimiter"
-msgstr ""
+msgstr "Файл хязгаарлагчийг сонгох"
 
 #: forms/Main.php:158
 #, php-format
@@ -200,32 +201,32 @@ msgid ""
 " cell (%s by default). If the delimiter is empty, then the whole text will "
 "be used as the file path or URL. Note that spaces, tabs, and other "
 "whitespace are not accepted."
-msgstr ""
+msgstr "Нүдэнд байгаа URL хаяг эсвэл файлын зам бүрт хэрэглэгдэж байгаа анц тэмдэгт (%s -Үндсэн). Хэрэв хязгаарлагч хоосон бол, файлын зам болон URL хаяг болон бүх текстүүд  хэрэглэгдэнэ.\nЗай, хоосон /whitespace/ зай, тааб зэргийг зөвшөөрөхгүй."
 
 #: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
 msgid ""
 "File delimiter cannot be whitespace, and must be empty or one character "
 "long."
-msgstr ""
+msgstr "Файлын хязгаарлалт нь хоосон зайгүй /whitespase/, харин нэг тэмдэгт болон бүр хоосон байж болно."
 
 #: forms/Main.php:196
 msgid "Choose Tag Delimiter"
-msgstr ""
+msgstr "Тааг хязгаарлагчийг сонгох"
 
 #: forms/Main.php:197
 #, php-format
 msgid ""
 "A single character that will be used to separate tags within a cell (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
-msgstr ""
+msgstr "Нүдэнд байгаа тааг тус бүрт хэрэглэгдэх нэг тэмдэгт (%s -Үндсэн). Хоосон зай /whitespace/, таабуудыг зөвшөөрөхгүй.."
 
 #: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
 msgid "Tag delimiter cannot be whitespace and must be one character long."
-msgstr ""
+msgstr "Таагийн хязгаарлалт нь хоосон зайгүй /whitespase/, 1 тэмдэгтийн урттай байна."
 
 #: forms/Main.php:233
 msgid "Choose Element Delimiter"
-msgstr ""
+msgstr "Элемэнт хязгаарлагчийг сонгох"
 
 #: forms/Main.php:234
 #, php-format
@@ -234,13 +235,13 @@ msgid ""
 "cell (%s by default). If the delimiter is empty, then the whole text will be"
 " used as the element text. Note that spaces, tabs, and other whitespace are "
 "not accepted."
-msgstr ""
+msgstr "Нүдэнд байгаа мета элемэнтүүдэд хэрэглэгдэх байгаа ганц тэмдэгт (%s -Үндсэн). Хэрэв хязгаарлагч хоосон бол, элемэнтийн бүх текстүүд хэрэглэгдэнэ. Зай, хоосон /whitespace/ зай, тааб зэргийг зөвшөөрөхгүй."
 
 #: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
 msgid ""
 "Element delimiter cannot be whitespace, and must be empty or one character "
 "long."
-msgstr ""
+msgstr "Элемэнтийн /талбарын/ хязгаарлалт нь хоосон зайг /whitespase/ зөвшөөрөхгүй, харин нэг тэмдэгт болон бүр хоосон байж болно."
 
 #: forms/Main.php:291
 msgid "Upload CSV File"
@@ -256,21 +257,21 @@ msgstr "Файлын хамгийн их хэмжээ %s."
 msgid ""
 "The file you have uploaded exceeds the maximum post size allowed by the "
 "server. Please upload a file smaller than %s."
-msgstr ""
+msgstr "Таны оруулсан файлын хэмжээ сервэрт зөвшөөрөгдсөн хэмжээнээс хэтэрсэн байна. %s -ээс бага хэмжээтэй файл оруулна уу."
 
 #: forms/Mapping.php:56
 msgid "Import CSV File"
-msgstr ""
+msgstr "CSV файл оруулж ирэх"
 
 #: models/CsvImport/File.php:99
 msgid "Please ensure that all column names are unique."
-msgstr ""
+msgstr "Бүх баганы нэрүүд өвөрмөц байхыг анхаарна уу."
 
 #: models/CsvImport/File.php:103
 msgid ""
 "Please ensure that the CSV file is formatted correctly and contains the "
 "expected number of columns for each row."
-msgstr ""
+msgstr "Мөр бүрийн баганы  зөв форматтай болон хүлээгдэж байгаа дугаарыг агуулсан CSV файл эсэхийг батлах."
 
 #: views/admin/index/browse.php:14
 msgid "Import Date"
@@ -282,7 +283,7 @@ msgstr "CSV Файл"
 
 #: views/admin/index/browse.php:16
 msgid "Imported Items"
-msgstr ""
+msgstr "Импортлогдсон мэдээллүүд "
 
 #: views/admin/index/browse.php:17
 msgid "Skipped Items"
@@ -290,7 +291,7 @@ msgstr "Алгассан мэдээллүүд"
 
 #: views/admin/index/browse.php:18
 msgid "Skipped Rows"
-msgstr ""
+msgstr "Алгассан мөрүүд"
 
 #: views/admin/index/browse.php:20
 msgid "Action"
@@ -306,27 +307,27 @@ msgstr "Түүхийг цэвэрлэх"
 
 #: views/admin/index/browse.php:71
 msgid "You have no imports yet."
-msgstr ""
+msgstr "Танд импортолсон зүйл алга."
 
 #: views/admin/index/check-omeka-csv.php:2
 msgid "CSV Import Errors"
-msgstr ""
+msgstr "CSV оруулж ирэхэд гарсан алдаанууд"
 
 #: views/admin/index/check-omeka-csv.php:7
 msgid ""
 "The following problems were found with your CSV file and Omeka installation."
-msgstr ""
+msgstr "CSV болон OMEKA-д дараах алдаанууд илэрлээ"
 
 #: views/admin/index/check-omeka-csv.php:10
 msgid ""
 "Usually, these are the result of the elements in your Omeka.net site not having \n"
 "    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
 "    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
-msgstr ""
+msgstr "Эдгээр нь  Omeka.net  сайтад байхгүй элемэнтийн үр дүн.\nОмекагийн суулгацад нийцүүлэх элемэнтүүд. Dublin Core-ийн плагин биш\nOmeka.net -д суугдсан, эсвэл та үүсгэсэн мэдээллийн элемэнтийн төрөл, гэвч энд үүссэнгүй."
 
 #: views/admin/index/check-omeka-csv.php:14
 msgid "Please correct the errors, then try your import again."
-msgstr ""
+msgstr "Алдааг засаад дахин импортолж оруулна уу."
 
 #: views/admin/index/index.php:7
 msgid "Step 1: Select File and Item Settings"
@@ -338,24 +339,24 @@ msgstr "Багана"
 
 #: views/admin/index/map-columns-form.php:10
 msgid "Example from CSV File"
-msgstr ""
+msgstr "CSV файлын жишээ"
 
 #: views/admin/index/map-columns-form.php:11
 msgid "Map To Element"
-msgstr ""
+msgstr "Газрын зураг => Элемэнт /талбар/"
 
 #: views/admin/index/map-columns-form.php:12
 msgid "Use HTML?"
-msgstr ""
+msgstr "HTML хэрэглэх үү?"
 
 #: views/admin/index/map-columns-form.php:13
 msgid "Tags?"
-msgstr ""
+msgstr "Таагууд?"
 
 #: views/admin/index/map-columns-form.php:14
 msgid "Files?"
-msgstr ""
+msgstr "Файлууд?"
 
 #: views/admin/index/map-columns.php:6
 msgid "Step 2: Map Columns To Elements, Tags, or Files"
-msgstr ""
+msgstr "Алхам 2: Талбаруудыг элемэнт, тааг, файлууд руу чиглүүлэх"

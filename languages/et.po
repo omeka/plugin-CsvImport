@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Omeka package.
 # 
 # Translators:
-# Rivo Zängov <eraser@eraser.ee>, 2015-2016
+# Moon Ika, 2017
+# Rivo Zängov <eraser@eraser.ee>, 2015-2018,2020
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
-"PO-Revision-Date: 2016-01-14 20:46+0000\n"
+"PO-Revision-Date: 2020-05-03 21:02+0000\n"
 "Last-Translator: Rivo Zängov <eraser@eraser.ee>\n"
 "Language-Team: Estonian (http://www.transifex.com/omeka/omeka/language/et/)\n"
 "MIME-Version: 1.0\n"
@@ -89,7 +90,7 @@ msgstr "Palun seosta vähemalt üks veerg elemendi, faili või sildiga."
 
 #: controllers/IndexController.php:136 controllers/IndexController.php:254
 msgid "Import started. Reload this page for status updates."
-msgstr "Importimist on alustatud. Laadi see leht uuesti et näha oleku uuendusi."
+msgstr "Importimist on alustatud. Laadi see leht uuesti, et näha oleku uuendusi."
 
 #: controllers/IndexController.php:138 controllers/IndexController.php:256
 msgid "Import could not be started. Please check error logs for more details."
@@ -100,7 +101,7 @@ msgstr "Importimise alustamine ebaõnnestus. Palun vaata lisainfot logifailist."
 msgid ""
 "Invalid column names. Column names must either be one of the following %s, "
 "or have the following format: {ElementSetName}:{ElementName}"
-msgstr ""
+msgstr "Vigased veergude nimed. veergude nimed peavad olema kas üks järgnevatest %s või nad peavad olema sellises vormingus: {ElementSetName}:{ElementName}"
 
 #: controllers/IndexController.php:190
 #, php-format
@@ -114,7 +115,7 @@ msgstr "Importimist tühistamist on alustatud. Laadi see leht uuesti, et näha o
 #: controllers/IndexController.php:284
 msgid ""
 "Undo import could not be started. Please check error logs for more details."
-msgstr ""
+msgstr "Importimise tühistamise käivitamine ebaõnnestus. Palun vaata lisainfot logifailist."
 
 #: controllers/IndexController.php:303
 msgid "Cleared import from the history."
@@ -144,7 +145,7 @@ msgstr "Seosta veergude nimed elementiga automaatselt"
 msgid ""
 "Automatically maps columns to elements based on their column names. The "
 "column name must be in the form: <br/> {ElementSetName}:{ElementName}"
-msgstr ""
+msgstr "Seosta veerud automaatselt elementidega vastavalt nende nimele. Veeru nimi peab olema kujul: <br/> {ElementSetName}:{ElementName}"
 
 #: forms/Main.php:54 forms/Main.php:57
 msgid "Select Collection"
@@ -183,7 +184,7 @@ msgstr "Vali veeru eraldaja"
 msgid ""
 "A single character that will be used to separate columns in the file (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
-msgstr ""
+msgstr "Märk, mida kasutatakse veergude eraldamiseks failis (Vaikimisi on see %s). Pane tähele, et tühikute, tabulaatorite ja muude tühikute kaustamine pole lubatud."
 
 #: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
 msgid "Column delimiter cannot be whitespace and must be one character long."
@@ -200,13 +201,13 @@ msgid ""
 " cell (%s by default). If the delimiter is empty, then the whole text will "
 "be used as the file path or URL. Note that spaces, tabs, and other "
 "whitespace are not accepted."
-msgstr ""
+msgstr "Märk, mida kasutatakse faili asukohtade või URL-ide eraldamiseks lahtri sees (Vaikimisi on see %s). Kui eraldaja lahter on tühi, siis kasutatakse kogu teksti faili asukoha või URL-ina. Pane tähele, et tühikute, tabulaatorite ja muude tühikute kaustamine pole lubatud."
 
 #: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
 msgid ""
 "File delimiter cannot be whitespace, and must be empty or one character "
 "long."
-msgstr ""
+msgstr "Faili eraldaja ei saa olla tühik ja see peab olema tühi või ühe märgi pikkune."
 
 #: forms/Main.php:196
 msgid "Choose Tag Delimiter"
@@ -217,11 +218,11 @@ msgstr "Vali sildi eraldaja"
 msgid ""
 "A single character that will be used to separate tags within a cell (%s by "
 "default). Note that spaces, tabs, and other whitespace are not accepted."
-msgstr ""
+msgstr "Märk, mida kasutatakse siltide eraldamiseks lahtri sees (Vaikimisi on see %s). Pane tähele, et tühikute, tabulaatorite ja muude tühikute kaustamine pole lubatud."
 
 #: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
 msgid "Tag delimiter cannot be whitespace and must be one character long."
-msgstr ""
+msgstr "Sildi eraldaja ei saa olla tühik ja see peab olema ühe märgi pikkune."
 
 #: forms/Main.php:233
 msgid "Choose Element Delimiter"
@@ -234,7 +235,7 @@ msgid ""
 "cell (%s by default). If the delimiter is empty, then the whole text will be"
 " used as the element text. Note that spaces, tabs, and other whitespace are "
 "not accepted."
-msgstr ""
+msgstr "Märk, mida kasutatakse metadata elementide eraldamiseks lahtri sees (Vaikimisi on see %s). Kui eraldaja lahter on tühi, siis kasutatakse kogu teksti elemendi tekstina. Pane tähele, et tühikute, tabulaatorite ja muude tühikute kaustamine pole lubatud."
 
 #: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
 msgid ""
@@ -244,7 +245,7 @@ msgstr "Elemendi eraldaja ei saa olla tühik ja see peab olema tühi või ühe m
 
 #: forms/Main.php:291
 msgid "Upload CSV File"
-msgstr "Ladi CSV fail üles"
+msgstr "Laadi CSV fail üles"
 
 #: forms/Main.php:295
 #, php-format
@@ -256,7 +257,7 @@ msgstr "Maksimaalne failisuurus on %s."
 msgid ""
 "The file you have uploaded exceeds the maximum post size allowed by the "
 "server. Please upload a file smaller than %s."
-msgstr ""
+msgstr "Sinu poolt üles laaditud faili suurus ületab maksimaalse serveri poolt lubatud üleslaetava faili suuruse. Palun laadi üles fail, mis on väiksem kui %s."
 
 #: forms/Mapping.php:56
 msgid "Import CSV File"
@@ -322,7 +323,7 @@ msgid ""
 "Usually, these are the result of the elements in your Omeka.net site not having \n"
 "    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
 "    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
-msgstr ""
+msgstr "Nende põhjuseks on elemendid, sinu Omeka.net saidil, millel pole \n    vastavaid elemente Omeka saidil. Pluginat Dublin Core Extended pole \n    paigaldatud või sa lõid kohandatud ühikuliigi elemendid saidil Omeka.net, aga sa pole neid veel siin loonud."
 
 #: views/admin/index/check-omeka-csv.php:14
 msgid "Please correct the errors, then try your import again."

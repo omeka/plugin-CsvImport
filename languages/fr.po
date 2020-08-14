@@ -5,14 +5,14 @@
 # Translators:
 # fiuzzy <fiuzzy1@gmail.com>, 2015
 # Isabelle Gilles <isabelle.gillesgallet@gmail.com>, 2015
-# Stéphane Loret Sdj <stephane.loret@univ-nantes.fr>, 2015
+# Stéphane Loret <stephane.loret@univ-nantes.fr>, 2015
 # symac <wikitipiac@laposte.net>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
-"PO-Revision-Date: 2015-04-14 19:40+0000\n"
+"PO-Revision-Date: 2017-09-21 17:55+0000\n"
 "Last-Translator: Isabelle Gilles <isabelle.gillesgallet@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/omeka/omeka/language/fr/)\n"
 "MIME-Version: 1.0\n"
