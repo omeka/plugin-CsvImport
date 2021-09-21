@@ -4,13 +4,14 @@
 # 
 # Translators:
 # Darío Hereñú, 2015
+# Dmtech MKII <dmtech.mkii@gmail.com>, 2021
 msgid ""
 msgstr ""
-"Project-Id-Version: Omeka\n"
+"Project-Id-Version: Omeka Classic\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
-"PO-Revision-Date: 2017-09-21 17:55+0000\n"
-"Last-Translator: Darío Hereñú\n"
+"PO-Revision-Date: 2021-05-31 13:59+0000\n"
+"Last-Translator: Dmtech MKII <dmtech.mkii@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/omeka/omeka/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -77,7 +78,7 @@ msgstr "Su archivo tiene un formato incorrecto."
 
 #: controllers/IndexController.php:95
 msgid "Import settings expired. Please try again."
-msgstr "Configuración de importación concluido. Por favor, inténtelo nuevamente."
+msgstr "La importación de configuraciones ha caducado. Por favor, inténtelo nuevamente."
 
 #: controllers/IndexController.php:116
 msgid "Invalid form input. Please try again."

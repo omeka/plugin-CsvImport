@@ -6,7 +6,7 @@
 # Rubén Alcaraz Martínez <rubenalcarazmartinez@gmail.com>, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version: Omeka\n"
+"Project-Id-Version: Omeka Classic\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
 "PO-Revision-Date: 2017-09-23 20:34+0000\n"

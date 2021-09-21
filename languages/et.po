@@ -7,7 +7,7 @@
 # Rivo Zängov <eraser@eraser.ee>, 2015-2018,2020
 msgid ""
 msgstr ""
-"Project-Id-Version: Omeka\n"
+"Project-Id-Version: Omeka Classic\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
 "PO-Revision-Date: 2020-05-03 21:02+0000\n"

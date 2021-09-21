@@ -7,7 +7,7 @@
 # Guybrush88 <erpizzo@alice.it>, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version: Omeka\n"
+"Project-Id-Version: Omeka Classic\n"
 "Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
 "POT-Creation-Date: 2013-03-06 00:06+0900\n"
 "PO-Revision-Date: 2019-12-26 00:47+0000\n"
