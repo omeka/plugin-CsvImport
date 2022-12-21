@@ -1,0 +1,361 @@
+# Translation for the Csv Import plugin for Omeka.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Omeka package.
+# 
+# Translators:
+# Yuliya Ilchuk, 2022
+msgid ""
+msgstr ""
+"Project-Id-Version: Omeka Classic\n"
+"Report-Msgid-Bugs-To: https://github.com/omeka/plugin-CsvImport/issues\n"
+"POT-Creation-Date: 2013-03-06 00:06+0900\n"
+"PO-Revision-Date: 2014-12-03 19:09+0000\n"
+"Last-Translator: Yuliya Ilchuk, 2022\n"
+"Language-Team: Ukrainian (http://www.transifex.com/omeka/omeka/language/uk/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uk\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+msgid "Import Items"
+msgstr "Ввести елементи"
+
+#: views/admin/index/browse.php:6 views/admin/index/browse.php:19
+msgid "Status"
+msgstr "Статус"
+
+msgid "Queued"
+msgstr "В очікуванні"
+
+msgid "In Progress"
+msgstr "В процесі"
+
+msgid "Completed"
+msgstr "Завершено"
+
+msgid "Queued Undo"
+msgstr "Очікує скасування"
+
+msgid "Undo In Progress"
+msgstr "Скасування в процесі"
+
+msgid "Completed Undo"
+msgstr "Скасування завершено"
+
+msgid "Import Error"
+msgstr "Помилка введення"
+
+msgid "Undo Import Error"
+msgstr "Скасувати помилку введення"
+
+msgid "Other Error"
+msgstr "Інша помилка"
+
+msgid "Stopped"
+msgstr "Призупинено"
+
+msgid "Paused"
+msgstr "Пауза"
+
+#: CsvImportPlugin.php:231 views/admin/index/browse.php:2
+#: views/admin/index/index.php:2 views/admin/index/map-columns.php:2
+msgid "CSV Import"
+msgstr "CSV введення"
+
+#: controllers/IndexController.php:36
+msgid "Invalid form input. Please see errors below and try again."
+msgstr "Недійсне введення форми. Перегляньте помилки нижче та повторіть спробу."
+
+#: controllers/IndexController.php:41
+msgid "Error uploading file. Please try again."
+msgstr "Помилка завантаження файлу. Будь ласка, спробуйте ще раз."
+
+#: controllers/IndexController.php:51
+msgid "Your file is incorrectly formatted."
+msgstr "Ваш файл неправильно відформатований."
+
+#: controllers/IndexController.php:95
+msgid "Import settings expired. Please try again."
+msgstr "Термін дії налаштувань імпорту закінчився. Будь ласка, спробуйте ще раз."
+
+#: controllers/IndexController.php:116
+msgid "Invalid form input. Please try again."
+msgstr "Недійсне введення форми. Будь ласка, спробуйте ще раз."
+
+#: controllers/IndexController.php:122
+msgid "Please map at least one column to an element, file, or tag."
+msgstr "Зіставте принаймні один стовпець з елементом, файлом або тегом."
+
+#: controllers/IndexController.php:136 controllers/IndexController.php:254
+msgid "Import started. Reload this page for status updates."
+msgstr "Розпочато введення. Перезавантажте цю сторінку для оновлення статусу."
+
+#: controllers/IndexController.php:138 controllers/IndexController.php:256
+msgid "Import could not be started. Please check error logs for more details."
+msgstr "Не вдалося розпочати введення. Будь ласка, перевірте журнал помилок, щоб дізнатися більше."
+
+#: controllers/IndexController.php:174
+#, php-format
+msgid ""
+"Invalid column names. Column names must either be one of the following %s, "
+"or have the following format: {ElementSetName}:{ElementName}"
+msgstr "Недійсні назви стовпців. Назви стовпців мають бути одним із наведених нижче %s, або мати такий формат: {ElementSetName}:{ElementName}"
+
+#: controllers/IndexController.php:190
+#, php-format
+msgid "Element \"%s\" is not found in element set \"%s\""
+msgstr "Елемент \"%s\" не знайдено в наборі елементів \"%s\""
+
+#: controllers/IndexController.php:282
+msgid "Undo import started. Reload this page for status updates."
+msgstr "Розпочато скасування введення. Перезавантажте цю сторінку для оновлення статусу."
+
+#: controllers/IndexController.php:284
+msgid ""
+"Undo import could not be started. Please check error logs for more details."
+msgstr "Не вдалося розпочати скасування введення. Будь ласка, перевірте журнал помилок, щоб дізнатися більше."
+
+#: controllers/IndexController.php:303
+msgid "Cleared import from the history."
+msgstr "Видалено введення з історії."
+
+#: controllers/IndexController.php:305
+msgid "Cannot clear import history."
+msgstr "Не вдалося видалити введення з історії."
+
+#: forms/Main.php:36 forms/Main.php:50
+msgid "Select Item Type"
+msgstr "Обрати тип елементу"
+
+#: forms/Main.php:39
+msgid "Use an export from Omeka CSV Report"
+msgstr "Використовуйте експорт із звіту Omeka CSV"
+
+#: forms/Main.php:40
+msgid "Selecting this will override the options below."
+msgstr "Якщо вибрати цей параметр, наведені нижче параметри будуть замінені."
+
+#: forms/Main.php:44
+msgid "Automap Column Names to Elements"
+msgstr "Автоматичне відображення назв стовпців до елементів"
+
+#: forms/Main.php:45
+msgid ""
+"Automatically maps columns to elements based on their column names. The "
+"column name must be in the form: <br/> {ElementSetName}:{ElementName}"
+msgstr "Автоматично зіставляє стовпці з елементами на основі їх імен стовпців. Назва стовпця має бути у формі <br/>{ElementSetName}:{ElementName}"
+
+#: forms/Main.php:54 forms/Main.php:57
+msgid "Select Collection"
+msgstr "Вибрати колекцію"
+
+#: forms/Main.php:61
+msgid "Make All Items Public?"
+msgstr "Зробити всі елементи загальнодоступними?"
+
+#: forms/Main.php:64
+msgid "Feature All Items?"
+msgstr "Показати всі елементи?"
+
+#: forms/Main.php:77
+msgid "Next"
+msgstr "Далі"
+
+#: forms/Main.php:100
+msgid "comma"
+msgstr "кома"
+
+#: forms/Main.php:103
+msgid "semi-colon"
+msgstr "крапка з комою"
+
+#: forms/Main.php:106
+msgid "empty"
+msgstr "порожнє"
+
+#: forms/Main.php:120
+msgid "Choose Column Delimiter"
+msgstr "Виберіть роздільник стовпців"
+
+#: forms/Main.php:121
+#, php-format
+msgid ""
+"A single character that will be used to separate columns in the file (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Один символ, який використовуватиметься для розділення стовпців у файлі (%sза замовчуванням). Зауважте, що пробіли, табуляції та інші порожні місця не приймаються."
+
+#: forms/Main.php:132 forms/Main.php:140 forms/Main.php:142
+msgid "Column delimiter cannot be whitespace and must be one character long."
+msgstr "Розділювач стовпців не може бути пробілом і має бути довжиною в один символ."
+
+#: forms/Main.php:157
+msgid "Choose File Delimiter"
+msgstr "Виберіть роздільник стовпців"
+
+#: forms/Main.php:158
+#, php-format
+msgid ""
+"A single character that will be used to separate file paths or URLs within a"
+" cell (%s by default). If the delimiter is empty, then the whole text will "
+"be used as the file path or URL. Note that spaces, tabs, and other "
+"whitespace are not accepted."
+msgstr "Один символ, який використовуватиметься для розділення шляхів до файлів або URL-адрес у клітинці (%sза замовчуванням). Якщо роздільник порожній, тоді шляхом до файлу або URL-адресу буде використовуватися весь текст. Зауважте, що пробіли, табуляції та інші порожні місця не приймаються."
+
+#: forms/Main.php:170 forms/Main.php:179 forms/Main.php:181
+msgid ""
+"File delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Розділювач стовпців не може бути пробілом і має бути порожнім або довжиною в один символ."
+
+#: forms/Main.php:196
+msgid "Choose Tag Delimiter"
+msgstr "Виберіть розділювач для міток"
+
+#: forms/Main.php:197
+#, php-format
+msgid ""
+"A single character that will be used to separate tags within a cell (%s by "
+"default). Note that spaces, tabs, and other whitespace are not accepted."
+msgstr "Один символ, який використовуватиметься для розділення тегів в середині стовпців (%sза замовчуванням). Зауважте, що пробіли, табуляції та інші порожні місця не приймаються."
+
+#: forms/Main.php:208 forms/Main.php:216 forms/Main.php:218
+msgid "Tag delimiter cannot be whitespace and must be one character long."
+msgstr "Тег розділювача не може бути пробілом і має бути довжиною в один символ."
+
+#: forms/Main.php:233
+msgid "Choose Element Delimiter"
+msgstr "Виберіть роздільник елементів"
+
+#: forms/Main.php:234
+#, php-format
+msgid ""
+"A single character that will be used to separate metadata elements within a "
+"cell (%s by default). If the delimiter is empty, then the whole text will be"
+" used as the element text. Note that spaces, tabs, and other whitespace are "
+"not accepted."
+msgstr "Один символ, який використовуватиметься для розділення елементів метадених у клітинці (%sза замовчуванням). Якщо роздільник порожній, тоді весь текст буде використовуватися як елемент тексту. Зауважте, що пробіли, табуляції та інші порожні місця не приймаються."
+
+#: forms/Main.php:246 forms/Main.php:255 forms/Main.php:257
+msgid ""
+"Element delimiter cannot be whitespace, and must be empty or one character "
+"long."
+msgstr "Розділювач елементів не може бути пробілом і має бути порожнім або довжиною в один символ."
+
+#: forms/Main.php:291
+msgid "Upload CSV File"
+msgstr "Завантажити CSV файл"
+
+#: forms/Main.php:295
+#, php-format
+msgid "Maximum file size is %s."
+msgstr "Максимальний розмір файлу %s"
+
+#: forms/Main.php:309
+#, php-format
+msgid ""
+"The file you have uploaded exceeds the maximum post size allowed by the "
+"server. Please upload a file smaller than %s."
+msgstr "Файл, який Ви завантажили, перевищує максимальний розмір публікації, дозволений сервером. Будь ласка, завантажте файл менше ніж %s"
+
+#: forms/Mapping.php:56
+msgid "Import CSV File"
+msgstr "Імпортувати CSV файл"
+
+#: models/CsvImport/File.php:99
+msgid "Please ensure that all column names are unique."
+msgstr "Переконайтеся, що всі назви стовпців унікальні."
+
+#: models/CsvImport/File.php:103
+msgid ""
+"Please ensure that the CSV file is formatted correctly and contains the "
+"expected number of columns for each row."
+msgstr "Переконайтеся, що файл CSV відформатовано правильно та містить очікувану кількість стовпців для кожного рядка."
+
+#: views/admin/index/browse.php:14
+msgid "Import Date"
+msgstr "Імпортувати дату"
+
+#: views/admin/index/browse.php:15
+msgid "CSV File"
+msgstr "CSV файл"
+
+#: views/admin/index/browse.php:16
+msgid "Imported Items"
+msgstr "Імпортовані елементи"
+
+#: views/admin/index/browse.php:17
+msgid "Skipped Items"
+msgstr "Пропущенні елементи"
+
+#: views/admin/index/browse.php:18
+msgid "Skipped Rows"
+msgstr "Пропущенні рядки"
+
+#: views/admin/index/browse.php:20
+msgid "Action"
+msgstr "Дія"
+
+#: views/admin/index/browse.php:49
+msgid "Undo Import"
+msgstr "Скасувати імпортування"
+
+#: views/admin/index/browse.php:61
+msgid "Clear History"
+msgstr "Очистити історію"
+
+#: views/admin/index/browse.php:71
+msgid "You have no imports yet."
+msgstr "У вас немає імпортувань."
+
+#: views/admin/index/check-omeka-csv.php:2
+msgid "CSV Import Errors"
+msgstr "Помилка введення CSV"
+
+#: views/admin/index/check-omeka-csv.php:7
+msgid ""
+"The following problems were found with your CSV file and Omeka installation."
+msgstr "З вашим файлом CSV та інсталяцією Omeka виявлено такі проблеми."
+
+#: views/admin/index/check-omeka-csv.php:10
+msgid ""
+"Usually, these are the result of the elements in your Omeka.net site not having \n"
+"    corresponding elements in this installation of Omeka. Either the Dublin Core Extended plugin is not \n"
+"    installed, or you created custom item type elements in Omeka.net, but have not yet created them here."
+msgstr "Зазвичай це результат того, що на Вашому сайті Omeka.net немає елементів\nвідповідні елементи в цій інсталяції Omeka. Або плагін Dublin Core Extended не встановлено, або ви створили елементи спеціального типу елемента в Omeka.net, але ще не створили їх тут."
+
+#: views/admin/index/check-omeka-csv.php:14
+msgid "Please correct the errors, then try your import again."
+msgstr "Виправте помилки, а потім спробуйте імпортувати ще раз."
+
+#: views/admin/index/index.php:7
+msgid "Step 1: Select File and Item Settings"
+msgstr "Крок 1. Виберіть Налаштування файлів та елементів"
+
+#: views/admin/index/map-columns-form.php:9
+msgid "Column"
+msgstr "Стовпець"
+
+#: views/admin/index/map-columns-form.php:10
+msgid "Example from CSV File"
+msgstr "Приклад з CSV файлу"
+
+#: views/admin/index/map-columns-form.php:11
+msgid "Map To Element"
+msgstr "Карта до елементу"
+
+#: views/admin/index/map-columns-form.php:12
+msgid "Use HTML?"
+msgstr "Використати HTML?"
+
+#: views/admin/index/map-columns-form.php:13
+msgid "Tags?"
+msgstr "Теги?"
+
+#: views/admin/index/map-columns-form.php:14
+msgid "Files?"
+msgstr "Файли?"
+
+#: views/admin/index/map-columns.php:6
+msgid "Step 2: Map Columns To Elements, Tags, or Files"
+msgstr "Крок 2: Зіставте стовпці з елементами, тегами або файлами"
