@@ -9,6 +9,8 @@
 
 class CsvImport_Form_Main extends Omeka_Form
 {
+    const MEGABYTE_BYTES = 1048576;
+
     private $_columnDelimiter;
     private $_fileDelimiter;
     private $_tagDelimiter;
@@ -267,12 +269,10 @@ class CsvImport_Form_Main extends Omeka_Form
     protected function _addFileElement()
     {
         $size = $this->getMaxFileSize();
-        $byteSize = clone $this->getMaxFileSize();
-        $byteSize->setType(Zend_Measure_Binary::BYTE);
 
         $fileValidators = array(
             new Zend_Validate_File_Size(array(
-                'max' => $byteSize->getValue())),
+                'max' => $size)),
             new Zend_Validate_File_Count(1),
         );
         if ($this->_requiredExtensions) {
@@ -292,7 +292,7 @@ class CsvImport_Form_Main extends Omeka_Form
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
-            'description' => __("Maximum file size is %s.", $size->toString())
+            'description' => __("Maximum file size is %s.", $this->_binarySizeToString($size))
         ));
         $this->csv_file->addFilter($filter);
     }
@@ -304,11 +304,11 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         // Too much POST data, return with an error.
         if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
-            $maxSize = $this->getMaxFileSize()->toString();
+            $maxSize = $this->getMaxFileSize();
             $this->csv_file->addError(
                 __('The file you have uploaded exceeds the maximum post size '
                 . 'allowed by the server. Please upload a file smaller '
-                . 'than %s.', $maxSize));
+                . 'than %s.', $this->_binarySizeToString($maxSize)));
             return false;
         }
 
@@ -374,41 +374,18 @@ class CsvImport_Form_Main extends Omeka_Form
      *
      * If this is set but it exceeds the aforementioned php setting, the size
      * will be reduced to that lower setting.
-     * 
-     * @param string|null $size The maximum file size
      */
     public function setMaxFileSize($size = null)
     {
         $postMaxSize = $this->_getBinarySize(ini_get('post_max_size'));
         $fileMaxSize = $this->_getBinarySize(ini_get('upload_max_filesize'));
-        
-        // Start with the max size as the lower of the two php ini settings.
-        $strictMaxSize = $postMaxSize->compare($fileMaxSize) > 0
-                        ? $fileMaxSize
-                        : $postMaxSize;
 
-        // If the plugin max file size setting is lower, choose it as the strict max size
-        $pluginMaxSizeRaw = trim(get_option(CsvImportPlugin::MEMORY_LIMIT_OPTION_NAME));
-        if ($pluginMaxSizeRaw != '') {
-            if ($pluginMaxSize = $this->_getBinarySize($pluginMaxSizeRaw)) {
-                $strictMaxSize = $strictMaxSize->compare($pluginMaxSize) > 0
-                                ? $pluginMaxSize
-                                : $strictMaxSize;
-            }
+        $maxSize = min($postMaxSize, $fileMaxSize);
+
+        if ($size && ($pluginMaxSize = $this->_getBinarySize($size))) {
+            $maxSize = min($maxSize, $pluginMaxSize);
         }
 
-        if ($size === null) {
-            $maxSize = $this->_maxFileSize;
-        } else {
-            $maxSize = $this->_getBinarySize($size);            
-        }
-        
-        if ($maxSize === false || 
-            $maxSize === null || 
-            $maxSize->compare($strictMaxSize) > 0) {
-            $maxSize = $strictMaxSize;
-        }
-        
         $this->_maxFileSize = $maxSize;
     }
 
@@ -428,26 +405,42 @@ class CsvImport_Form_Main extends Omeka_Form
     /**
      * Return the binary size measure
      * 
-     * @return Zend_Measure_Binary The binary size
+     * @return int Size in bytes
      */
     protected function _getBinarySize($size)
     {
         if (!preg_match('/(\d+)([KMG]?)/i', $size, $matches)) {
             return false;
         }
-        
-        $sizeType = Zend_Measure_Binary::BYTE;
 
-        $sizeTypes = array(
-            'K' => Zend_Measure_Binary::KILOBYTE,
-            'M' => Zend_Measure_Binary::MEGABYTE,
-            'G' => Zend_Measure_Binary::GIGABYTE,
-        );
-
-        if (count($matches) == 3 && array_key_exists($matches[2], $sizeTypes)) {
-            $sizeType = $sizeTypes[$matches[2]];
+        $value = intval($size);
+        $lastChar = substr($size, '-1');
+        // Note: these cases fall through purposely
+        switch ($lastChar) {
+           case 'g':
+           case 'G':
+               $value *= 1024;
+           case 'm':
+           case 'M':
+               $value *= 1024;
+           case 'k':
+           case 'K':
+               $value *= 1024;
         }
 
-        return new Zend_Measure_Binary($matches[1], $sizeType);
+        return $value;
+    }
+
+    /**
+     * Return a human-readable string for a size in bytes
+     *
+     * Returns the size in megabytes, with the abbreviation translated.
+     *
+     * @param int $size
+     * @return string
+     */
+    protected function _binarySizeToString($size)
+    {
+        return __('%s MB', $size / self::MEGABYTE_BYTES);
     }
 }
