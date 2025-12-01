@@ -175,7 +175,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
      */
     public function setAutomapColumnNamesToElements($flag)
     {
-        $this->_automapColumnNamesToElements = (boolean)$flag;
+        $this->_automapColumnNamesToElements = (bool) $flag;
     }
 
     /**

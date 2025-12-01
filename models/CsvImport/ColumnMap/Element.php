@@ -69,7 +69,7 @@ class CsvImport_ColumnMap_Element extends CsvImport_ColumnMap
     public function setOptions($options)
     {
         $this->_elementId = $options['elementId'];
-        $this->_isHtml = (boolean)$options['isHtml'];
+        $this->_isHtml = (bool) $options['isHtml'];
     }
 
     /**
