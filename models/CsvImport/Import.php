@@ -40,10 +40,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public $skipped_item_count = 0;
     public $status;
     public $serialized_column_maps;
+    public $update_column;
+    public $replace_element_texts = 0;
 
     private $_csvFile;
     private $_isOmekaExport;
     private $_importedCount = 0;
+    private $_updateColumnName;
 
     /**
      * Batch importing is not enabled by default.
@@ -162,6 +165,17 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function setOwnerId($id)
     {
         $this->owner_id = (int)$id;
+    }
+
+    public function setUpdateColumn($updateColumn)
+    {
+        $this->update_column = $updateColumn;
+    }
+
+    public function setReplaceElementTexts($flag)
+    {
+        $booleanFilter = new Omeka_Filter_Boolean;
+        $this->replace_element_texts = $booleanFilter->filter($flag);
     }
 
     /**
@@ -318,6 +332,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     public function isUndone()
     {
         return $this->status == self::COMPLETED_UNDO;
+    }
+
+    public function isUpdate()
+    {
+        return $this->update_column !== null;
     }
 
     /**
@@ -495,6 +514,11 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             return false;
         }
 
+        if ($this->isUpdate()) {
+            $this->_log("Cannot queue an undo of an update.");
+            return false;
+        }
+
         $this->status = self::QUEUED_UNDO;
         $this->save();
         $this->_log("Queued undo import.");
@@ -576,6 +600,9 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             register_shutdown_function(array($this, 'stop'));
             $rows = $this->getCsvFile()->getIterator();
             $rows->rewind();
+            if ($this->isUpdate()) {
+                $this->_updateColumnName = $rows->getColumnNames()[$this->update_column];
+            }
             if ($startAt) {
                 $rows->seek($startAt);
             }
@@ -724,7 +751,39 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
 
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
         try {
-            $item = insert_item($itemMetadata, $elementTexts);
+            if ($this->isUpdate()) {
+                $id = trim($row[$this->_updateColumnName]);
+                if (!is_numeric($id)) {
+                    $this->_log('Update skipped: ID column value is not a number.');
+                    return false;
+                }
+                $item = get_record_by_id('Item', $id);
+                if (!$item) {
+                    $this->_log("Update skipped: Could not find item #{$id}.", Zend_Log::ERR);
+                    return false;
+                }
+
+                // Unset "blank" metadata options so the update doesn't do anything with them
+                if (!$itemMetadata[Builder_Item::IS_PUBLIC]) {
+                    unset($itemMetadata[Builder_Item::IS_PUBLIC]);
+                }
+                if (!$itemMetadata[Builder_Item::IS_FEATURED]) {
+                    unset($itemMetadata[Builder_Item::IS_FEATURED]);
+                }
+                if (!$itemMetadata[Builder_Item::ITEM_TYPE_ID]) {
+                    unset($itemMetadata[Builder_Item::ITEM_TYPE_ID]);
+                }
+                if (!$itemMetadata[Builder_Item::COLLECTION_ID]) {
+                    unset($itemMetadata[Builder_Item::COLLECTION_ID]);
+                }
+
+                if ($this->replace_element_texts) {
+                    $item->setReplaceElementTexts();
+                }
+                update_item($item, $itemMetadata, $elementTexts);
+            } else {
+                $item = insert_item($itemMetadata, $elementTexts);
+            }
         } catch (Omeka_Validator_Exception $e) {
             $this->_log($e, Zend_Log::ERR);
             return false;
@@ -742,14 +801,18 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
                 $msg = "Invalid file URL '$url': "
                      . $e->getMessage();
                 $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
+                if (!$this->isUpdate()) {
+                    $item->delete();
+                }
                 release_object($item);
                 return false;
             } catch (Omeka_File_Ingest_Exception $e) {
                 $msg = "Could not import file '$url': "
                      . $e->getMessage();
                 $this->_log($msg, Zend_Log::ERR);
-                $item->delete();
+                if (!$this->isUpdate()) {
+                    $item->delete();
+                }
                 release_object($item);
                 return false;
             }

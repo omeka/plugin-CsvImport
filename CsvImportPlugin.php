@@ -115,6 +115,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
            `is_featured` tinyint(1) default '0',
            `serialized_column_maps` text collate utf8_unicode_ci NOT NULL,
            `added` timestamp NOT NULL default '2000-01-01 00:00:00',
+           `update_column` int(10) unsigned DEFAULT NULL,
+           `replace_element_texts` tinyint(1) default 0,
            PRIMARY KEY  (`id`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;");
 
@@ -181,6 +183,11 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
             $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
                     CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
             ";
+            $db->query($sql);
+        }
+
+        if (version_compare($oldVersion, '2.1', '<')) {
+            $sql = "ALTER TABLE `{$db->prefix}csv_import_imports` ADD COLUMN `update_column` INT(10) UNSIGNED DEFAULT NULL, ADD COLUMN `replace_element_texts` tinyint(1) default 0";
             $db->query($sql);
         }
     }

@@ -133,6 +133,17 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             }
         }
         $csvImport->setColumnMaps($columnMaps);
+
+        $updateColumn = $form->getValue('update_column');
+        if ($updateColumn !== null && $updateColumn !== '') {
+            $csvImport->setUpdateColumn($updateColumn);
+
+            $replaceElementTexts = $form->getValue('replace_element_texts');
+            if ($replaceElementTexts) {
+                $csvImport->setReplaceElementTexts(true);
+            }
+        }
+
         if ($csvImport->queue()) {
             $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');

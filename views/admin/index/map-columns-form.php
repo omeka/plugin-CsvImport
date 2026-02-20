@@ -1,5 +1,7 @@
 <form id="csvimport" method="post" action="">
 <?php
+    echo $this->form->update_column;
+    echo $this->form->replace_element_texts;
     $colNames = $this->columnNames;
     $colExamples = $this->columnExamples;
 ?>

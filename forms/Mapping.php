@@ -26,6 +26,18 @@ class CsvImport_Form_Mapping extends Omeka_Form
         $this->setAttrib('id', 'csvimport-mapping');
         $this->setMethod('post'); 
 
+        $this->addElement('select', 'update_column', [
+            'label' => __('ID column'),
+            'description' => __('Select the column that contains the ID of the item to update for each row.'),
+            'multiOptions' => ['' => __('Select Below')] + $this->_columnNames,
+            'multiple' => false,
+        ]);
+
+        $this->addElement('checkbox', 'replace_element_texts', [
+            'label' => __('Replace All Element Texts'),
+            'description' => __('If enabled, replace all element texts for updated items with only the texts from this import.'),
+        ]);
+
         $elementsByElementSetName = $this->_getElementPairs($this->_itemTypeId);
         $elementsByElementSetName = array('' => 'Select Below') 
                                   + $elementsByElementSetName;
