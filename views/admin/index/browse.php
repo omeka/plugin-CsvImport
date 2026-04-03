@@ -38,9 +38,10 @@
                     
                     <td><?php echo html_escape(__(Inflector::humanize($csvImport->status, 'all'))); ?></td>
                     <?php
-                        if ($csvImport->isCompleted() 
+                        if (($csvImport->isCompleted()
                             || $csvImport->isStopped()
-                            || ($csvImport->isImportError() && $importedItemCount > 0)): ?>
+                            || ($csvImport->isImportError() && $importedItemCount > 0)
+                            ) && !$csvImport->isUpdate()): ?>
                         <?php 
                         $undoImportUrl = $this->url(array('action' => 'undo-import',
                                                         'id' => $csvImport->id),
