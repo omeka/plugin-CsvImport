@@ -573,6 +573,7 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     protected function _importLoop($startAt = null)
     {
         try {
+            //TODO: check if this function needs to be edited w/ old CH changes
             register_shutdown_function(array($this, 'stop'));
             $rows = $this->getCsvFile()->getIterator();
             $rows->rewind();
@@ -700,13 +701,31 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
     {
         $result = $this->getColumnMaps()->map($row);
         $tags = $result[CsvImport_ColumnMap::TYPE_TAG];
+        //TODO: de-integrate from CVI // ADDED FROM CH ver
+        $cats = $result[CsvImport_ColumnMap::TYPE_CAT];
+        $geochrons = $result[CsvImport_ColumnMap::TYPE_GEOCHRON];
+        $contribution_id = 0;
+        if (isset($row['Contribution'])){
+                $contribution_id = $row['Contribution'];
+        }
+        /*$itemMetadata = array(
+            Builder_Item::IS_PUBLIC      => $this->is_public,
+            Builder_Item::IS_FEATURED    => $this->is_featured,
+            Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
+            Builder_Item::COLLECTION_ID  => $this->collection_id,
+            Builder_Item::TAGS           => $tags,
+        );*/
         $itemMetadata = array(
             Builder_Item::IS_PUBLIC      => $this->is_public,
             Builder_Item::IS_FEATURED    => $this->is_featured,
             Builder_Item::ITEM_TYPE_ID   => $this->item_type_id,
             Builder_Item::COLLECTION_ID  => $this->collection_id,
             Builder_Item::TAGS           => $tags,
+            'contribution_id'           => $contribution_id,
+            'cats'           => $cats,
+            'geochrons'      => $geochrons
         );
+        //END CH addition
 
         // If this is coming from CSV Report, bring in the itemmetadata coming from the report
         if (!is_null($result[CsvImport_ColumnMap::TYPE_COLLECTION])) {
@@ -725,6 +744,38 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         $elementTexts = $result[CsvImport_ColumnMap::TYPE_ELEMENT];
         try {
             $item = insert_item($itemMetadata, $elementTexts);
+            //TODO: de-integrate from CVI // added from CH ver
+            
+            $db = $this->_db;
+            // create csv imports table
+
+            if (count($geochrons)>0){
+		 if ($geochrons[0]['2']!=''){
+
+		 foreach($geochrons as $geo){
+			$table = $db->getTable('GeoChron');
+			$geochron['id']='';
+			$geochron['description']=$geo['0'];
+			$geochron['latitude']=$geo['1'];
+			$geochron['longitude']=$geo['2'];
+			$geochron['time_begin']=$geo['3'];
+			$geochron['time_end']=$geo['4'];
+
+			$geochron['delete']=0;
+			$geochron['item_id']=$item['id'];
+                    	$table->save($geochron);
+			}
+		}
+	    }
+            if (count($cats)>0){
+				 foreach($cats as $cat){
+					$table = $db->getTable('CategoryRelation');
+					$newcat['omeka_id']=$item['id'];
+					$newcat['category_name']=$cat;
+					$table->saveByCatName($newcat);
+				 }
+			 }
+             //END CH addition
         } catch (Omeka_Validator_Exception $e) {
             $this->_log($e, Zend_Log::ERR);
             return false;
@@ -734,9 +785,13 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
         }
 
         $fileUrls = $result[CsvImport_ColumnMap::TYPE_FILE];
+        // RICHES: optional prefix prepended to file URLs/paths. Defaults to
+        // empty (stock behaviour: the CSV value is used as-is); set the
+        // 'csv_import_file_url_prefix' option to e.g. an archive base URL.
+        $fileUrlPrefix = get_option('csv_import_file_url_prefix');
         foreach ($fileUrls as $url) {
             try {
-                $file = insert_files_for_item($item, 'Url', $url,
+                $file = insert_files_for_item($item, 'Url', $fileUrlPrefix . $url,
                     array('ignore_invalid_files' => false));
             } catch (Omeka_File_Ingest_InvalidException $e) {
                 $msg = "Invalid file URL '$url': "
@@ -755,6 +810,15 @@ class CsvImport_Import extends Omeka_Record_AbstractRecord
             }
             release_object($file);
         }
+        //TODO: de-integrate from CVI // added from CH ver
+        if ($contribution_id > 0){
+	
+            // update the new item to have to old item's owner
+                $db->query("update {$db->prefix}items oi, (select i.owner_id AS newownerid from {$db->prefix}items i , {$db->prefix}contribution_contributed_items ci where ci.id= $contribution_id and ci.item_id = i.id) as p2 set oi.owner_id = p2.newownerid  where oi.id={$item->id}"); 
+            // update the old contribution record to have the new item id
+                $db->query("update {$db->prefix}contribution_contributed_items set item_id = {$item->id} where id = $contribution_id"); 
+        }
+        //END CH addition
 
         // Makes it easy to unimport the item later.
         $this->_recordImportedItemId($item->id);

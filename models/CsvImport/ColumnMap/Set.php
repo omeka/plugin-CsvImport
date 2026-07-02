@@ -37,15 +37,19 @@ class CsvImport_ColumnMap_Set
      */
     public function map(array $row)
     {
+        //TODO: De-integrate from CVI
         $allResults = array(
             CsvImport_ColumnMap::TYPE_FILE => array(),
             CsvImport_ColumnMap::TYPE_ELEMENT => array(),
             CsvImport_ColumnMap::TYPE_TAG => array(),
+            CsvImport_ColumnMap::TYPE_GEOCHRON => array(),
+            CsvImport_ColumnMap::TYPE_CAT => array(),
+            CsvImport_ColumnMap::TYPE_CONTRIBUTION => array(),
             CsvImport_ColumnMap::TYPE_COLLECTION => null,
             CsvImport_ColumnMap::TYPE_FEATURED => null,
             CsvImport_ColumnMap::TYPE_ITEM_TYPE => null,
             CsvImport_ColumnMap::TYPE_PUBLIC => null
-            
+            //END additions
         );
         foreach ($this->_maps as $map) {
             $subset = $allResults[$map->getType()];

@@ -11,6 +11,11 @@ abstract class CsvImport_ColumnMap
 {
     const TYPE_ELEMENT = 'Element';
     const TYPE_TAG = 'Tag';
+    //TODO: DE-INTEGRATE FROM CSVI
+    const TYPE_CAT = 'Category';
+    const TYPE_GEOCHRON = 'GeoChron';
+    const TYPE_CONTRIBUTION = 'Contribution';
+    //END ADDITION
     const TYPE_FILE = 'File';
     const TYPE_COLLECTION = 'Collection';
     const TYPE_PUBLIC = 'Public';

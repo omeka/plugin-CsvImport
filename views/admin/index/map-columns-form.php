@@ -13,6 +13,11 @@
             <th><?php echo __('Use HTML?'); ?></th>
             <th><?php echo __('Tags?'); ?></th>
             <th><?php echo __('Files?'); ?></th>
+            <!-- TODO: De-integrate CSV import alterations-->
+            <th><?php echo __('Cats?'); ?></th>
+            <th><?php echo __('Geos?'); ?></th>
+            <th><?php echo __('Contribution?'); ?></th>
+            <!-- end changes -->
         </tr>
         </thead>
         <tbody>

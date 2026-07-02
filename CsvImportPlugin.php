@@ -89,6 +89,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
         CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER,
         CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER,
         CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME => CsvImport_ColumnMap_File::DEFAULT_FILE_DELIMITER,
+        // RICHES: optional prefix prepended to imported file URLs/paths (empty = stock behaviour).
+        'csv_import_file_url_prefix' => '',
     );
 
     /**
@@ -206,6 +208,8 @@ class CsvImportPlugin extends Omeka_Plugin_AbstractPlugin
 
         // Hack to disable CRUD actions.
         $acl->deny(null, 'CsvImport_Index', array('show', 'add', 'edit', 'delete'));
+        //TODO: DE-INTEGRATE FROM CSVI
+        $acl->deny('admin', 'CsvImport_Index');
     }
 
     /**

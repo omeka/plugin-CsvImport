@@ -10,6 +10,30 @@ Omeka.CsvImport = {};
      * to be removed.
      */
     Omeka.CsvImport.enableElementMapping = function () {
+    //TODO: De-integrate from CVI // old CH addition
+        /** Connie  - Map our elements **/
+	$('#row4-tags').prop('checked',true);
+    $('#row0-file').prop('checked',true);
+    $('#row51-cats').prop('checked',true); //Source Repository 
+    $('#row52-geochron').prop('checked',true); //Source Repository 
+    $('#row54-contribution').prop('checked',true); //Contributed ID
+    $('#row5-html').prop('checked',true); //description
+    $('#row7-html').prop('checked',true); //Abstract
+    $('#row9-html').prop('checked',true); //source
+    $('#row15-html').prop('checked',true); //Requires
+    $('#row16-html').prop('checked',true); //IsPartOf 
+    $('#row17-html').prop('checked',true); //Relation.IsReferencedBy
+    $('#row20-html').prop('checked',true); //Relation.IsFormatOf
+    $('#row25-html').prop('checked',true); //Publisher
+    $('#row26-html').prop('checked',true); //Contributor 
+    $('#row40-html').prop('checked',true); //Provenance
+    $('#row41-html').prop('checked',true); //Rights Holder
+    $('#row44-html').prop('checked',true); //Contributing Project
+    $('#row46-html').prop('checked',true); //Digital Collection
+    $('#row47-html').prop('checked',true); //Source Repository
+    $('#row48-html').prop('checked',true); //External Reference
+    $('#row49-html').prop('checked',true); //External Title
+    //END CH additions
         $('form#csvimport .map-element').change(function () {
             var select = $(this);
             var addButton = select.siblings('span.add-element');

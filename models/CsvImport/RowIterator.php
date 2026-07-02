@@ -227,8 +227,29 @@ class CsvImport_RowIterator implements SeekableIterator
         $handle = $this->_getFileHandle();
         while (($row = fgetcsv($handle, 0, $this->_columnDelimiter)) !== FALSE) {
             $this->_currentRowNumber++;
-            return $row;
+            return array_map(array($this, '_normalizeEncoding'), $row);
         }
+    }
+
+    /**
+     * Normalize a CSV cell value to UTF-8.
+     *
+     * Some CSV exports (e.g. from Excel) are Windows-1252/CP1252 rather than
+     * UTF-8, so bytes such as 0x92 (a smart apostrophe) are invalid UTF-8 and
+     * cannot be stored in Omeka's utf8/utf8mb4 database columns -- the insert
+     * fails with a "Conversion from collation ... impossible" error. Convert
+     * any value that is not already valid UTF-8 from Windows-1252 to UTF-8,
+     * leaving valid UTF-8 untouched.
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function _normalizeEncoding($value)
+    {
+        if ($value === null || $value === '' || mb_check_encoding($value, 'UTF-8')) {
+            return $value;
+        }
+        return mb_convert_encoding($value, 'UTF-8', 'Windows-1252');
     }
 
     /**

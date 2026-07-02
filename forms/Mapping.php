@@ -48,6 +48,11 @@ class CsvImport_Form_Mapping extends Omeka_Form
             $rowSubForm->addElement('checkbox', 'html');
             $rowSubForm->addElement('checkbox', 'tags');
             $rowSubForm->addElement('checkbox', 'file');
+            //ADDED FROM CH VERSION TODO: DE-INTEGRATE
+            $rowSubForm->addElement('checkbox', 'cats');
+            $rowSubForm->addElement('checkbox', 'geochron');
+            $rowSubForm->addElement('checkbox', 'contribution');
+            //END ADDITION
             $this->_setSubFormDecorators($rowSubForm);
             $this->addSubForm($rowSubForm, "row$index");
         }
@@ -198,6 +203,32 @@ class CsvImport_Form_Mapping extends Omeka_Form
         return $columnMaps;
     }
 
+    /** TBD: DECOUPLE FROM CSVIMPORT
+    * Returns whether a subform row contains a tag mapping
+    *
+    * @param int $index The subform row index
+    * @return bool Whether the subform row contains a tag mapping    
+    */
+    protected function _isGeoChronMapped($index)
+    {
+        return $this->getSubForm("row$index")->geochron->isChecked();
+    }
+    protected function _isContributionMapped($index)
+    {
+        return $this->getSubForm("row$index")->contribution->isChecked();
+    }
+
+    /**
+    * Returns whether a subform row contains a tag mapping
+    *
+    * @param int $index The subform row index
+    * @return bool Whether the subform row contains a tag mapping    
+    */
+    protected function _isCatMapped($index)
+    {
+        return $this->getSubForm("row$index")->cats->isChecked();
+    }
+
     /**
     * Returns whether a subform row contains a tag mapping
     *
@@ -256,11 +287,19 @@ class CsvImport_Form_Mapping extends Omeka_Form
         ));
 
         // Each subform is a row in the table.
-        foreach ($subForm->getElements() as $el) {
+        /*foreach ($subForm->getElements() as $el) {
             $el->setDecorators(array(
                 array('decorator' => 'ViewHelper'),
                 array('decorator' => 'HtmlTag',
                       'options' => array('tag' => 'td')),
+            ));
+        }*/
+        //TODO: DE-INTEGRATE FROM CSVI
+        foreach ($subForm->getElements() as $el) {
+            $el->setDecorators(array(
+                array('decorator' => 'ViewHelper'),
+                array('decorator' => 'HtmlTag',
+                      'options' => array('tag' => 'td', 'cat'=>'td','geochron'=>'td', 'contribution'=>'td')),
             ));
         }
     }
@@ -282,11 +321,18 @@ class CsvImport_Form_Mapping extends Omeka_Form
         if ($this->_isTagMapped($index)) {
             $columnMap[] = new CsvImport_ColumnMap_Tag($columnName, $this->_tagDelimiter);
         }
+        //TODO: DE-INTEGRATE FROM CSVI
+        if ($this->_isGeoChronMapped($index)) {
+            $columnMap[] = new CsvImport_ColumnMap_GeoChron($columnName, $this->_tagDelimiter);
+        }
+        if ($this->_isCatMapped($index)) {
+            $columnMap[] = new CsvImport_ColumnMap_Cat($columnName, $this->_tagDelimiter);
+        }
 
         if ($this->_isFileMapped($index)) {
             $columnMap[] = new CsvImport_ColumnMap_File($columnName, $this->_fileDelimiter);
         }
-
+        //END TODO
         $elementIds = $this->_getMappedElementId($index);
         $isHtml = $this->_getRowValue($index, 'html');
         foreach($elementIds as $elementId) {
