@@ -212,6 +212,9 @@ class CsvImport_RowIterator implements SeekableIterator
         if (!$this->_handle) {
             ini_set('auto_detect_line_endings', true);
             $this->_handle = fopen($this->_filePath, 'r');
+            if (!$this->_handle) {
+                throw new RuntimeException("Unable to open CSV file {$this->_filePath}");
+            }
         }
         return $this->_handle;
     }
